@@ -14,6 +14,19 @@ I would like to invite everyone to participate in the project to improve the too
 ![tasmohab3](https://user-images.githubusercontent.com/49484063/122906848-ddfc2380-d352-11eb-9325-dfcb451a60f7.jpg)
 
 
+## How it works
+[Show tasmota objects in scrollarea](https://github.com/Gifford47/tasmohab/blob/b7782cbbf6d76dd2fb72342bf9faae315ba54a94/tasmohab.py#L300)<br>
+Show the gpio information in a table/grid
+```
+def add_ui_widgets(self):
+```
+
+[Add openhab widgets](https://github.com/Gifford47/tasmohab/blob/b7782cbbf6d76dd2fb72342bf9faae315ba54a94/tasmohab.py#L374)<br>
+add the openhab specific widgets behind the corresponding object
+```
+def add_ui_openhab_widgets(self, layout, row, peripheral_no='default'):
+```
+
 ## Debugging
 ### Convert to .exe
 - python -m PyQt5.uic.pyuic tasmohabUI.ui -o tasmohabUI.py       # for UI components
