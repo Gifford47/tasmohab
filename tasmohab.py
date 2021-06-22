@@ -332,13 +332,13 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 if 'sensors' in json_tasmota_objects['gpios'][gpio]:                    # if key in dict exists ...
                     if bool(json_tasmota_objects['gpios'][gpio]['sensors']):            # if dict is not empty (peripheral is a sensor...)
                         # i am a sensor
-                        self.add_ui_peripheral_widget(json_tasmota_objects['gpios'][gpio]['peripheral'], row)        # add the peripheral name/ sensor name
+                        self.add_ui_widget_peripheral(json_tasmota_objects['gpios'][gpio]['peripheral'], row)        # add the peripheral name/ sensor name
                         row += 1
                     else:                                                               # peripheral is not a sensor, but an actuator
                         # i am a actuator
                         # write in same line like 'gpiox'
-                        self.add_ui_peripheral_widget(json_tasmota_objects['gpios'][gpio]['peripheral'], row)
-                        self.add_ui_openhab_widgets(self.objects_grid, row, peripheral_no=peripheral_no)
+                        self.add_ui_widget_peripheral(json_tasmota_objects['gpios'][gpio]['peripheral'], row)
+                        self.add_ui_widgets_openhab(self.objects_grid, row, peripheral_no=peripheral_no)
                     row += 1                                                            # next line
             else:
                 row += 1                                                                # next line
@@ -353,25 +353,25 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 cb = QCheckBox()
                 cb.setChecked(True)
                 self.objects_grid.addWidget(cb, row, 0)  # add the checkbox for the sensor
-                self.add_ui_peripheral_widget(sensorname, row)
+                self.add_ui_widget_peripheral(sensorname, row)
                 row += 1
                 for sensor, value in json_dev_status['StatusSNS'][sensorname].items():        # iter over items
                     self.add_ui_widgets_sensor_single_line(self.objects_grid, row, sensor, value)             # add sensor to layout
                     row += 1
             else:
-                self.add_ui_peripheral_widget(sensorname, row)
+                self.add_ui_widget_peripheral(sensorname, row)
                 self.add_ui_widgets_sensor_single_line(self.objects_grid, row, sensorname, value, col_cb=0)
                 row += 1
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.btn_refr_obj_data.setEnabled(True)
 
-    def add_ui_peripheral_widget(self, name, row, col=3):
+    def add_ui_widget_peripheral(self, name, row, col=3):
         lbl = QLabel(name)
         #line.setMaximumWidth(200)
         #line.setMaxLength(80)
         self.objects_grid.addWidget(lbl, row, col)  # add the peripheral name/ sensor name
 
-    def add_ui_openhab_widgets(self, layout, row, peripheral_no='default'):
+    def add_ui_widgets_openhab(self, layout, row, peripheral_no='default'):
         cb = QComboBox()
         cb.addItems(openhab.item_types)
         try:
@@ -413,7 +413,7 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         #line.setMaximumWidth(200)
         #line.setMaxLength(80)
         layout.addWidget(line, row, 3)  # add sensor name
-        self.add_ui_openhab_widgets(layout, row, peripheral_no=openhab.gpio_conversion.get(sensor,'default'))
+        self.add_ui_widgets_openhab(layout, row, peripheral_no=openhab.gpio_conversion.get(sensor,'default'))
         row += 1
 
     def update_json_to_yaml_config_data(self):
