@@ -1,0 +1,11 @@
+pyqode-uic
+PyQt5
+PyQt5-Qt5
+PyQt5-sip
+PyQt5-stubs
+pyserial
+pyuic5-tool
+PyYAML
+requests
+urllib3
+jinja2
