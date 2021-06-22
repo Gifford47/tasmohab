@@ -367,8 +367,6 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def add_ui_widget_peripheral(self, name, row, col=3):
         lbl = QLabel(name)
-        #line.setMaximumWidth(200)
-        #line.setMaxLength(80)
         self.objects_grid.addWidget(lbl, row, col)  # add the peripheral name/ sensor name
 
     def add_ui_widgets_openhab(self, layout, row, peripheral_no='default'):
