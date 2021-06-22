@@ -53,3 +53,6 @@ alternatives:
 
 ## Requirements:
 pip install -r requirements.txt
+
+## Credits
+- Thanks to https://github.com/jimtng for this initial release of his work!
