@@ -15,6 +15,7 @@ I would like to invite everyone to participate in the project to improve the too
 
 
 ## How it works
+![TasmoHab UI Functions](https://github.com/Gifford47/tasmohab/blob/master/docs/tasmohab_widget_functions.png?raw=true)
 [Show tasmota objects in scrollarea](https://github.com/Gifford47/tasmohab/blob/b7782cbbf6d76dd2fb72342bf9faae315ba54a94/tasmohab.py#L300)<br>
 Show the gpio information in a table/grid
 ```
