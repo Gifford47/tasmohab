@@ -18,16 +18,16 @@ import serial
 import openhab
 import tas_cmds
 
-sys.path.append('./ohgen')  # import ohgen folder
+sys.path.append('./ohgen')                  # import ohgen folder
 import ohgen
 import globals
 
-ohgen_templates = []  # templates for ohgen
+ohgen_templates = []                        # templates for ohgen
 
-json_config_data = {}  # data from YAML config file
-json_dev_status = {}  # data from device (http or serial)
-json_gpio_status = {}  # data from device (http or serial)
-json_tasmota_objects = {}  # this object is also used and filled when importing existing object config!
+json_config_data = {}                       # data from YAML config file. later it holds all relevant data to generate a thing an item
+json_dev_status = {}                        # all device data from device (http or serial)
+json_gpio_status = {}                       # all gpio data from device (http or serial)
+json_tasmota_objects = {}                   # this object contains only gpio data (name, value and possible sensor) coming from tasmota device
 
 
 class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
