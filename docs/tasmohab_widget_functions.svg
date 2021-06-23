@@ -16,7 +16,10 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="tasmohab_widget_functions.svg">
+   sodipodi:docname="tasmohab_widget_functions.svg"
+   inkscape:export-filename="tasmohab_widget_functions.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs2">
     <linearGradient
@@ -48,9 +51,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="138.35255"
-     inkscape:cy="192.62268"
+     inkscape:zoom="0.7"
+     inkscape:cx="456.78281"
+     inkscape:cy="440.6425"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -112,7 +115,9 @@
        x="-107.11053"
        y="114.79392"
        id="text4549"
-       transform="rotate(-45)"><tspan
+       transform="rotate(-45)"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
          sodipodi:role="line"
          x="-107.11053"
          y="114.79392"
