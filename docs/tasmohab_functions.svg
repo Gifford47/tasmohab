@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="tasmohab_functions.svg">
+  <defs
+     id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4592">
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1;"
+         offset="0"
+         id="stop4588" />
+      <stop
+         style="stop-color:#ff0000;stop-opacity:0;"
+         offset="1"
+         id="stop4590" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4592"
+       id="linearGradient4594"
+       x1="-84.402671"
+       y1="132.71973"
+       x2="73.739792"
+       y2="132.71973"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="337.88631"
+     inkscape:cy="508.0847"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1680"
+     inkscape:window-height="987"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <image
+       sodipodi:absref="C:\Users\risshend\Documents\PyCharm\TasmoHAB\docs\tasmohab.JPG"
+       xlink:href="tasmohab.JPG"
+       inkscape:export-ydpi="96"
+       inkscape:export-xdpi="96"
+       width="284.69168"
+       height="232.56876"
+       preserveAspectRatio="none"
+       style="image-rendering:optimizeQuality"
+       id="image4526"
+       x="-41.804176"
+       y="32.548954" />
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       id="rect4529"
+       width="57.462948"
+       height="76.439087"
+       x="-33.675961"
+       y="156.95078" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-111.92973"
+       y="107.70687"
+       id="text4549"
+       transform="rotate(-45)"><tspan
+         sodipodi:role="line"
+         x="-111.92973"
+         y="107.70687"
+         style="fill:#ff0000;fill-opacity:1;stroke-width:0.26458332"
+         id="tspan4551">add_ui_widgets(self):</tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#008000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       id="rect4529-3"
+       width="25.002892"
+       height="64.053719"
+       x="25.183556"
+       y="169.42657" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#008000;fill-opacity:1;stroke:none;stroke-width:9.60000038;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"
+       x="-89.738235"
+       y="164.80457"
+       id="text4549-6"
+       transform="rotate(-45)"><tspan
+         sodipodi:role="line"
+         x="-89.738235"
+         y="164.80457"
+         style="fill:#008000;fill-opacity:1;stroke:none;stroke-width:9.60000038;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"
+         id="tspan4551-8">add_ui_widget_peripheral(self, name, row, col=3):</tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#808000;stroke-width:0.6;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       id="rect4529-3-8"
+       width="176.93916"
+       height="32.327114"
+       x="52.027767"
+       y="188.73308" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#808000;fill-opacity:1;stroke:none;stroke-width:9.60000038;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"
+       x="-58.149921"
+       y="206.15645"
+       id="text4549-6-2"
+       transform="rotate(-45)"><tspan
+         sodipodi:role="line"
+         x="-58.149921"
+         y="206.15645"
+         style="fill:#808000;fill-opacity:1;stroke:none;stroke-width:9.60000038;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"
+         id="tspan4551-8-9">add_ui_widgets_openhab(self, layout, row, peripheral_no='default'):</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="157.42175"
+       y="128.62019"
+       id="text868"><tspan
+         sodipodi:role="line"
+         id="tspan866"
+         x="157.42175"
+         y="132.80424"
+         style="stroke-width:0.26458332"></tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#0000ff;stroke-width:0.69713867;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       id="rect4529-0"
+       width="198.39244"
+       height="6.0244546"
+       x="26.975161"
+       y="159.41757" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       x="21.248507"
+       y="244.14307"
+       id="text4549-9"
+       transform="rotate(-45)"><tspan
+         sodipodi:role="line"
+         x="21.248507"
+         y="244.14307"
+         style="fill:#0000ff;fill-opacity:1;stroke-width:0.26458332;"
+         id="tspan4551-6">add_ui_headers(self):</tspan></text>
+  </g>
+</svg>

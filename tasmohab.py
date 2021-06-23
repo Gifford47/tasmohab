@@ -140,7 +140,7 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def datathread_gpio_data(self, data):
         global json_gpio_status
-        json_gpio_status = data
+        json_gpio_status = data.copy()
         try:
             self.create_tasmota_objects()
             self.add_ui_widgets()
@@ -150,7 +150,7 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def datathread_dev_data(self, data):
         global json_dev_status
-        json_dev_status = data
+        json_dev_status = data.copy()
         self.update_ui_device()
 
     def datathread_on_error(self, data):
@@ -234,13 +234,16 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def update_ui_device(self):
         global json_dev_status
+        try:
+            for i in reversed(range(self.objects_grid.count() - 1)):
+                self.objects_grid.takeAt(i).widget().deleteLater()  # delete all last widgets
+        except Exception as e:
+            pass
         if not bool(json_dev_status):  # if json is empty
             self.lbl_dev_hostname.setText("")
             self.lbl_dev_firmware.setText("")
             self.lbl_dev_name.setText("")
             self.lbl_dev_module.setText("")
-            for i in reversed(range(self.objects_grid.count()-1)):
-                self.objects_grid.takeAt(i).widget().deleteLater()                          # delete all last widgets
         elif json_dev_status is not None and bool(json_dev_status):  # if json is not None
             self.lbl_dev_hostname.setText(str(json_dev_status['StatusNET']['Hostname']))
             self.lbl_dev_firmware.setText(str(json_dev_status['StatusFWR']['Version']))
@@ -297,8 +300,7 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 else:
                     json_tasmota_objects['gpios'][gpio]['sensors'][first_key_gpio_val] = json_dev_status['StatusSNS'][first_key_gpio_val]
 
-    def add_ui_widgets(self):
-        global json_tasmota_objects
+    def add_ui_headers(self):
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 379, 207))
         self.objects_grid = QGridLayout(self.scrollAreaWidgetContents)
@@ -313,6 +315,9 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid.addWidget(QLabel('Metadata'), 0, 7)
         self.objects_grid.addWidget(QLabel('Tags'), 0, 8)
 
+    def add_ui_widgets(self):
+        global json_tasmota_objects
+        self.add_ui_headers()
         # creating UI Widgets:
         # iter items for every single widget
         row = 1  # row
@@ -367,6 +372,8 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def add_ui_widget_peripheral(self, name, row, col=3):
         lbl = QLabel(name)
+        #line.setMaximumWidth(200)
+        #line.setMaxLength(80)
         self.objects_grid.addWidget(lbl, row, col)  # add the peripheral name/ sensor name
 
     def add_ui_widgets_openhab(self, layout, row, peripheral_no='default'):

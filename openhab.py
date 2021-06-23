@@ -1,7 +1,8 @@
 item_types = ['Color', 'Contact', 'Dimmer', 'Group', 'Image', 'Location', 'Number', 'Player', 'Rollershutter', 'String', 'Switch']
 
-features = ['', 'binary']
+feature_binary = ['', 'binary']
 features_light = ['', 'colortemp', 'color']
+features = feature_binary + features_light
 
 tags_temp = ['sensor', 'Temperature']
 tags_hum = ['sensor', 'Humidity']
@@ -11,7 +12,7 @@ std_items = {'1216':{'std_type':item_types.index('Number'), 'feature':features, 
             '160':{'std_type':item_types.index('Switch'), 'feature':[], 'meta':'', 'tags':'switch' , 'icon':'switch'},                  # switch1
             '1376':{'std_type':item_types.index('Dimmer'), 'feature':features_light, 'meta':'', 'tags':'WS2812' , 'icon':''},                       # switch1
             '32':{'std_type':item_types.index('Switch'), 'feature':[], 'meta':'', 'tags':'button' , 'icon':''},                         # button1
-            'default':{'std_type':item_types.index('Number'), 'feature':[], 'meta':'', 'tags':'' , 'icon':''}                     # default value
+            'default':{'std_type':item_types.index('Number'), 'feature':features, 'meta':'', 'tags':'' , 'icon':''}                     # default value
              }
 
 # the 'gpio_conversion' is used to convert a sensorname like 'AM2301' to its gpio number used in tasmota to identify a sensor.
