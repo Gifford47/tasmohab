@@ -16,7 +16,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="tasmohab_functions.svg">
+   sodipodi:docname="tasmohab_widget_functions.svg">
   <defs
      id="defs2">
     <linearGradient
@@ -48,9 +48,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="540.75551"
-     inkscape:cy="391.17926"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="138.35255"
+     inkscape:cy="192.62268"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -71,7 +71,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -88,34 +88,34 @@
       <image
          sodipodi:absref="C:\Users\risshend\Documents\PyCharm\TasmoHAB\docs\tasmohab.JPG"
          xlink:href="tasmohab.JPG"
-         y="32.548954"
-         x="-41.804176"
-         id="image4526"
-         style="image-rendering:optimizeQuality"
-         preserveAspectRatio="none"
-         height="232.56876"
-         width="284.69168"
-         inkscape:export-xdpi="96"
+         inkscape:label="image4526"
          inkscape:export-ydpi="96"
-         inkscape:label="image4526" />
+         inkscape:export-xdpi="96"
+         width="284.69168"
+         height="232.56876"
+         preserveAspectRatio="none"
+         style="image-rendering:optimizeQuality"
+         id="image4526"
+         x="-41.804176"
+         y="32.548954" />
     </a>
     <rect
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.60000002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#ff0000;stroke-width:0.56874794;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
        id="rect4529"
        width="57.462948"
-       height="76.439087"
+       height="68.683525"
        x="-33.675961"
-       y="156.95078" />
+       y="164.70633" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="-111.92973"
-       y="107.70687"
+       x="-107.11053"
+       y="114.79392"
        id="text4549"
        transform="rotate(-45)"><tspan
          sodipodi:role="line"
-         x="-111.92973"
-         y="107.70687"
+         x="-107.11053"
+         y="114.79392"
          style="fill:#ff0000;fill-opacity:1;stroke-width:0.26458332"
          id="tspan4551">add_ui_widgets(self):</tspan></text>
     <rect
@@ -166,13 +166,13 @@
          id="tspan866"
          x="157.42175"
          y="132.80424"
-         style="stroke-width:0.26458332"></tspan></text>
+         style="stroke-width:0.26458332" /></text>
     <rect
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#0000ff;stroke-width:0.69713867;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#0000ff;stroke-width:0.7951175;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
        id="rect4529-0"
-       width="198.39244"
+       width="258.07706"
        height="6.0244546"
-       x="26.975161"
+       x="-32.709454"
        y="159.41757" />
     <text
        xml:space="preserve"
