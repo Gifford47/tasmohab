@@ -27,45 +27,46 @@ json_tasmota_objects = {}                   # this object contains only gpio dat
 ```json_tasmota_objects``` will be used later to fill the gui with content (gpios, sensors and actuators).
 
 For example, here is the program flow when you click "Get from serial":
+
 ```python
-*** tasmohab.py ***
-  --> C:\Python36\lib\threading.py
-    tasmohab.<module> -> threading.Thread.__init__
-    tasmohab.<module> -> threading.Thread.is_alive
-    tasmohab.<module> -> threading.Thread.start
-    tasmohab.<module> -> threading.enumerate
-    tasmohab.<module> -> threading.name
-    tasmohab.<module> -> tasmohab.DetailWindow
-    tasmohab.<module> -> tasmohab.DevConfigWindow
-    tasmohab.<module> -> tasmohab.HttpDataThread
-    tasmohab.<module> -> tasmohab.SerialDataThread
-    tasmohab.<module> -> tasmohab.tasmohabUI
-    tasmohab.main_ui -> tasmohab.resource_path
-    tasmohab.main_ui -> tasmohab.tasmohabUI.__init__
-    tasmohab.main_ui -> tasmohab.tasmohabUI.datathread_dev_data
-    tasmohab.main_ui -> tasmohab.tasmohabUI.datathread_finish
-    tasmohab.main_ui -> tasmohab.tasmohabUI.datathread_gpio_data
-    tasmohab.main_ui -> tasmohab.tasmohabUI.get_data_on_serial
-    tasmohab.main_ui -> tasmohab.tasmohabUI.list_com_ports
-    tasmohab.main_ui -> tasmohab.tasmohabUI.update_progressbar
+** *tasmohab.py ** *
+--> C:\Python36\lib\threading.py
+tasmohab. < module > -> threading.Thread.__init__
+tasmohab. < module > -> threading.Thread.is_alive
+tasmohab. < module > -> threading.Thread.start
+tasmohab. < module > -> threading.enumerate
+tasmohab. < module > -> threading.name
+tasmohab. < module > -> tasmohab.DetailWindow
+tasmohab. < module > -> tasmohab.DevConfigWindow
+tasmohab. < module > -> tasmohab.HttpDataThread
+tasmohab. < module > -> tasmohab.SerialDataThread
+tasmohab. < module > -> tasmohab.TasmohabUI
+tasmohab.main_ui -> tasmohab.resource_path
+tasmohab.main_ui -> tasmohab.TasmohabUI.__init__
+tasmohab.main_ui -> tasmohab.TasmohabUI.datathread_dev_data
+tasmohab.main_ui -> tasmohab.TasmohabUI.datathread_finish
+tasmohab.main_ui -> tasmohab.TasmohabUI.datathread_gpio_data
+tasmohab.main_ui -> tasmohab.TasmohabUI.get_data_on_serial
+tasmohab.main_ui -> tasmohab.TasmohabUI.list_com_ports
+tasmohab.main_ui -> tasmohab.TasmohabUI.update_progressbar
 
-    tasmohab.tasmohabUI.__init__ -> tasmohabUI.Ui_MainWindow.setupUi
-    tasmohab.tasmohabUI.add_ui_widgets -> tasmohab.tasmohabUI.add_ui_headers
-    tasmohab.tasmohabUI.add_ui_widgets -> tasmohab.tasmohabUI.add_ui_widget_peripheral
-    tasmohab.tasmohabUI.add_ui_widgets -> tasmohab.tasmohabUI.add_ui_widgets_openhab
-    tasmohab.tasmohabUI.add_ui_widgets -> tasmohab.tasmohabUI.add_ui_widgets_sensor_single_line
-    tasmohab.tasmohabUI.add_ui_widgets_sensor_single_line -> tasmohab.tasmohabUI.add_ui_widgets_openhab
-    tasmohab.tasmohabUI.datathread_dev_data -> tasmohab.tasmohabUI.update_ui_device
-    tasmohab.tasmohabUI.datathread_finish -> tasmohab.tasmohabUI.start_queued_threads
-    tasmohab.tasmohabUI.datathread_gpio_data -> tasmohab.tasmohabUI.add_ui_widgets
-    tasmohab.tasmohabUI.datathread_gpio_data -> tasmohab.tasmohabUI.create_tasmota_objects
-    tasmohab.tasmohabUI.get_data_on_serial -> tasmohab.SerialDataThread.__init__
-    tasmohab.tasmohabUI.get_data_on_serial -> tasmohab.tasmohabUI.start_queued_threads
+tasmohab.TasmohabUI.__init__ -> tasmohabUI.Ui_MainWindow.setupUi
+tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_headers
+tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_widget_peripheral
+tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_widgets_openhab
+tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_widgets_sensor_single_line
+tasmohab.TasmohabUI.add_ui_widgets_sensor_single_line -> tasmohab.TasmohabUI.add_ui_widgets_openhab
+tasmohab.TasmohabUI.datathread_dev_data -> tasmohab.TasmohabUI.update_ui_device
+tasmohab.TasmohabUI.datathread_finish -> tasmohab.TasmohabUI.start_queued_threads
+tasmohab.TasmohabUI.datathread_gpio_data -> tasmohab.TasmohabUI.add_ui_widgets
+tasmohab.TasmohabUI.datathread_gpio_data -> tasmohab.TasmohabUI.create_tasmota_objects
+tasmohab.TasmohabUI.get_data_on_serial -> tasmohab.SerialDataThread.__init__
+tasmohab.TasmohabUI.get_data_on_serial -> tasmohab.TasmohabUI.start_queued_threads
 
-    tasmohab.tasmohabUI.list_com_ports -> list_ports_windows.comports
-    tasmohab.tasmohabUI.list_com_ports -> tasmohab.<listcomp>
-    tasmohab.tasmohabUI.list_com_ports -> tasmohab.tasmohabUI.append_to_log
-    tasmohab.tasmohabUI.start_queued_threads -> tasmohab.tasmohabUI.append_to_log
+tasmohab.TasmohabUI.list_com_ports -> list_ports_windows.comports
+tasmohab.TasmohabUI.list_com_ports -> tasmohab. < listcomp >
+tasmohab.TasmohabUI.list_com_ports -> tasmohab.TasmohabUI.append_to_log
+tasmohab.TasmohabUI.start_queued_threads -> tasmohab.TasmohabUI.append_to_log
 
 ```
 
@@ -100,6 +101,10 @@ Among other things, the file ```openhab.py```, the function ```add_ui_openhab_wi
 must be adapted or replaced to adapt the output format. The third tab "Object output" can be filled with content e.g. at 
 runtime to generate a different layout for other smarthome systems.
 
+## Work in progress
+- Device configuration:
+    - only 'backlog cmd' is implemented, other configurations are not transmitted or saved
+
 ## Debugging
 ### Convert to .exe
 - python -m PyQt5.uic.pyuic tasmohabUI.ui -o tasmohabUI.py       # for UI components
@@ -125,7 +130,7 @@ alternatives:
 - auto-py-to-exe
 
 ## Requirements:
-- tasmota device with firmware >9.4.0, because of tasmota command 'gpio' 
+- tasmota device tested with firmware >8.3.1 
 - pip install -r requirements.txt
 
 ## Credits

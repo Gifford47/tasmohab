@@ -1,22 +1,29 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/env python
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+import os
+import sys
+import traceback
+import yaml
+from collections import defaultdict
+from datetime import datetime
+
+import json
+import requests
+import serial
+import threading
+import time
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextBrowser, QLabel, QVBoxLayout, QWidget, \
     QGridLayout, QCheckBox, QLineEdit, QComboBox
-
-from datetime import datetime
-from collections import defaultdict
-import requests, json, time, queue, threading
-from serial.tools.list_ports import comports
-import os, sys, traceback, yaml, re
 from serial import Serial
-import tasmohabUI
+from serial.tools.list_ports import comports
+
 import dev_config
-import serial
 import openhab
 import tas_cmds
+import tasmohabUI
 
 sys.path.append('./ohgen')                  # import ohgen folder
 import ohgen
@@ -30,10 +37,10 @@ json_gpio_status = {}                       # all gpio data from device (http or
 json_tasmota_objects = {}                   # this object contains only gpio data (name, value and possible sensor) coming from tasmota device
 
 
-class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
+class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def __init__(self, parent=None):
-        super(tasmohabUI, self).__init__(parent)
+        super(TasmohabUI, self).__init__(parent)
         self.setupUi(self)
         self.http_url = ''
 
@@ -69,12 +76,14 @@ class tasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
     def clear_log(self):
         self.txt_log.clear()
 
-    def report_error(self, error=None):
+    @staticmethod
+    def report_error(error=None):
         if error is not None:
             print(error)
         traceback.print_exc(limit=2, file=sys.stdout)
 
-    def is_json(self, data):
+    @staticmethod
+    def is_json(data):
         try:
             json.loads(data)
         except ValueError as e:
@@ -679,7 +688,7 @@ class SerialDataThread(QThread):
     def run(self):
         ser = Serial(str(self.port), str(self.baud), timeout=.1)
         json_str = {}
-        ui = tasmohabUI()
+        ui = TasmohabUI()
         try:
             if ser.is_open:
                 time.sleep(.1)  # skip tasmota startup
@@ -696,7 +705,7 @@ class SerialDataThread(QThread):
                         while ser.inWaiting() > 0:
                             msg = ser.read_until('\r\n').decode(encoding='utf-8')  # get serial response and encode
                         json_tmp = msg[msg.find('{'):msg.find('\0')]  # find json between string
-                        if (tasmohabUI.is_json(ui, json_tmp)):  # if the string is valid json
+                        if (TasmohabUI.is_json(json_tmp)):  # if the string is valid json
                             json_str.update(json.loads(json_tmp))
                             retry = 0
                             self.pyqt_signal_progress.emit(round(100 / len(self.cmd_list) * (no + 1)))  # update progress
@@ -731,7 +740,7 @@ class HttpDataThread(QThread):
         self.cmd_list = cmd_list
         self.url = url
         self.ip = ip
-        self.ui = tasmohabUI()
+        self.ui = TasmohabUI()
 
     def run(self):
         self.send_http_cmd(self.cmd_list)
@@ -816,7 +825,7 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
 def main_ui():
     app = QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(resource_path('icon.ico')))
-    UI = tasmohabUI()
+    UI = TasmohabUI()
     UI.show()
     UI.setWindowIcon(QtGui.QIcon(resource_path('icon.ico')))
     UI.list_com_ports()  # at startup list ports
