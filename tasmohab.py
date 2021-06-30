@@ -160,7 +160,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
     def datathread_dev_data(self, data):
         global json_dev_status
         json_dev_status = data.copy()
-        self.update_ui_device()
+        self.update_ui_device_info()
 
     def datathread_on_error(self, data):
         self.append_to_log(str(data))
@@ -241,19 +241,20 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
         self.start_queued_threads()  # start queued threads
 
-    def update_ui_device(self):
+    def update_ui_device_info(self):
         global json_dev_status
         try:
             for i in reversed(range(self.objects_grid.count() - 1)):
-                self.objects_grid.takeAt(i).widget().deleteLater()  # delete all last widgets
+                self.objects_grid.takeAt(i).widget().deleteLater()                          # delete all last widgets
         except Exception as e:
             pass
-        if not bool(json_dev_status):  # if json is empty
+        if not bool(json_dev_status):                                                       # if json is empty
             self.lbl_dev_hostname.setText("")
             self.lbl_dev_firmware.setText("")
             self.lbl_dev_name.setText("")
             self.lbl_dev_module.setText("")
-        elif json_dev_status is not None and bool(json_dev_status):  # if json is not None
+            self.btn_refr_obj_data.setEnabled(False)
+        elif json_dev_status is not None and bool(json_dev_status):                         # if json is not None and not empty
             self.lbl_dev_hostname.setText(str(json_dev_status['StatusNET']['Hostname']))
             self.lbl_dev_firmware.setText(str(json_dev_status['StatusFWR']['Version']))
             self.lbl_dev_name.setText(str(json_dev_status['Status']['DeviceName']))
@@ -679,14 +680,15 @@ class SerialDataThread(QThread):
     pyqt_signal_error = pyqtSignal(str)
     pyqt_signal_progress = pyqtSignal(int)
 
-    def __init__(self, cmd_list, port, baud):
+    def __init__(self, cmd_list, port, baud, timeout=.1):
         QThread.__init__(self)
         self.cmd_list = cmd_list
         self.port = port
         self.baud = baud
+        self.timeout = timeout
 
     def run(self):
-        ser = Serial(str(self.port), str(self.baud), timeout=.1)
+        ser = Serial(str(self.port), str(self.baud), timeout=self.timeout)
         json_str = {}
         ui = TasmohabUI()
         try:
@@ -799,7 +801,9 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
         self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.WindowStaysOnTopHint)
         self.ui = mainui
         # uic.loadUi('dev_config.ui', self)  # Load the .ui file                 # alternativ with ui-file (class DevConfigWindow(QtWidgets.QDialog):)
+        self.movie = QtGui.QMovie(resource_path('loader.gif'))
         self.btn_save_conf.clicked.connect(self.save_config)
+        self.btn_send_conf.clicked.connect(self.send_config)
         self.set_text()
 
     def set_text(self):
@@ -807,18 +811,83 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
             if 'settings' in json_config_data:  # if config file is loaded
                 self.btn_save_conf.setEnabled(True)
             if 'backlog' in json_config_data['settings']:
-                self.txt_backlog.setText(json_config_data['settings']['backlog'])
+                self.backlog.setText(json_config_data['settings']['backlog'])
+            if 'StatusMQT' in json_dev_status:
+                self.MqttHost.setText(json_dev_status['StatusMQT']['MqttHost'])
+                self.MqttPort.setText(str(json_dev_status['StatusMQT']['MqttPort']))
+                self.Topic.setText(json_dev_status['Status']['Topic'])
+                self.FullTopic.setText(json_dev_status['FullTopic'])
+                self.FriendlyName.setText(json_dev_status['Status']['FriendlyName'][0])
+                self.MqttUser.setText(json_dev_status['StatusMQT']['MqttUser'])
+            if 'SSId1' and 'Password1' in json_dev_status:
+                self.ssid1.setText(json_dev_status['SSId1'])
+                self.password1.setText(json_dev_status['Password1'])
         except Exception as e:
             print(e)
 
     def save_config(self):
         global json_config_data
-        try:
-            json_config_data['settings']['backlog'] = str(self.txt_backlog.text())
-            self.ui.update_json_to_yaml_config_data()
-            QMessageBox.information(self, 'Information', 'Config was saved!')
-        except Exception as e:
-            print('Exception:' + str(e))
+        if str(self.backlog.text()) is not '':
+            try:
+                json_config_data['settings']['backlog'] = str(self.backlog.text())
+                self.ui.update_json_to_yaml_config_data()
+                QMessageBox.information(self, 'Information', 'Config was saved!')
+            except Exception as e:
+                print('Exception:' + str(e))
+        else:
+            QMessageBox.warning(self, 'Warning', 'Backlog command is empty!')
+
+    def send_config(self):
+        cmds = {}
+        for widget in self.frame.findChildren(QLineEdit):
+            cmds[widget.objectName()] = widget.text()
+        if len(cmds) > 30:
+            print('Error:Backlog command only allows executing up to 30 consecutive commands!')
+            return
+        else:
+            backlog_str1 = 'backlog '
+            backlog_str2 = ''
+            for cmd, value in cmds.items():
+                if cmd == 'backlog':
+                    if value is not '':
+                        backlog_str2 = 'backlog '
+                        backlog_str2 += str(value)
+                        continue
+                    else:
+                        continue
+                if value is not '':
+                    backlog_str1 += str(cmd + ' ' + value)
+                    backlog_str1 += '; '
+            backlog_str1 = backlog_str1[:-2]                                                              # remove last two chars
+            cmd = [backlog_str1, backlog_str2]
+            buttonReply = QMessageBox.question(self, 'Sending device config',
+                                               "Are you sure to send the following commands to the device?:\n\n"+backlog_str1+'\n\n'+backlog_str2,
+                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if buttonReply == QMessageBox.Yes:
+                self.send_config = SerialDataThread(cmd, self.ui.cmb_ports.currentText(), self.ui.cmb_baud.currentText(), timeout=.5)
+                #self.send_config.pyqt_signal_error.connect(self.ui.datathread_on_error)                   # 2nd argument is the returned data!!!
+                self.send_config.finished.connect(self.datathread_finished)
+                self.loader_img = QLabel(self.frame)
+                self.loader_img.setObjectName("loader")
+                self.loader_img.setAlignment(QtCore.Qt.AlignCenter)
+                self.loader_img.setMovie(self.movie)
+                self.lay_button.addWidget(self.loader_img)
+                try:
+                    self.movie.start()                                                                  # show loadging gif
+                    self.ui.append_to_log('Sending new configuration to device ...')
+                    print('Sending to device:' + str(cmd))
+                    self.send_config.start()
+                except Exception as e:
+                    self.ui.report_error()
+
+    def datathread_finished(self):
+        global json_dev_status
+        QMessageBox.information(self, 'Config send', 'Config was send! Please reboot device and get new device info!')
+        self.ui.append_to_log('Configuration send, please reboot device!')
+        json_dev_status = {}  # clear device data, because it maybe contains old data
+        self.ui.update_ui_device_info()
+        self.movie.stop()
+        self.loader_img.deleteLater()
 
 
 ### MAIN ###

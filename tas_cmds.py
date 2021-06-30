@@ -5,7 +5,10 @@ status = {'state':'status',
     'network':'status 5',
     'fw':'status 2',
     'mqtt':'status 6',
-    'sensor':'status 8'}
+    'sensor':'status 8',
+    'wifi':'ssid',
+    'pass':'password',
+    'ftopic':'FullTopic'}
 
 # all gpio related cmds here:
 gpio = {'gpio':'gpio'}
