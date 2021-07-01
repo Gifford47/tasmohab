@@ -229,6 +229,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>ssid1</tabstop>
+  <tabstop>password1</tabstop>
+  <tabstop>MqttHost</tabstop>
+  <tabstop>MqttPort</tabstop>
+  <tabstop>Topic</tabstop>
+  <tabstop>FullTopic</tabstop>
+  <tabstop>FriendlyName</tabstop>
+  <tabstop>MqttUser</tabstop>
+  <tabstop>MqttPassword</tabstop>
+  <tabstop>backlog</tabstop>
+  <tabstop>btn_save_conf</tabstop>
+  <tabstop>btn_send_conf</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

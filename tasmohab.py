@@ -43,6 +43,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         super(TasmohabUI, self).__init__(parent)
         self.setupUi(self)
         self.http_url = ''
+        self.last_communication_class = None
 
         self.UI_threads = []  # list of queued ui-threads
         self.yaml_config_data = ''
@@ -204,6 +205,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.get_ser_gpio_info.pyqt_signal_progress.connect(self.update_progressbar)
 
         self.UI_threads.append(self.get_ser_gpio_info)                                  # appent to list of queued ui-threads
+        self.last_communication_class = self.get_ser_dev_info                           # if we want to use the last class to communicate with the device
         self.start_queued_threads()  # start queued threads
 
     def start_queued_threads(self):  # DON`T FORGET TO EXIT THE THREAD AFTER FINISH!!!
@@ -237,8 +239,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.get_http_gpio_info.pyqt_signal_error.connect(self.datathread_on_error)         # 2nd argument is the returned data!!!
         self.get_http_gpio_info.finished.connect(self.datathread_finish)
         self.get_http_gpio_info.pyqt_signal_progress.connect(self.update_progressbar)
-        self.UI_threads.append(self.get_http_gpio_info)                                     # appent to list of queued ui-threads
 
+        self.UI_threads.append(self.get_http_gpio_info)                                     # appent to list of queued ui-threads
+        self.last_communication_class = self.get_http_dev_info                               # if we want to use the last class to communicate with the device
         self.start_queued_threads()  # start queued threads
 
     def update_ui_device_info(self):
@@ -255,10 +258,11 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.lbl_dev_module.setText("")
             self.btn_refr_obj_data.setEnabled(False)
         elif json_dev_status is not None and bool(json_dev_status):                         # if json is not None and not empty
-            self.lbl_dev_hostname.setText(str(json_dev_status['StatusNET']['Hostname']))
-            self.lbl_dev_firmware.setText(str(json_dev_status['StatusFWR']['Version']))
-            self.lbl_dev_name.setText(str(json_dev_status['Status']['DeviceName']))
-            self.lbl_dev_module.setText(str(json_dev_status['Status']['Module']))
+            if all(k in json_dev_status for k in ('StatusNET', 'StatusFWR', 'Status')):
+                self.lbl_dev_hostname.setText(str(json_dev_status['StatusNET']['Hostname']))
+                self.lbl_dev_firmware.setText(str(json_dev_status['StatusFWR']['Version']))
+                self.lbl_dev_name.setText(str(json_dev_status['Status']['DeviceName']))
+                self.lbl_dev_module.setText(str(json_dev_status['Status']['Module']))
 
     def load_yaml_file_config(self):
         global json_config_data
@@ -743,6 +747,7 @@ class HttpDataThread(QThread):
         self.url = url
         self.ip = ip
         self.ui = TasmohabUI()
+        self.timeout = .5
 
     def run(self):
         self.send_http_cmd(self.cmd_list)
@@ -768,7 +773,7 @@ class HttpDataThread(QThread):
     def url_response_code(self, url):
         resp_code = None
         try:
-            resp_code = requests.get(url, timeout=.5).status_code  # response code
+            resp_code = requests.get(url, timeout=self.timeout).status_code  # response code
             self.ui.append_to_log("Response Code:" + str(resp_code))
             return resp_code
         except Exception as e:
@@ -858,25 +863,27 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                 if value is not '':
                     backlog_str1 += str(cmd + ' ' + value)
                     backlog_str1 += '; '
-            backlog_str1 = backlog_str1[:-2]                                                              # remove last two chars
-            cmd = [backlog_str1, backlog_str2]
+            backlog_str1 = backlog_str1[:-2]                                                               # remove last two chars
+            cmd = [backlog_str1, backlog_str2, 'restart 1']
             buttonReply = QMessageBox.question(self, 'Sending device config',
                                                "Are you sure to send the following commands to the device?:\n\n"+backlog_str1+'\n\n'+backlog_str2,
                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if buttonReply == QMessageBox.Yes:
-                self.send_config = SerialDataThread(cmd, self.ui.cmb_ports.currentText(), self.ui.cmb_baud.currentText(), timeout=.5)
-                #self.send_config.pyqt_signal_error.connect(self.ui.datathread_on_error)                   # 2nd argument is the returned data!!!
-                self.send_config.finished.connect(self.datathread_finished)
+                self.ui.last_communication_class.timeout = .5                                                 # set the timeout of class
+                self.ui.last_communication_class.cmd_list = cmd
+                #self.ui.last_communication_class.pyqt_signal_error.connect(self.ui.datathread_on_error)      # 2nd argument is the returned data!!!
+                self.ui.last_communication_class.pyqt_signal_error.disconnect()
+                self.ui.last_communication_class.finished.connect(self.datathread_finished)
                 self.loader_img = QLabel(self.frame)
                 self.loader_img.setObjectName("loader")
                 self.loader_img.setAlignment(QtCore.Qt.AlignCenter)
                 self.loader_img.setMovie(self.movie)
                 self.lay_button.addWidget(self.loader_img)
                 try:
-                    self.movie.start()                                                                  # show loadging gif
+                    self.movie.start()                                                                     # show loadging gif
                     self.ui.append_to_log('Sending new configuration to device ...')
                     print('Sending to device:' + str(cmd))
-                    self.send_config.start()
+                    self.ui.last_communication_class.start()
                 except Exception as e:
                     self.ui.report_error()
 
@@ -884,9 +891,9 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
         global json_dev_status
         QMessageBox.information(self, 'Config send', 'Config was send! Please reboot device and get new device info!')
         self.ui.append_to_log('Configuration send, please reboot device!')
-        json_dev_status = {}  # clear device data, because it maybe contains old data
+        json_dev_status.clear()                                                             # clear device data, because it maybe contains old data
         self.ui.update_ui_device_info()
-        self.movie.stop()
+        self.movie.stop()                                                                   # stop and delete spinner
         self.loader_img.deleteLater()
 
 

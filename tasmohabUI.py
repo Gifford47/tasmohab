@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 # Created by: PyQt5 UI code generator 5.15.4
 #
 # WARNING: Any manual changes made to this file will be lost when pyuic5 is
@@ -349,6 +348,33 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(0)
         self.cmb_baud.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.txt_ip, self.txt_user)
+        MainWindow.setTabOrder(self.txt_user, self.txt_pass)
+        MainWindow.setTabOrder(self.txt_pass, self.btn_get_http)
+        MainWindow.setTabOrder(self.btn_get_http, self.cmb_ports)
+        MainWindow.setTabOrder(self.cmb_ports, self.btn_serport_refr)
+        MainWindow.setTabOrder(self.btn_serport_refr, self.cmb_baud)
+        MainWindow.setTabOrder(self.cmb_baud, self.btn_get_serial)
+        MainWindow.setTabOrder(self.btn_get_serial, self.btn_dev_details)
+        MainWindow.setTabOrder(self.btn_dev_details, self.btn_load_object)
+        MainWindow.setTabOrder(self.btn_load_object, self.txt_config_file_path)
+        MainWindow.setTabOrder(self.txt_config_file_path, self.txt_thing_file)
+        MainWindow.setTabOrder(self.txt_thing_file, self.txt_item_file)
+        MainWindow.setTabOrder(self.txt_item_file, self.btn_set_dev_conf)
+        MainWindow.setTabOrder(self.btn_set_dev_conf, self.scrollArea)
+        MainWindow.setTabOrder(self.scrollArea, self.cmb_template)
+        MainWindow.setTabOrder(self.cmb_template, self.btn_refr_obj_data)
+        MainWindow.setTabOrder(self.btn_refr_obj_data, self.tabWidget)
+        MainWindow.setTabOrder(self.tabWidget, self.config_txtbrowser)
+        MainWindow.setTabOrder(self.config_txtbrowser, self.btn_show_json_obj)
+        MainWindow.setTabOrder(self.btn_show_json_obj, self.btn_save_config)
+        MainWindow.setTabOrder(self.btn_save_config, self.btn_show_json_config)
+        MainWindow.setTabOrder(self.btn_show_json_config, self.btn_gen_fin_objts)
+        MainWindow.setTabOrder(self.btn_gen_fin_objts, self.txt_output_thing)
+        MainWindow.setTabOrder(self.txt_output_thing, self.btn_save_final_obj)
+        MainWindow.setTabOrder(self.btn_save_final_obj, self.txt_output_item)
+        MainWindow.setTabOrder(self.txt_output_item, self.txt_log)
+        MainWindow.setTabOrder(self.txt_log, self.btn_clear_log)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

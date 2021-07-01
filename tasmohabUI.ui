@@ -718,6 +718,36 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>txt_ip</tabstop>
+  <tabstop>txt_user</tabstop>
+  <tabstop>txt_pass</tabstop>
+  <tabstop>btn_get_http</tabstop>
+  <tabstop>cmb_ports</tabstop>
+  <tabstop>btn_serport_refr</tabstop>
+  <tabstop>cmb_baud</tabstop>
+  <tabstop>btn_get_serial</tabstop>
+  <tabstop>btn_dev_details</tabstop>
+  <tabstop>btn_load_object</tabstop>
+  <tabstop>txt_config_file_path</tabstop>
+  <tabstop>txt_thing_file</tabstop>
+  <tabstop>txt_item_file</tabstop>
+  <tabstop>btn_set_dev_conf</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>cmb_template</tabstop>
+  <tabstop>btn_refr_obj_data</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>config_txtbrowser</tabstop>
+  <tabstop>btn_show_json_obj</tabstop>
+  <tabstop>btn_save_config</tabstop>
+  <tabstop>btn_show_json_config</tabstop>
+  <tabstop>btn_gen_fin_objts</tabstop>
+  <tabstop>txt_output_thing</tabstop>
+  <tabstop>btn_save_final_obj</tabstop>
+  <tabstop>txt_output_item</tabstop>
+  <tabstop>txt_log</tabstop>
+  <tabstop>btn_clear_log</tabstop>
+ </tabstops>
  <resources>
   <include location="ressource.qrc"/>
  </resources>
