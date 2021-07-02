@@ -39,6 +39,9 @@
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout_cmds">
+        <item row="3" column="4">
+         <widget class="QLineEdit" name="Topic"/>
+        </item>
         <item row="2" column="3">
          <widget class="QLabel" name="label_5">
           <property name="text">
@@ -46,18 +49,8 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="3">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Host</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="4">
          <widget class="QLineEdit" name="MqttPort"/>
-        </item>
-        <item row="3" column="4">
-         <widget class="QLineEdit" name="Topic"/>
         </item>
         <item row="1" column="2">
          <spacer name="horizontalSpacer">
@@ -72,23 +65,27 @@
           </property>
          </spacer>
         </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="password1"/>
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Host</string>
+          </property>
+         </widget>
         </item>
         <item row="5" column="4">
          <widget class="QLineEdit" name="FriendlyName"/>
-        </item>
-        <item row="4" column="4">
-         <widget class="QLineEdit" name="FullTopic">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>Password1:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="4">
+         <widget class="QLineEdit" name="FullTopic">
+          <property name="enabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -105,20 +102,17 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="4">
-         <widget class="QLineEdit" name="MqttHost"/>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="password1">
+          <property name="echoMode">
+           <enum>QLineEdit::PasswordEchoOnEdit</enum>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
            <string>SSID1:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="3">
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>User (optional)</string>
           </property>
          </widget>
         </item>
@@ -139,11 +133,15 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="ssid1"/>
+        <item row="1" column="4">
+         <widget class="QLineEdit" name="MqttHost"/>
         </item>
-        <item row="7" column="4">
-         <widget class="QLineEdit" name="MqttPassword"/>
+        <item row="6" column="3">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>User (optional)</string>
+          </property>
+         </widget>
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_12">
@@ -158,6 +156,9 @@
           </property>
          </widget>
         </item>
+        <item row="7" column="4">
+         <widget class="QLineEdit" name="MqttPassword"/>
+        </item>
         <item row="5" column="3">
          <widget class="QLabel" name="label_8">
           <property name="text">
@@ -168,10 +169,16 @@
         <item row="6" column="4">
          <widget class="QLineEdit" name="MqttUser"/>
         </item>
-        <item row="7" column="3">
-         <widget class="QLabel" name="label_10">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="ssid1"/>
+        </item>
+        <item row="10" column="4">
+         <widget class="QPushButton" name="btn_save_conf">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
-           <string>Password (optional)</string>
+           <string>Save backlog cmd to config</string>
           </property>
          </widget>
         </item>
@@ -179,6 +186,13 @@
          <widget class="QLabel" name="label_11">
           <property name="text">
            <string>Backlog CMD:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="3">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Password (optional)</string>
           </property>
          </widget>
         </item>
@@ -196,15 +210,18 @@
          </spacer>
         </item>
         <item row="10" column="1" colspan="3">
-         <widget class="QLineEdit" name="backlog"/>
-        </item>
-        <item row="10" column="4">
-         <widget class="QPushButton" name="btn_save_conf">
-          <property name="enabled">
-           <bool>false</bool>
+         <widget class="QLineEdit" name="backlog">
+          <property name="toolTip">
+           <string>Maximum 30 commands!</string>
+          </property>
+          <property name="inputMask">
+           <string/>
           </property>
           <property name="text">
-           <string>Save backlog cmd to config</string>
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>devicename tasmotadevice; topic testtopic; ssid1 wfissid</string>
           </property>
          </widget>
         </item>

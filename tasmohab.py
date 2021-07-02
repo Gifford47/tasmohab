@@ -247,7 +247,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
     def update_ui_device_info(self):
         global json_dev_status
         try:
-            for i in reversed(range(self.objects_grid.count() - 1)):
+            for i in reversed(range(self.objects_grid.count())):
                 self.objects_grid.takeAt(i).widget().deleteLater()                          # delete all last widgets
         except Exception as e:
             pass
@@ -263,6 +263,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.lbl_dev_firmware.setText(str(json_dev_status['StatusFWR']['Version']))
                 self.lbl_dev_name.setText(str(json_dev_status['Status']['DeviceName']))
                 self.lbl_dev_module.setText(str(json_dev_status['Status']['Module']))
+            if json_config_data is not None and bool(json_config_data):
+                self.btn_set_dev_conf.setEnabled(True)
 
     def load_yaml_file_config(self):
         global json_config_data
@@ -280,7 +282,6 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.gen_fin_objects()
             self.btn_gen_fin_objts.setEnabled(True)
             self.btn_save_final_obj.setEnabled(True)
-            self.btn_set_dev_conf.setEnabled(True)
 
     def show_device_details(self):
         self.det_window = DetailWindow(json_dev_status)                 # initialize 2. windows for dev details
@@ -323,11 +324,12 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid.addWidget(QLabel('GPIO'), 0, 1)
         self.objects_grid.addWidget(QLabel('GPIO Value'), 0, 2)
         self.objects_grid.addWidget(QLabel('Peripheral Name'), 0, 3)
-        self.objects_grid.addWidget(QLabel('Item Type'), 0, 4)
-        self.objects_grid.addWidget(QLabel('Groups'), 0, 5)
-        self.objects_grid.addWidget(QLabel('Feature'), 0, 6)
-        self.objects_grid.addWidget(QLabel('Metadata'), 0, 7)
-        self.objects_grid.addWidget(QLabel('Tags'), 0, 8)
+        self.objects_grid.addWidget(QLabel('Item Label'), 0, 4)
+        self.objects_grid.addWidget(QLabel('Item Type'), 0, 5)
+        self.objects_grid.addWidget(QLabel('Groups'), 0, 6)
+        self.objects_grid.addWidget(QLabel('Feature'), 0, 7)
+        self.objects_grid.addWidget(QLabel('Metadata'), 0, 8)
+        self.objects_grid.addWidget(QLabel('Tags'), 0, 9)
 
     def add_ui_widgets(self):
         global json_tasmota_objects
@@ -391,37 +393,41 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid.addWidget(lbl, row, col)  # add the peripheral name/ sensor name
 
     def add_ui_widgets_openhab(self, layout, row, peripheral_no='default'):
-        cb = QComboBox()
+        line = QLineEdit()                                      # item label
+        line.setMaximumWidth(200)
+        line.setMaxLength(80)
+        layout.addWidget(line, row, 4)
+        cb = QComboBox()                                        # item type
         cb.addItems(openhab.item_types)
         try:
             cb.setCurrentIndex(openhab.std_items[peripheral_no]['std_type'])
         except:
             pass  # if index is not found
-        layout.addWidget(cb, row, 4)  # add sensor value
-        line = QLineEdit()
+        layout.addWidget(cb, row, 5)
+        line = QLineEdit()                                      # item group
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 5)
-        cb = QComboBox()
+        layout.addWidget(line, row, 6)
+        cb = QComboBox()                                        # feature
         try:
             cb.addItems(openhab.std_items[peripheral_no]['feature'])                       # try to get index
         except:
             cb.addItems(openhab.std_items['default']['feature'])                           # else: return default value
-        layout.addWidget(cb, row, 6)
+        layout.addWidget(cb, row, 7)
         try:
-            line = QLineEdit(openhab.std_items[peripheral_no]['meta'])
+            line = QLineEdit(openhab.std_items[peripheral_no]['meta'])                      # metadata
         except:
             line = QLineEdit(openhab.std_items['default']['meta'])
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 7)
+        layout.addWidget(line, row, 8)
         try:
-            line = QLineEdit(openhab.std_items[peripheral_no]['tags'])
+            line = QLineEdit(openhab.std_items[peripheral_no]['tags'])                      # tags
         except:
             line = QLineEdit(openhab.std_items['default']['tags'])
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 8)
+        layout.addWidget(line, row, 9)
 
     def add_ui_widgets_sensor_single_line(self, layout, row, sensor, value, col_cb=1):
         cb = QCheckBox()
@@ -519,7 +525,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                             row += 1                                                                                # next line
                             while (type(next_item) == QCheckBox):
                                 if next_item.isChecked():                                                           # get the sensor checkbox (not the gpio checkbox!)
-                                    self.fill_items_dict(item_name, row, col)                                       # add item to dict
+                                    self.update_items_dict(item_name, row, col)                                       # add item to dict
                                 row += 1
                                 try:
                                     next_item = self.objects_grid.itemAtPosition(row, col + 1).widget()             # try to get the next checkbox
@@ -527,7 +533,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                                     next_item = None
                         else:                                                                                       # this line has no item and is a actuator
                             # i am a single sensor (one line in ui) or a actuator: read in and fill the dict
-                            self.fill_items_dict(item_name, row, col)                                               # add item to dict
+                            self.update_items_dict(item_name, row, col)                                               # add item to dict
                             row += 1
                         ###################### END ######################
                         self.json_config_data_new[thing_id].update(self.items_dict)                                 # write new items to dict
@@ -546,13 +552,13 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         cur_index = self.tabWidget.currentIndex()
         self.tabWidget.setCurrentIndex(cur_index + 1)
 
-    def fill_items_dict(self, item_name, row, col):
-        item_label = str(self.objects_grid.itemAtPosition(row, col + 3).widget().text())  # qlineedit
-        item_type = str(self.objects_grid.itemAtPosition(row, col + 4).widget().currentText())  # qcombobox
-        item_groups = str(self.objects_grid.itemAtPosition(row, col + 5).widget().text())  # qlineedit
-        item_feature = str(self.objects_grid.itemAtPosition(row, col + 6).widget().currentText())  # qcombobox
-        item_meta = str(self.objects_grid.itemAtPosition(row, col + 7).widget().text())  # qlineedit
-        item_tags = str(self.objects_grid.itemAtPosition(row, col + 8).widget().text())  # qlineedit
+    def update_items_dict(self, item_name, row, col):
+        item_label = str(self.objects_grid.itemAtPosition(row, col + 4).widget().text())                        # qlineedit
+        item_type = str(self.objects_grid.itemAtPosition(row, col + 5).widget().currentText())                  # qcombobox
+        item_groups = str(self.objects_grid.itemAtPosition(row, col + 6).widget().text())                       # qlineedit
+        item_feature = str(self.objects_grid.itemAtPosition(row, col + 7).widget().currentText())               # qcombobox
+        item_meta = str(self.objects_grid.itemAtPosition(row, col + 8).widget().text())                         # qlineedit
+        item_tags = str(self.objects_grid.itemAtPosition(row, col + 9).widget().text())                         # qlineedit
         self.items_dict[item_type].append({'name': item_name,
                                       'label': item_label,
                                       'groups': [item_groups],
@@ -817,16 +823,23 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                 self.btn_save_conf.setEnabled(True)
             if 'backlog' in json_config_data['settings']:
                 self.backlog.setText(json_config_data['settings']['backlog'])
-            if 'StatusMQT' in json_dev_status:
-                self.MqttHost.setText(json_dev_status['StatusMQT']['MqttHost'])
-                self.MqttPort.setText(str(json_dev_status['StatusMQT']['MqttPort']))
-                self.Topic.setText(json_dev_status['Status']['Topic'])
-                self.FullTopic.setText(json_dev_status['FullTopic'])
-                self.FriendlyName.setText(json_dev_status['Status']['FriendlyName'][0])
-                self.MqttUser.setText(json_dev_status['StatusMQT']['MqttUser'])
-            if 'SSId1' and 'Password1' in json_dev_status:
-                self.ssid1.setText(json_dev_status['SSId1'])
-                self.password1.setText(json_dev_status['Password1'])
+            # if 'StatusMQT' in json_dev_status:
+            #     self.MqttHost.setText(json_dev_status['StatusMQT']['MqttHost'])
+            #     self.MqttPort.setText(str(json_dev_status['StatusMQT']['MqttPort']))
+            #     self.Topic.setText(json_dev_status['Status']['Topic'])
+            #     self.FullTopic.setText(json_dev_status['FullTopic'])
+            #     self.FriendlyName.setText(json_dev_status['Status']['FriendlyName'][0])
+            #     self.MqttUser.setText(json_dev_status['StatusMQT']['MqttUser'])
+            # if 'SSId1' and 'Password1' in json_dev_status:
+            #     self.ssid1.setText(json_dev_status['SSId1'])
+            #     self.password1.setText(json_dev_status['Password1'])
+
+            qline_edits = self.frame.findChildren(QLineEdit)                    # returns a list of all QLineEdit objects
+            for widget in qline_edits:                                          # loop through all found QLineEdit widgets
+                for key, value in get_key_val_pair(json_dev_status):            # loop through all key value pairs in 'json_dev_status' ...
+                    if str(key).lower() == str(widget.objectName()).lower():                              # and look if the widget name is in 'json_dev_status' dict
+                        obj = self.frame.findChild(QLineEdit, widget.objectName())      # get widget ...
+                        obj.setText(str(value))                                      # and set the text
         except Exception as e:
             print(e)
 
@@ -843,8 +856,14 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
             QMessageBox.warning(self, 'Warning', 'Backlog command is empty!')
 
     def send_config(self):
+        # adding more commands to send:
+        # add a new widget 'QLineEdit' with the objectname = the tasmota commandname (f.e.: 'ssid1')
+        # the function get this object (and its name) and put the name with its value to the backlog command
         cmds = {}
-        for widget in self.frame.findChildren(QLineEdit):
+        qline_edits = self.frame.findChildren(QLineEdit)                # returns a list of all QLineEdit objects
+        for widget in qline_edits:
+            # get cmd name = 'widget.objectName()'
+            # get cmd value = 'widget.text()'
             cmds[widget.objectName()] = widget.text()
         if len(cmds) > 30:
             print('Error:Backlog command only allows executing up to 30 consecutive commands!')
@@ -869,7 +888,7 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                                                "Are you sure to send the following commands to the device?:\n\n"+backlog_str1+'\n\n'+backlog_str2,
                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
             if buttonReply == QMessageBox.Yes:
-                self.ui.last_communication_class.timeout = .5                                                 # set the timeout of class
+                self.ui.last_communication_class.timeout = .7                                                 # set the timeout of class
                 self.ui.last_communication_class.cmd_list = cmd
                 #self.ui.last_communication_class.pyqt_signal_error.connect(self.ui.datathread_on_error)      # 2nd argument is the returned data!!!
                 self.ui.last_communication_class.pyqt_signal_error.disconnect()
@@ -917,6 +936,31 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+def keys_exists(element, *keys):
+    '''
+    Check if *keys (nested) exists in `element` (dict).
+    '''
+    if not isinstance(element, dict):
+        raise AttributeError('keys_exists() expects dict as first argument.')
+    if len(keys) == 0:
+        raise AttributeError('keys_exists() expects at least two arguments, one given.')
+
+    _element = element
+    for key in keys:
+        try:
+            _element = _element[key]
+        except KeyError:
+            return False
+    return True
+
+def get_key_val_pair(dictionary):
+    for key, value in dictionary.items():
+        if type(value) is dict:
+            yield from get_key_val_pair(value)
+        else:
+            yield (key, value)
+
 
 if __name__ == '__main__':
     t_ui = threading.Thread(target=main_ui, name='UI_Thread')

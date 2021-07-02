@@ -72,6 +72,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.addWidget(self.txt_user, 1, 1, 1, 1)
         self.txt_pass = QtWidgets.QLineEdit(self.groupBox)
         self.txt_pass.setMaximumSize(QtCore.QSize(150, 16777215))
+        self.txt_pass.setEchoMode(QtWidgets.QLineEdit.PasswordEchoOnEdit)
         self.txt_pass.setObjectName("txt_pass")
         self.gridLayout_3.addWidget(self.txt_pass, 2, 1, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
