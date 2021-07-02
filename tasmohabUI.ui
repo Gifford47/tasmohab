@@ -83,7 +83,7 @@
                 <item row="0" column="2">
                  <widget class="QPushButton" name="btn_serport_refr">
                   <property name="text">
-                   <string>refresh</string>
+                   <string>Refresh list</string>
                   </property>
                  </widget>
                 </item>

@@ -384,7 +384,7 @@ class Ui_MainWindow(object):
         self.txt_ip.setText(_translate("MainWindow", "192.168.1.80"))
         self.label.setText(_translate("MainWindow", "Ip Address"))
         self.label_4.setText(_translate("MainWindow", "COM"))
-        self.btn_serport_refr.setText(_translate("MainWindow", "refresh"))
+        self.btn_serport_refr.setText(_translate("MainWindow", "Refresh list"))
         self.btn_get_http.setText(_translate("MainWindow", "Get from HTTP"))
         self.label_3.setText(_translate("MainWindow", "Password"))
         self.btn_get_serial.setText(_translate("MainWindow", "Get from Serial"))

@@ -112,7 +112,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # adding list of items to combo box
         self.cmb_ports.clear()
         ports = [comport.device for comport in serial.tools.list_ports.comports()]
-        self.append_to_log(ports)
+        self.append_to_log('Refreshing com Ports:' + ports)
         if not ports:  # if list is empty
             self.btn_get_serial.setEnabled(False)
         else:
