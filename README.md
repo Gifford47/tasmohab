@@ -95,6 +95,21 @@ You have to choose these template before you can generate any thing or output. T
 named '*.tpl' and can be edited while runtime. The template have to be stored under ```ohgen/templates/test.tpl```.
 The data is then shown in the last tab and can be saved to a thing and an item file.
 
+#### Adding more commands to send
+Add a new widget 'QLineEdit' with 'objectname' = 'tasmota commandname' (f.e.: 'ssid1')
+to the QFrame with the objectname 'frame'.
+The [function](https://github.com/Gifford47/tasmohab/blob/7aba782daeaec75c0e80afbc790b34a958e4f5ff/tasmohab.py#L845) get this object (and its name) and put the name with its value to the backlog command.
+
+Example in Qt Designer:<br>
+Add a new widget to 'gridLayout_cmds' layout.
+
+Example in python script:
+```python
+self.ssid1 = QtWidgets.QLineEdit(self.frame)
+self.ssid1.setObjectName("ssid1")
+self.gridLayout_cmds.addWidget(self.ssid1, 1, 1, 1, 1)          # caution with the position!
+```
+
 ## In the future ...
 Theoretically, it is relatively easy to adapt the output format to other smarthome systems (e.g. homeassistant, etc.).
 Among other things, the file ```openhab.py```, the function ```add_ui_openhab_widgets``` and of course the function ```gen_fin_objects``` 

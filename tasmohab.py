@@ -112,8 +112,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # adding list of items to combo box
         self.cmb_ports.clear()
         ports = [comport.device for comport in serial.tools.list_ports.comports()]
-        self.append_to_log('Refreshing com Ports:' + ports)
-        if not ports:  # if list is empty
+        self.append_to_log('Refreshing ports list:' + str(ports))
+        if not ports:                                                                           # if list is empty
             self.btn_get_serial.setEnabled(False)
         else:
             ports.sort()
@@ -153,6 +153,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         json_gpio_status = data.copy()
         try:
             self.create_tasmota_objects()
+            self.clear_ui_widgets()
             self.add_ui_widgets()
         except Exception as e:
             traceback.print_exc(limit=2, file=sys.stdout)
@@ -161,7 +162,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
     def datathread_dev_data(self, data):
         global json_dev_status
         json_dev_status = data.copy()
-        self.update_ui_device_info()
+        self.update_ui_device_config()
 
     def datathread_on_error(self, data):
         self.append_to_log(str(data))
@@ -244,13 +245,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.last_communication_class = self.get_http_dev_info                               # if we want to use the last class to communicate with the device
         self.start_queued_threads()  # start queued threads
 
-    def update_ui_device_info(self):
+    def update_ui_device_config(self):
         global json_dev_status
-        try:
-            for i in reversed(range(self.objects_grid.count())):
-                self.objects_grid.takeAt(i).widget().deleteLater()                          # delete all last widgets
-        except Exception as e:
-            pass
         if not bool(json_dev_status):                                                       # if json is empty
             self.lbl_dev_hostname.setText("")
             self.lbl_dev_firmware.setText("")
@@ -266,6 +262,13 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             if json_config_data is not None and bool(json_config_data):
                 self.btn_set_dev_conf.setEnabled(True)
 
+    def clear_ui_widgets(self):                                                          # removes all objects from scrollarea
+        try:
+            for i in reversed(range(self.objects_grid.count())):
+                self.objects_grid.takeAt(i).widget().deleteLater()                          # delete all last widgets
+        except Exception as e:
+            pass
+
     def load_yaml_file_config(self):
         global json_config_data
         self.conf_file = QFileDialog.getOpenFileName(filter="YAML(*.yaml)")[0]
@@ -280,6 +283,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.set_config_settings()
             self.update_json_to_yaml_config_data()
             self.gen_fin_objects()
+            self.update_ui_device_config()
             self.btn_gen_fin_objts.setEnabled(True)
             self.btn_save_final_obj.setEnabled(True)
 
@@ -716,6 +720,7 @@ class SerialDataThread(QThread):
                         time.sleep(.1)
                         while ser.inWaiting() > 0:
                             msg = ser.read_until('\r\n').decode(encoding='utf-8')  # get serial response and encode
+                            time.sleep(.01)
                         json_tmp = msg[msg.find('{'):msg.find('\0')]  # find json between string
                         if (TasmohabUI.is_json(json_tmp)):  # if the string is valid json
                             json_str.update(json.loads(json_tmp))
@@ -849,7 +854,7 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
             try:
                 json_config_data['settings']['backlog'] = str(self.backlog.text())
                 self.ui.update_json_to_yaml_config_data()
-                QMessageBox.information(self, 'Information', 'Config was saved!')
+                QMessageBox.information(self, 'Information', 'Backlog command saved in config!')
             except Exception as e:
                 print('Exception:' + str(e))
         else:
@@ -911,9 +916,10 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
         QMessageBox.information(self, 'Config send', 'Config was send! Please reboot device and get new device info!')
         self.ui.append_to_log('Configuration send, please reboot device!')
         json_dev_status.clear()                                                             # clear device data, because it maybe contains old data
-        self.ui.update_ui_device_info()
+        self.ui.update_ui_device_config()                                                   # clear device info data on ui
+        self.ui.clear_ui_widgets()                                                          # clear widgets in scrollarea
         self.movie.stop()                                                                   # stop and delete spinner
-        self.loader_img.deleteLater()
+        self.loader_img.deleteLater()                                                       # delete loader
 
 
 ### MAIN ###
