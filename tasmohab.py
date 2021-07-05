@@ -334,6 +334,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid.addWidget(QLabel('Feature'), 0, 7)
         self.objects_grid.addWidget(QLabel('Metadata'), 0, 8)
         self.objects_grid.addWidget(QLabel('Tags'), 0, 9)
+        self.objects_grid.addWidget(QLabel('Icon'), 0, 10)
 
     def add_ui_widgets(self):
         global json_tasmota_objects
@@ -397,27 +398,28 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid.addWidget(lbl, row, col)  # add the peripheral name/ sensor name
 
     def add_ui_widgets_openhab(self, layout, row, label, peripheral_no='default'):
-        line = QLineEdit(label)                                 # item label
+        line = QLineEdit(label)                                                         # item label
         line.setMaximumWidth(200)
         line.setMaxLength(80)
         layout.addWidget(line, row, 4)
-        cb = QComboBox()                                        # item type
+        cb = QComboBox()                                                                # item type
         cb.addItems(openhab.item_types)
         try:
             cb.setCurrentIndex(openhab.std_items[peripheral_no]['std_type'])
         except:
             pass  # if index is not found
         layout.addWidget(cb, row, 5)
-        line = QLineEdit()                                      # item group
+        line = QLineEdit()                                                              # item group
         line.setMaximumWidth(200)
         line.setMaxLength(80)
         layout.addWidget(line, row, 6)
-        cb = QComboBox()                                        # feature
         try:
-            cb.addItems(openhab.std_items[peripheral_no]['feature'])                       # try to get index
+            line = QLineEdit(openhab.std_items[peripheral_no]['feature'])                    # feature
         except:
-            cb.addItems(openhab.std_items['default']['feature'])                           # else: return default value
-        layout.addWidget(cb, row, 7)
+            line = QLineEdit(openhab.std_items['default']['feature'])                           # else: return default value
+        line.setMaximumWidth(200)
+        line.setMaxLength(80)
+        layout.addWidget(line, row, 7)
         try:
             line = QLineEdit(openhab.std_items[peripheral_no]['meta'])                      # metadata
         except:
@@ -432,6 +434,13 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         line.setMaximumWidth(200)
         line.setMaxLength(80)
         layout.addWidget(line, row, 9)
+        try:
+            line = QLineEdit(openhab.std_items[peripheral_no]['icon'])                      # icon
+        except:
+            line = QLineEdit(openhab.std_items['default']['icon'])
+        line.setMaximumWidth(200)
+        line.setMaxLength(80)
+        layout.addWidget(line, row, 10)
 
     def add_ui_widgets_sensor_single_line(self, layout, row, sensor, value, col_cb=1):
         cb = QCheckBox()
@@ -563,15 +572,17 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         item_label = str(self.objects_grid.itemAtPosition(row, col + 4).widget().text())                        # qlineedit
         item_type = str(self.objects_grid.itemAtPosition(row, col + 5).widget().currentText())                  # qcombobox
         item_groups = str(self.objects_grid.itemAtPosition(row, col + 6).widget().text())                       # qlineedit
-        item_feature = str(self.objects_grid.itemAtPosition(row, col + 7).widget().currentText())               # qcombobox
+        item_feature = str(self.objects_grid.itemAtPosition(row, col + 7).widget().text())                      # qlineedit
         item_meta = str(self.objects_grid.itemAtPosition(row, col + 8).widget().text())                         # qlineedit
         item_tags = str(self.objects_grid.itemAtPosition(row, col + 9).widget().text())                         # qlineedit
+        item_icon = str(self.objects_grid.itemAtPosition(row, col + 10).widget().text())                        # qlineedit
         self.items_dict[item_type].append({'name': item_name,
                                       'label': item_label,
-                                      'groups': [item_groups],
+                                      'groups': item_groups,
                                       'features': [item_feature],
-                                      'metadata': [item_meta],
-                                      'tags': [item_tags]}
+                                      'metadata': item_meta,
+                                      'tags': item_tags,
+                                      'icon':item_icon}
                                      )
 
     def gen_fin_objects(self):
