@@ -72,7 +72,7 @@ tasmohab.TasmohabUI.start_queued_threads -> tasmohab.TasmohabUI.append_to_log
 
 ![TasmoHab UI Functions](https://github.com/Gifford47/tasmohab/blob/master/docs/tasmohab_widget_functions.png?raw=true)
 
-#### [Show tasmota objects in scrollarea](https://github.com/Gifford47/tasmohab/blob/b7782cbbf6d76dd2fb72342bf9faae315ba54a94/tasmohab.py#L300)<br>
+### [Show tasmota objects in scrollarea](https://github.com/Gifford47/tasmohab/blob/b7782cbbf6d76dd2fb72342bf9faae315ba54a94/tasmohab.py#L300)<br>
 Show whole data (gpio information, openhab items, peripheral name, sensors, etc.) in a table/grid. The program differences between sensors
 and actuators. Sensors are objects, which are appear under 'StatusSNS' from the json response of the tasmota device.
 All other objects that do not appear there are actuators.
@@ -80,14 +80,14 @@ All other objects that do not appear there are actuators.
 def add_ui_widgets(self):
 ```
 
-#### [Add openhab widgets](https://github.com/Gifford47/tasmohab/blob/b7782cbbf6d76dd2fb72342bf9faae315ba54a94/tasmohab.py#L374)<br>
+### [Add openhab widgets](https://github.com/Gifford47/tasmohab/blob/b7782cbbf6d76dd2fb72342bf9faae315ba54a94/tasmohab.py#L374)<br>
 Add the openhab specific widgets behind the corresponding object:
 ```
 def add_ui_openhab_widgets(self, layout, row, peripheral_no='default'):
 ```
 The values for every widget about an item comes from: [openhab.py](The values for every widget about an item comes from:) 
 
-#### [Generate openhab items and things](https://github.com/Gifford47/tasmohab/blob/57ad5b3bfca9c0363c19613d0d58ef5800bae667/tasmohab.py#L550)
+### [Generate openhab items and things](https://github.com/Gifford47/tasmohab/blob/57ad5b3bfca9c0363c19613d0d58ef5800bae667/tasmohab.py#L550)
 All relevant data is stored in ```json_config_data```[dict]. The function takes these data to generate things 
 and items. It appends some additional data and then use [ohgen.py](https://github.com/Gifford47/tasmohab/blob/master/ohgen/ohgen.py) 
 to format the output data in a way that openhab can use it. Therefore ohgen needs a 'template of format'.
@@ -95,7 +95,14 @@ You have to choose these template before you can generate any thing or output. T
 named '*.tpl' and can be edited while runtime. The template have to be stored under ```ohgen/templates/test.tpl```.
 The data is then shown in the last tab and can be saved to a thing and an item file.
 
-#### Adding more commands to send
+### Use and edit your template
+The program uses all files with '*.tpl' extension in the directory 'ohgen/templates' for the output of the data.
+Here the format of the output can be predefined for each item type (Number, Contact, String, ...).
+The syntax rules for Jinja2 apply.
+If item types are omitted here, they are also ignored in the output. So e.g. several templates for different devices
+can be generated and used.
+
+## Adding more commands to send
 Add a new widget 'QLineEdit' with 'objectname' = 'tasmota commandname' (f.e.: 'ssid1')
 to the QFrame with the objectname 'frame'.
 The [function](https://github.com/Gifford47/tasmohab/blob/7aba782daeaec75c0e80afbc790b34a958e4f5ff/tasmohab.py#L845) get this object (and its name) and put the name with its value to the backlog command.

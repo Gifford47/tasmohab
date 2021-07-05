@@ -363,7 +363,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                         # i am a actuator
                         # write in same line like 'gpiox'
                         self.add_ui_widget_peripheral(json_tasmota_objects['gpios'][gpio]['peripheral'], row)
-                        self.add_ui_widgets_openhab(self.objects_grid, row, peripheral_no=peripheral_no)
+                        self.add_ui_widgets_openhab(self.objects_grid, row, json_tasmota_objects['gpios'][gpio]['peripheral'], peripheral_no=peripheral_no)
                     row += 1                                                            # next line
             else:
                 row += 1                                                                # next line
@@ -396,8 +396,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         #line.setMaxLength(80)
         self.objects_grid.addWidget(lbl, row, col)  # add the peripheral name/ sensor name
 
-    def add_ui_widgets_openhab(self, layout, row, peripheral_no='default'):
-        line = QLineEdit()                                      # item label
+    def add_ui_widgets_openhab(self, layout, row, label, peripheral_no='default'):
+        line = QLineEdit(label)                                 # item label
         line.setMaximumWidth(200)
         line.setMaxLength(80)
         layout.addWidget(line, row, 4)
@@ -436,13 +436,16 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
     def add_ui_widgets_sensor_single_line(self, layout, row, sensor, value, col_cb=1):
         cb = QCheckBox()
         cb.setChecked(True)
-        layout.addWidget(cb, row, col_cb)  # add the checkbox for the sensor
+        layout.addWidget(cb, row, col_cb)                                                   # add the checkbox for the sensor
         layout.addWidget(QLabel(sensor+':'+str(value)), row, 2)
         line = QLabel(sensor)
-        #line.setMaximumWidth(200)
-        #line.setMaxLength(80)
-        layout.addWidget(line, row, 3)  # add sensor name
-        self.add_ui_widgets_openhab(layout, row, peripheral_no=openhab.gpio_conversion.get(sensor,'default'))
+        layout.addWidget(line, row, 3)                                                      # add sensor name
+        try:
+            peripheral_no = list(openhab.std_items.keys())[list(openhab.std_items.values()).index([sensor])]
+            print(peripheral_no)
+        except Exception:
+            peripheral_no = 'default'
+        self.add_ui_widgets_openhab(layout, row, sensor, peripheral_no=peripheral_no)
         row += 1
 
     def update_json_to_yaml_config_data(self):
@@ -700,6 +703,7 @@ class SerialDataThread(QThread):
         self.port = port
         self.baud = baud
         self.timeout = timeout
+        self.max_retries = 5
 
     def run(self):
         ser = Serial(str(self.port), str(self.baud), timeout=self.timeout)
@@ -708,10 +712,10 @@ class SerialDataThread(QThread):
         try:
             if ser.is_open:
                 time.sleep(.1)  # skip tasmota startup
-                max_retries = 5
+
                 for no, cmd in enumerate(self.cmd_list):
                     retry = 0
-                    while retry < max_retries:
+                    while retry <= self.max_retries:
                         msg = ''
                         ser.reset_output_buffer()
                         ser.reset_input_buffer()
@@ -728,7 +732,7 @@ class SerialDataThread(QThread):
                             self.pyqt_signal_progress.emit(round(100 / len(self.cmd_list) * (no + 1)))  # update progress
                             break  # leave the while
                         else:
-                            if retry >= max_retries:
+                            if retry >= self.max_retries:
                                 self.pyqt_signal_error.emit('Could not get valid JSON data.')
                             else:
                                 retry += 1  # retry if not valid json
@@ -759,6 +763,7 @@ class HttpDataThread(QThread):
         self.ip = ip
         self.ui = TasmohabUI()
         self.timeout = .5
+        self.max_retries = 2
 
     def run(self):
         self.send_http_cmd(self.cmd_list)
@@ -874,8 +879,10 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
             print('Error:Backlog command only allows executing up to 30 consecutive commands!')
             return
         else:
-            backlog_str1 = 'backlog '
+            queue = []
+            backlog_str1 = ''
             backlog_str2 = ''
+            tmp = ''
             for cmd, value in cmds.items():
                 if cmd == 'backlog':
                     if value is not '':
@@ -885,16 +892,26 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                     else:
                         continue
                 if value is not '':
-                    backlog_str1 += str(cmd + ' ' + value)
-                    backlog_str1 += '; '
-            backlog_str1 = backlog_str1[:-2]                                                               # remove last two chars
-            cmd = [backlog_str1, backlog_str2, 'restart 1']
-            buttonReply = QMessageBox.question(self, 'Sending device config',
+                    tmp += str(cmd + ' ' + value)
+                    tmp += '; '
+            if tmp != '':
+                backlog_str1 = 'backlog ' + tmp
+                backlog_str1 = backlog_str1[:-2]                                                               # remove last two chars
+                queue.append(backlog_str1)
+            if backlog_str2 != '':
+                queue.append(backlog_str2)
+            if bool(queue):                                                               # if cmd is not empty
+                queue.append('restart 1')
+                buttonreply = QMessageBox.question(self, 'Sending device config',
                                                "Are you sure to send the following commands to the device?:\n\n"+backlog_str1+'\n\n'+backlog_str2,
                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if buttonReply == QMessageBox.Yes:
+            else:
+                QMessageBox.warning(self, 'Warning', 'No commands to send!')
+                return
+            if buttonreply == QMessageBox.Yes:
                 self.ui.last_communication_class.timeout = .7                                                 # set the timeout of class
-                self.ui.last_communication_class.cmd_list = cmd
+                self.ui.last_communication_class.max_retries = 0
+                self.ui.last_communication_class.cmd_list = queue
                 #self.ui.last_communication_class.pyqt_signal_error.connect(self.ui.datathread_on_error)      # 2nd argument is the returned data!!!
                 self.ui.last_communication_class.pyqt_signal_error.disconnect()
                 self.ui.last_communication_class.finished.connect(self.datathread_finished)
@@ -906,7 +923,7 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                 try:
                     self.movie.start()                                                                     # show loadging gif
                     self.ui.append_to_log('Sending new configuration to device ...')
-                    print('Sending to device:' + str(cmd))
+                    print('Sending to device:' + str(queue))
                     self.ui.last_communication_class.start()
                 except Exception as e:
                     self.ui.report_error()

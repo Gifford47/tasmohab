@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+#
 # Created by: PyQt5 UI code generator 5.15.4
 #
 # WARNING: Any manual changes made to this file will be lost when pyuic5 is
@@ -12,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(771, 367)
+        Dialog.resize(771, 393)
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.frame = QtWidgets.QFrame(Dialog)
@@ -119,8 +120,13 @@ class Ui_Dialog(object):
         self.backlog.setObjectName("backlog")
         self.gridLayout_cmds.addWidget(self.backlog, 10, 1, 1, 3)
         self.verticalLayout_2.addLayout(self.gridLayout_cmds)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_2.addItem(spacerItem2)
         self.lay_button = QtWidgets.QVBoxLayout()
         self.lay_button.setObjectName("lay_button")
+        self.label_14 = QtWidgets.QLabel(self.frame)
+        self.label_14.setObjectName("label_14")
+        self.lay_button.addWidget(self.label_14)
         self.btn_send_conf = QtWidgets.QPushButton(self.frame)
         self.btn_send_conf.setEnabled(True)
         self.btn_send_conf.setObjectName("btn_send_conf")
@@ -161,4 +167,5 @@ class Ui_Dialog(object):
         self.label_10.setText(_translate("Dialog", "Password (optional)"))
         self.backlog.setToolTip(_translate("Dialog", "Maximum 30 commands!"))
         self.backlog.setPlaceholderText(_translate("Dialog", "devicename tasmotadevice; topic testtopic; ssid1 wfissid"))
+        self.label_14.setText(_translate("Dialog", "Note: Empty lines are not sent."))
         self.btn_send_conf.setText(_translate("Dialog", "Send configuration to device"))
