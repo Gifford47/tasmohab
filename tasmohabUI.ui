@@ -212,7 +212,7 @@
               <item row="0" column="0">
                <widget class="QPushButton" name="btn_load_object">
                 <property name="text">
-                 <string>Load Object Config</string>
+                 <string>Load device config</string>
                 </property>
                </widget>
               </item>
@@ -692,8 +692,15 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
     <property name="title">
      <string>Menü</string>
     </property>
+    <widget class="QMenu" name="menuLoad_Config">
+     <property name="title">
+      <string>Config</string>
+     </property>
+     <addaction name="actionLoad_conf"/>
+    </widget>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
+    <addaction name="menuLoad_Config"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -718,6 +725,11 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
   <action name="actionInfo">
    <property name="text">
     <string>Info</string>
+   </property>
+  </action>
+  <action name="actionLoad_conf">
+   <property name="text">
+    <string>Load Config</string>
    </property>
   </action>
  </widget>

@@ -13,6 +13,7 @@ import requests
 import serial
 import threading
 import time
+import configparser
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextBrowser, QLabel, QVBoxLayout, QWidget, \
@@ -30,6 +31,7 @@ import ohgen
 import globals
 
 ohgen_templates = []                        # templates for ohgen
+config_name = 'tasmohab.cfg'                # contains config data
 
 json_config_data = {}                       # data from YAML config file. later it holds all relevant data to generate a thing an item
 json_dev_status = {}                        # all device data from device (http or serial)
@@ -42,6 +44,12 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
     def __init__(self, parent=None):
         super(TasmohabUI, self).__init__(parent)
         self.setupUi(self)
+        self.config = configparser.ConfigParser()
+        if os.path.isfile(config_name):
+            self.read_config(c_file=config_name)
+        else:
+            QMessageBox.warning(self,'No config file found!', 'Please make sure, that a "tasmohab.cfg" exists!')
+            self.read_config()
         self.http_url = ''
         self.last_communication_class = None
 
@@ -59,6 +67,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # menubar
         self.actionInfo.triggered.connect(self.about)
         self.actionExit.triggered.connect(self.exit)
+        self.actionLoad_conf.triggered.connect(self.read_config)
 
         self.btn_serport_refr.clicked.connect(self.list_com_ports)                          # Remember to pass the definition/method (without '()'), not the return value!
         self.btn_load_object.clicked.connect(self.load_yaml_file_config)
@@ -73,6 +82,21 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.btn_gen_fin_objts.clicked.connect(self.gen_fin_objects)
         self.btn_save_final_obj.clicked.connect(self.save_final_files)
         self.btn_clear_log.clicked.connect(self.clear_log)
+
+    def read_config(self, c_file=None):
+        if c_file is bool(c_file):                                                  # if file is None
+            c_file = QFileDialog.getOpenFileName(filter="Config(*.cfg)")[0]
+            if not c_file == '':
+                self.config.read(c_file)
+                self.append_to_log('Config file loaded:' + str(c_file))
+            else:
+                self.close()                                                        # exit
+        else:
+            try:
+                self.config.read(c_file)
+                self.append_to_log('Config file loaded:' + str(c_file))
+            except Exception as e:
+                self.append_to_log('Config file corrupted:' + str(c_file))
 
     def clear_log(self):
         self.txt_log.clear()
@@ -596,10 +620,11 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         item_icon = str(self.objects_grid.itemAtPosition(row, col + 10).widget().text())                        # qlineedit
 
         # openhab specific syntax
-        item_groups = '('+item_groups+')' if (item_groups!='') else ''
-        item_feature = item_feature.split(',') if (item_feature!='') else ''                                    # returns a list (for jinja2 template)
-        item_tags = str(item_tags.split(',')).replace("'",'"') if (item_tags!='') else ''
-        item_icon = '<'+item_icon+'>' if (item_icon!='') else ''
+        if self.config['DEFAULT']['RawOutput'] == False:
+            item_groups = self.config['openhab']['PrefixGroups']+item_groups+self.config['openhab']['SuffixGroups'] if (item_groups!='') else ''
+            item_feature = item_feature.split(',') if (item_feature!='') else ''                                    # returns a list (for jinja2 template)
+            item_tags = str(item_tags.split(',')).replace("'",'"') if (item_tags!='') else ''
+            item_icon = self.config['openhab']['PrefixIcons']+item_icon+self.config['openhab']['SuffixIcons'] if (item_icon!='') else ''
 
         self.items_dict[item_type].append({'name': item_name,
                                       'label': item_label,

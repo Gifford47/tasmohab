@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+#
 # Created by: PyQt5 UI code generator 5.15.4
 #
 # WARNING: Any manual changes made to this file will be lost when pyuic5 is
@@ -327,6 +328,8 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuTasmHAB = QtWidgets.QMenu(self.menubar)
         self.menuTasmHAB.setObjectName("menuTasmHAB")
+        self.menuLoad_Config = QtWidgets.QMenu(self.menuTasmHAB)
+        self.menuLoad_Config.setObjectName("menuLoad_Config")
         self.menuAbout = QtWidgets.QMenu(self.menubar)
         self.menuAbout.setObjectName("menuAbout")
         MainWindow.setMenuBar(self.menubar)
@@ -339,8 +342,12 @@ class Ui_MainWindow(object):
         self.actionExit.setObjectName("actionExit")
         self.actionInfo = QtWidgets.QAction(MainWindow)
         self.actionInfo.setObjectName("actionInfo")
+        self.actionLoad_conf = QtWidgets.QAction(MainWindow)
+        self.actionLoad_conf.setObjectName("actionLoad_conf")
+        self.menuLoad_Config.addAction(self.actionLoad_conf)
         self.menuTasmHAB.addSeparator()
         self.menuTasmHAB.addAction(self.actionExit)
+        self.menuTasmHAB.addAction(self.menuLoad_Config.menuAction())
         self.menuAbout.addAction(self.actionInfo)
         self.menubar.addAction(self.menuTasmHAB.menuAction())
         self.menubar.addAction(self.menuAbout.menuAction())
@@ -393,7 +400,7 @@ class Ui_MainWindow(object):
         self.cmb_baud.setItemText(0, _translate("MainWindow", "9600"))
         self.cmb_baud.setItemText(1, _translate("MainWindow", "115200"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Device config"))
-        self.btn_load_object.setText(_translate("MainWindow", "Load Object Config"))
+        self.btn_load_object.setText(_translate("MainWindow", "Load device config"))
         self.lbl_thing_file.setText(_translate("MainWindow", "Thing File"))
         self.lbl_item_file.setText(_translate("MainWindow", "Item File"))
         self.btn_set_dev_conf.setText(_translate("MainWindow", "Set Device Config"))
@@ -422,8 +429,10 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Log"))
         self.lbl_last_log_txt.setText(_translate("MainWindow", "Last Log:"))
         self.menuTasmHAB.setTitle(_translate("MainWindow", "Menü"))
+        self.menuLoad_Config.setTitle(_translate("MainWindow", "Config"))
         self.menuAbout.setTitle(_translate("MainWindow", "About"))
         self.action_save_conf.setText(_translate("MainWindow", "Save Device Config"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
         self.actionInfo.setText(_translate("MainWindow", "Info"))
+        self.actionLoad_conf.setText(_translate("MainWindow", "Load Config"))
 import ressource_rc
