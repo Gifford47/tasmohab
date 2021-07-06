@@ -598,7 +598,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # openhab specific syntax
         item_groups = '('+item_groups+')' if (item_groups!='') else ''
         item_feature = item_feature.split(',') if (item_feature!='') else ''                                    # returns a list (for jinja2 template)
-        item_tags = str(item_tags.split(',')) if (item_tags!='') else ''
+        item_tags = str(item_tags.split(',')).replace("'",'"') if (item_tags!='') else ''
         item_icon = '<'+item_icon+'>' if (item_icon!='') else ''
 
         self.items_dict[item_type].append({'name': item_name,
