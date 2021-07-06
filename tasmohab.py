@@ -374,7 +374,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid.addWidget(QLabel('Sensors:'), row, 0)  # add Header for additional sensors
         row += 1
         for sensorname, value in json_dev_status['StatusSNS'].items():
-            if isinstance(json_dev_status['StatusSNS'][sensorname], dict):                    # if sensor has a following dict:
+            if isinstance(json_dev_status['StatusSNS'][sensorname], dict):                    # if sensor has a following dict
+                # Sensor is a multisensor with multiple sensors
                 # create an item for every row:
                 cb = QCheckBox()
                 cb.setChecked(True)
@@ -382,8 +383,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.add_ui_widget_peripheral(sensorname, row)
                 row += 1
                 for sensor, value in json_dev_status['StatusSNS'][sensorname].items():        # iter over items
-                    self.add_ui_widgets_sensor_single_line(self.objects_grid, row, sensor, value)             # add sensor to layout
+                    self.add_ui_widgets_sensor_single_line(self.objects_grid, row, sensor, value, peripheral_name=sensorname)             # add sensor to layout
                     row += 1
+            # sensor is a single sensor with one value
             else:
                 self.add_ui_widget_peripheral(sensorname, row)
                 self.add_ui_widgets_sensor_single_line(self.objects_grid, row, sensorname, value, col_cb=0)
@@ -442,20 +444,36 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         line.setMaxLength(80)
         layout.addWidget(line, row, 10)
 
-    def add_ui_widgets_sensor_single_line(self, layout, row, sensor, value, col_cb=1):
+    # a single sensor will be shown in the ui in the following
+    def add_ui_widgets_sensor_single_line(self, layout, row, sensor, value, col_cb=1, peripheral_name=None):
         cb = QCheckBox()
         cb.setChecked(True)
         layout.addWidget(cb, row, col_cb)                                                   # add the checkbox for the sensor
         layout.addWidget(QLabel(sensor+':'+str(value)), row, 2)
         line = QLabel(sensor)
         layout.addWidget(line, row, 3)                                                      # add sensor name
-        try:
-            peripheral_no = list(openhab.std_items.keys())[list(openhab.std_items.values()).index([sensor])]
-            print(peripheral_no)
-        except Exception:
+        # if peripheral_name was submitted, get ther peripheral_number, else use default values
+        if peripheral_name != None:
+            peripheral_no = self.get_peripheral_no_by_name(peripheral_name)
+        else:
             peripheral_no = 'default'
         self.add_ui_widgets_openhab(layout, row, sensor, peripheral_no=peripheral_no)
         row += 1
+
+    def get_peripheral_no_by_name(self, name):                                              # try to find the appropriate peripheral number from list
+        peripheral_no = 'default'
+        try:                                                                                # try to find the appropriate peripheral number from list
+            for per_no, _dict in openhab.std_items.items():
+                for key, val in _dict.items():
+                    if key == 'name' and val.lower() == str(name).lower():
+                        peripheral_no = per_no
+                        break                                                               # Break the inner loop...
+                else:
+                    continue                                                                # Continue if the inner loop wasn't broken.
+                break                                                                       # Inner loop was broken, break the outer.
+        except Exception:
+            pass
+        return peripheral_no
 
     def update_json_to_yaml_config_data(self):
         global json_config_data
@@ -576,10 +594,17 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         item_meta = str(self.objects_grid.itemAtPosition(row, col + 8).widget().text())                         # qlineedit
         item_tags = str(self.objects_grid.itemAtPosition(row, col + 9).widget().text())                         # qlineedit
         item_icon = str(self.objects_grid.itemAtPosition(row, col + 10).widget().text())                        # qlineedit
+
+        # openhab specific syntax
+        item_groups = '('+item_groups+')' if (item_groups!='') else ''
+        item_feature = item_feature.split(',') if (item_feature!='') else ''                                    # returns a list (for jinja2 template)
+        item_tags = str(item_tags.split(',')) if (item_tags!='') else ''
+        item_icon = '<'+item_icon+'>' if (item_icon!='') else ''
+
         self.items_dict[item_type].append({'name': item_name,
                                       'label': item_label,
                                       'groups': item_groups,
-                                      'features': [item_feature],
+                                      'features': item_feature,                                         # returns a list (for jinja2 template)
                                       'metadata': item_meta,
                                       'tags': item_tags,
                                       'icon':item_icon}

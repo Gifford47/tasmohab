@@ -1,3 +1,6 @@
+# Example of validated item configuration:
+# Number:Temperature radiator_valve_02_Set "Solltemperatur York [%.1f %unit%]" <heating1> (gRFritz_02,gRtSoll) ["Setpoint","Temperature","Property_Temperature"] { channel="avmfritz:Comet_DECT:192_168_178_1:119600949320:set_temp", widget="oh-stepper-card" [step="0.5", min=6, max=24], listWidget="oh-stepper-item" [step="0.5", min=6, max=24] }
+
 item_types = ['Color', 'Contact', 'Dimmer', 'Group', 'Image', 'Location', 'Number', 'Player', 'Rollershutter', 'String', 'Switch']
 
 feature_binary = 'binary'
@@ -9,12 +12,10 @@ meta_hum = 'synonyms="Humidity"'
 meta_switch = 'synonyms="switch"'
 meta_light = 'synonyms="Lights, Lighting"'
 
-tags_temp = ['sensor', 'Temperature']
-tags_hum = ['sensor', 'Humidity']
-tags_switch = ['switch', 'button']
-tags_light = ['light', 'led']
-
-
+tags_temp = 'sensor,Temperature'
+tags_hum = 'sensor,Humidity'
+tags_switch = 'switch,button'
+tags_light = 'light,led'
 
 # PLEASE DO NOT EDIT THE TABLE BELOW. ONLY USE THE FILE 'tasmota_gpios.xlsx' AND COPY THE OUTPUT TO THIS FILE!
 # standard definitions (for items) for sensors and actuators:
