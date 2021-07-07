@@ -48,8 +48,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         if os.path.isfile(config_name):
             self.read_config(c_file=config_name)
         else:
-            QMessageBox.warning(self,'No config file found!', 'Please make sure, that a "tasmohab.cfg" exists!')
             self.read_config()
+
         self.http_url = ''
         self.last_communication_class = None
 
@@ -84,21 +84,31 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.btn_clear_log.clicked.connect(self.clear_log)
 
     def read_config(self, c_file=None):
-        if c_file is bool(c_file):                                                  # if file is None
+        """Reads tasmohab config file (*.cfg)"""
+        if c_file is bool(c_file) or c_file is None:                     # if file is None
+            if bool(self.config.sections()) == False:                    # if config file is empty
+                QMessageBox.warning(self,'No config file loaded!', 'Please make sure, that a "tasmohab.cfg" exists and is loaded!')
             c_file = QFileDialog.getOpenFileName(filter="Config(*.cfg)")[0]
             if not c_file == '':
                 self.config.read(c_file)
+                self.cmb_outp_format.clear()
+                self.cmb_outp_format.addItems(self.config.sections())
+
                 self.append_to_log('Config file loaded:' + str(c_file))
             else:
-                self.close()                                                        # exit
+                if bool(self.config.sections()) == False:
+                    sys.exit()
         else:
             try:
                 self.config.read(c_file)
+                self.cmb_outp_format.clear()
+                self.cmb_outp_format.addItems(self.config.sections())
                 self.append_to_log('Config file loaded:' + str(c_file))
             except Exception as e:
                 self.append_to_log('Config file corrupted:' + str(c_file))
 
     def clear_log(self):
+        """Clears all log entries"""
         self.txt_log.clear()
 
     @staticmethod
@@ -352,10 +362,10 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid.addWidget(QLabel('GPIO'), 0, 1)
         self.objects_grid.addWidget(QLabel('GPIO Value'), 0, 2)
         self.objects_grid.addWidget(QLabel('Peripheral Name'), 0, 3)
-        self.objects_grid.addWidget(QLabel('Item Label'), 0, 4)
-        self.objects_grid.addWidget(QLabel('Item Type'), 0, 5)
-        self.objects_grid.addWidget(QLabel('Groups'), 0, 6)
-        self.objects_grid.addWidget(QLabel('Feature'), 0, 7)
+        self.objects_grid.addWidget(QLabel('Feature'), 0, 4)
+        self.objects_grid.addWidget(QLabel('Item Label'), 0, 5)
+        self.objects_grid.addWidget(QLabel('Item Type'), 0, 6)
+        self.objects_grid.addWidget(QLabel('Groups'), 0, 7)
         self.objects_grid.addWidget(QLabel('Metadata'), 0, 8)
         self.objects_grid.addWidget(QLabel('Tags'), 0, 9)
         self.objects_grid.addWidget(QLabel('Icon'), 0, 10)
@@ -388,7 +398,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                         # i am a actuator
                         # write in same line like 'gpiox'
                         self.add_ui_widget_peripheral(json_tasmota_objects['gpios'][gpio]['peripheral'], row)
-                        self.add_ui_widgets_openhab(self.objects_grid, row, json_tasmota_objects['gpios'][gpio]['peripheral'], peripheral_no=peripheral_no)
+                        self.add_ui_widgets_user(self.objects_grid, row, json_tasmota_objects['gpios'][gpio]['peripheral'], peripheral_no=peripheral_no)
                     row += 1                                                            # next line
             else:
                 row += 1                                                                # next line
@@ -423,26 +433,26 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         #line.setMaxLength(80)
         self.objects_grid.addWidget(lbl, row, col)  # add the peripheral name/ sensor name
 
-    def add_ui_widgets_openhab(self, layout, row, label, peripheral_no='default'):
-        line = QLineEdit(label)                                                         # item label
+    def add_ui_widgets_user(self, layout, row, label, peripheral_no='default'):
+        try:
+            line = QLineEdit(openhab.std_items[peripheral_no]['feature'])                    # feature
+        except:
+            line = QLineEdit(openhab.std_items['default']['feature'])                           # else: return default value
         line.setMaximumWidth(200)
         line.setMaxLength(80)
         layout.addWidget(line, row, 4)
+        line = QLineEdit(label)                                                         # item label
+        line.setMaximumWidth(200)
+        line.setMaxLength(80)
+        layout.addWidget(line, row, 5)
         cb = QComboBox()                                                                # item type
         cb.addItems(openhab.item_types)
         try:
             cb.setCurrentIndex(openhab.std_items[peripheral_no]['std_type'])
         except:
             pass  # if index is not found
-        layout.addWidget(cb, row, 5)
+        layout.addWidget(cb, row, 6)
         line = QLineEdit()                                                              # item group
-        line.setMaximumWidth(200)
-        line.setMaxLength(80)
-        layout.addWidget(line, row, 6)
-        try:
-            line = QLineEdit(openhab.std_items[peripheral_no]['feature'])                    # feature
-        except:
-            line = QLineEdit(openhab.std_items['default']['feature'])                           # else: return default value
         line.setMaximumWidth(200)
         line.setMaxLength(80)
         layout.addWidget(line, row, 7)
@@ -481,7 +491,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             peripheral_no = self.get_peripheral_no_by_name(peripheral_name)
         else:
             peripheral_no = 'default'
-        self.add_ui_widgets_openhab(layout, row, sensor, peripheral_no=peripheral_no)
+        self.add_ui_widgets_user(layout, row, sensor, peripheral_no=peripheral_no)
         row += 1
 
     def get_peripheral_no_by_name(self, name):                                              # try to find the appropriate peripheral number from list
@@ -611,20 +621,27 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.tabWidget.setCurrentIndex(cur_index + 1)
 
     def update_items_dict(self, item_name, row, col):
-        item_label = str(self.objects_grid.itemAtPosition(row, col + 4).widget().text())                        # qlineedit
-        item_type = str(self.objects_grid.itemAtPosition(row, col + 5).widget().currentText())                  # qcombobox
-        item_groups = str(self.objects_grid.itemAtPosition(row, col + 6).widget().text())                       # qlineedit
-        item_feature = str(self.objects_grid.itemAtPosition(row, col + 7).widget().text())                      # qlineedit
-        item_meta = str(self.objects_grid.itemAtPosition(row, col + 8).widget().text())                         # qlineedit
-        item_tags = str(self.objects_grid.itemAtPosition(row, col + 9).widget().text())                         # qlineedit
-        item_icon = str(self.objects_grid.itemAtPosition(row, col + 10).widget().text())                        # qlineedit
+        item_feature = self.objects_grid.itemAtPosition(row, col + 4).widget().text()                      # qlineedit
+        item_label = self.objects_grid.itemAtPosition(row, col + 5).widget().text()                        # qlineedit
+        item_type = self.objects_grid.itemAtPosition(row, col + 6).widget().currentText()                  # qcombobox
+        item_groups = self.objects_grid.itemAtPosition(row, col + 7).widget().text()                       # qlineedit
+        item_meta = self.objects_grid.itemAtPosition(row, col + 8).widget().text()                         # qlineedit
+        item_tags = self.objects_grid.itemAtPosition(row, col + 9).widget().text()                         # qlineedit
+        item_icon = self.objects_grid.itemAtPosition(row, col + 10).widget().text()                        # qlineedit
+
+        item_feature = item_feature.split(',') if (item_feature != '') else ''                             # returns a list (for jinja2 template)
 
         # openhab specific syntax
-        if self.config['DEFAULT']['RawOutput'] == False:
-            item_groups = self.config['openhab']['PrefixGroups']+item_groups+self.config['openhab']['SuffixGroups'] if (item_groups!='') else ''
-            item_feature = item_feature.split(',') if (item_feature!='') else ''                                    # returns a list (for jinja2 template)
-            item_tags = str(item_tags.split(',')).replace("'",'"') if (item_tags!='') else ''
-            item_icon = self.config['openhab']['PrefixIcons']+item_icon+self.config['openhab']['SuffixIcons'] if (item_icon!='') else ''
+        if self.config.getboolean('DEFAULT','RawOutput') == False:
+            system = self.config[self.cmb_outp_format.currentText()]                                            # choose smart home system
+
+            item_label = str(system['PrefixLabel']+item_label+system['SuffixLabel']).replace("'", '') if (item_label!='') else ''
+            item_groups = str(system['PrefixGroups']+item_groups+system['SuffixGroups']).replace("'", '') if (item_groups!='') else ''
+            item_meta = str(system['PrefixMeta']+item_meta+system['SuffixMeta']).replace("'", '') if (item_meta!='') else ''
+            item_tags = str(system['PrefixTags'] + item_tags + system['SuffixTags']).replace("'", '') if (item_tags != '') else ''
+            if self.config.getboolean(self.cmb_outp_format.currentText(), 'TagsList') == True:
+                item_tags = json.dumps(item_tags.split(system['TagsListSeparator'])) if (item_tags!='') else ''
+            item_icon = str(system['PrefixIcons']+item_icon+system['SuffixIcons']).replace("'",'') if (item_icon!='') else ''
 
         self.items_dict[item_type].append({'name': item_name,
                                       'label': item_label,

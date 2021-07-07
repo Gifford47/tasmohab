@@ -53,9 +53,9 @@ tasmohab.main_ui -> tasmohab.TasmohabUI.update_progressbar
 tasmohab.TasmohabUI.__init__ -> tasmohabUI.Ui_MainWindow.setupUi
 tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_headers
 tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_widget_peripheral
-tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_widgets_openhab
+tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_widgets_user
 tasmohab.TasmohabUI.add_ui_widgets -> tasmohab.TasmohabUI.add_ui_widgets_sensor_single_line
-tasmohab.TasmohabUI.add_ui_widgets_sensor_single_line -> tasmohab.TasmohabUI.add_ui_widgets_openhab
+tasmohab.TasmohabUI.add_ui_widgets_sensor_single_line -> tasmohab.TasmohabUI.add_ui_widgets_user
 tasmohab.TasmohabUI.datathread_dev_data -> tasmohab.TasmohabUI.update_ui_device
 tasmohab.TasmohabUI.datathread_finish -> tasmohab.TasmohabUI.start_queued_threads
 tasmohab.TasmohabUI.datathread_gpio_data -> tasmohab.TasmohabUI.add_ui_widgets
@@ -128,9 +128,13 @@ runtime to generate a different layout for other smarthome systems.
     - only 'backlog cmd' is implemented, other configurations are not transmitted or saved
 
 ## Debugging
+### Check your output
+Go to [Openhab-DEMO](https://demo.openhab.org/settings/items/add-from-textual-definition) and validate your output. if erros exists,
+check your template first.
+
 ### Convert to .exe
 - python -m PyQt5.uic.pyuic tasmohabUI.ui -o tasmohabUI.py       # for UI components
-- pyrcc5 resource.qrc -o ressource_rc.py      # for ressource items f.e. images (ressource.qrc)
+- pyrcc5 resource.qrc -o resource_rc.py      # for resource items f.e. images (ressource.qrc)
 
 - pyinstaller --onefile --windowed --icon=icon.ico --noconsole --clean --paths=...\TasmoHAB --pat
 hs=...\TasmoHAB\ohgen tasmohab.py

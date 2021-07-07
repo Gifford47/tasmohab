@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="res">
-    <file>img/tasmota_logo.png</file>
-    <file>img/tasmota_logo_short.png</file>
-  </qresource>
-</RCC>
