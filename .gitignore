@@ -117,7 +117,7 @@ _Backup/
 .sync*
 .owncloud*
 Desktop.ini
-.xlsx
+*.xlsx
 
 # Sensitive or high-churn files:
 .idea/dataSources.ids
