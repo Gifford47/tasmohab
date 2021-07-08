@@ -95,6 +95,12 @@ You have to choose these template before you can generate any thing or output. T
 named '*.tpl' and can be edited while runtime. The template have to be stored under ```ohgen/templates/test.tpl```.
 The data is then shown in the last tab and can be saved to a thing and an item file.
 
+### What is the feature line for?
+The 'feature' line is not an openhab item or so. It is a special user-defined option for every item
+to distinguish it from normal item types (switch, number, ...). It is only used by the previously selected template.
+This can be used, for example, to control whether an element of the type 'Dimmer' has additional properties such as
+'colourtemperature' or 'RGB'. This can be easily queried e.g. with an if-clause in the template.
+
 ### Use and edit your template
 The program uses all files with '*.tpl' extension in the directory 'ohgen/templates' for the output of the data.
 Here the format of the output can be predefined for each item type (Number, Contact, String, ...).
