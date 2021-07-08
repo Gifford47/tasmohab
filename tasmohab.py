@@ -593,7 +593,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                             row += 1                                                                                # next line
                             while (type(next_item) == QCheckBox):
                                 if next_item.isChecked():                                                           # get the sensor checkbox (not the gpio checkbox!)
-                                    self.update_items_dict(item_name, row, col)                                       # add item to dict
+                                    self.read_ui_widgets_user(row, col)                                             # read item in row and col
+                                    self.update_item_by_name(item_name)                                             # add/update item in dict
                                 row += 1
                                 try:
                                     next_item = self.objects_grid.itemAtPosition(row, col + 1).widget()             # try to get the next checkbox
@@ -601,7 +602,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                                     next_item = None
                         else:                                                                                       # this line has no item and is a actuator
                             # i am a single sensor (one line in ui) or a actuator: read in and fill the dict
-                            self.update_items_dict(item_name, row, col)                                               # add item to dict
+                            self.read_ui_widgets_user(row, col)                                                 # read item in row and col
+                            self.update_item_by_name(item_name)                                                 # add/ update item in dict
                             row += 1
                         ###################### END ######################
                         self.json_config_data_new[thing_id].update(self.items_dict)                                 # write new items to dict
@@ -620,36 +622,37 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         cur_index = self.tabWidget.currentIndex()
         self.tabWidget.setCurrentIndex(cur_index + 1)
 
-    def update_items_dict(self, item_name, row, col):
-        item_feature = self.objects_grid.itemAtPosition(row, col + 4).widget().text()                      # qlineedit
-        item_label = self.objects_grid.itemAtPosition(row, col + 5).widget().text()                        # qlineedit
-        item_type = self.objects_grid.itemAtPosition(row, col + 6).widget().currentText()                  # qcombobox
-        item_groups = self.objects_grid.itemAtPosition(row, col + 7).widget().text()                       # qlineedit
-        item_meta = self.objects_grid.itemAtPosition(row, col + 8).widget().text()                         # qlineedit
-        item_tags = self.objects_grid.itemAtPosition(row, col + 9).widget().text()                         # qlineedit
-        item_icon = self.objects_grid.itemAtPosition(row, col + 10).widget().text()                        # qlineedit
+    def read_ui_widgets_user(self, row, col):
+        self.item_feature = self.objects_grid.itemAtPosition(row, col + 4).widget().text()                      # qlineedit
+        self.item_label = self.objects_grid.itemAtPosition(row, col + 5).widget().text()                        # qlineedit
+        self.item_type = self.objects_grid.itemAtPosition(row, col + 6).widget().currentText()                  # qcombobox
+        self.item_groups = self.objects_grid.itemAtPosition(row, col + 7).widget().text()                       # qlineedit
+        self.item_meta = self.objects_grid.itemAtPosition(row, col + 8).widget().text()                         # qlineedit
+        self.item_tags = self.objects_grid.itemAtPosition(row, col + 9).widget().text()                         # qlineedit
+        self.item_icon = self.objects_grid.itemAtPosition(row, col + 10).widget().text()                        # qlineedit
 
-        item_feature = item_feature.split(',') if (item_feature != '') else ''                             # returns a list (for jinja2 template)
+    def update_item_by_name(self, item_name):
+        self.item_feature = self.item_feature.split(',') if (self.item_feature != '') else ''                             # returns a list (for jinja2 template)
 
         # openhab specific syntax
         if self.config.getboolean('DEFAULT','RawOutput') == False:
             system = self.config[self.cmb_outp_format.currentText()]                                            # choose smart home system
 
-            item_label = str(system['PrefixLabel']+item_label+system['SuffixLabel']).replace("'", '') if (item_label!='') else ''
-            item_groups = str(system['PrefixGroups']+item_groups+system['SuffixGroups']).replace("'", '') if (item_groups!='') else ''
-            item_meta = str(system['PrefixMeta']+item_meta+system['SuffixMeta']).replace("'", '') if (item_meta!='') else ''
-            item_tags = str(system['PrefixTags'] + item_tags + system['SuffixTags']).replace("'", '') if (item_tags != '') else ''
+            self.item_label = str(system['PrefixLabel']+self.item_label+system['SuffixLabel']).replace("'", '') if (self.item_label!='') else ''
+            self.item_groups = str(system['PrefixGroups']+self.item_groups+system['SuffixGroups']).replace("'", '') if (self.item_groups!='') else ''
+            self.item_meta = str(system['PrefixMeta']+self.item_meta+system['SuffixMeta']).replace("'", '') if (self.item_meta!='') else ''
+            self.item_tags = str(system['PrefixTags'] + self.item_tags + system['SuffixTags']).replace("'", '') if (self.item_tags != '') else ''
             if self.config.getboolean(self.cmb_outp_format.currentText(), 'TagsList') == True:
-                item_tags = json.dumps(item_tags.split(system['TagsListSeparator'])) if (item_tags!='') else ''
-            item_icon = str(system['PrefixIcons']+item_icon+system['SuffixIcons']).replace("'",'') if (item_icon!='') else ''
+                self.item_tags = json.dumps(self.item_tags.split(system['TagsListSeparator'])) if (self.item_tags!='') else ''
+            self.item_icon = str(system['PrefixIcons']+self.item_icon+system['SuffixIcons']).replace("'",'') if (self.item_icon!='') else ''
 
-        self.items_dict[item_type].append({'name': item_name,
-                                      'label': item_label,
-                                      'groups': item_groups,
-                                      'features': item_feature,                                         # returns a list (for jinja2 template)
-                                      'metadata': item_meta,
-                                      'tags': item_tags,
-                                      'icon':item_icon}
+        self.items_dict[self.item_type].append({'name': item_name,
+                                      'label': self.item_label,
+                                      'groups': self.item_groups,
+                                      'features': self.item_feature,                                         # returns a list (for jinja2 template)
+                                      'metadata': self.item_meta,
+                                      'tags': self.item_tags,
+                                      'icon':self.item_icon}
                                      )
 
     def gen_fin_objects(self):
