@@ -80,10 +80,10 @@ All other objects that do not appear there are actuators.
 def add_ui_widgets(self):
 ```
 
-### [Add openhab widgets](https://github.com/Gifford47/tasmohab/blob/b7782cbbf6d76dd2fb72342bf9faae315ba54a94/tasmohab.py#L374)<br>
-Add the openhab specific widgets behind the corresponding object:
+### [Add user widgets](https://github.com/Gifford47/tasmohab/blob/21476741217365b3b653a0ad79f24ffff54650b5/tasmohab.py#L436)<br>
+Add the user specific widgets behind the corresponding object:
 ```
-def add_ui_openhab_widgets(self, layout, row, peripheral_no='default'):
+def add_ui_widgets_user(self, layout, row, label, peripheral_no='default'):
 ```
 The values for every widget about an item comes from: [openhab.py](The values for every widget about an item comes from:) 
 
