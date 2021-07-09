@@ -641,9 +641,12 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.item_label = str(system['PrefixLabel']+self.item_label+system['SuffixLabel']).replace("'", '') if (self.item_label!='') else ''
             self.item_groups = str(system['PrefixGroups']+self.item_groups+system['SuffixGroups']).replace("'", '') if (self.item_groups!='') else ''
             self.item_meta = str(system['PrefixMeta']+self.item_meta+system['SuffixMeta']).replace("'", '') if (self.item_meta!='') else ''
+            print(self.item_tags)
             self.item_tags = str(system['PrefixTags'] + self.item_tags + system['SuffixTags']).replace("'", '') if (self.item_tags != '') else ''
+            print(self.item_tags)
             if self.config.getboolean(self.cmb_outp_format.currentText(), 'TagsList') == True:
-                self.item_tags = json.dumps(self.item_tags.split(system['TagsListSeparator'])) if (self.item_tags!='') else ''
+                self.item_tags = json.dumps(self.item_tags.split(',')) if (self.item_tags!='') else ''
+                print(self.item_tags)
             self.item_icon = str(system['PrefixIcons']+self.item_icon+system['SuffixIcons']).replace("'",'') if (self.item_icon!='') else ''
 
         self.items_dict[self.item_type].append({'name': item_name,
