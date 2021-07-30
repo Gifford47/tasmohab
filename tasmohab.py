@@ -33,6 +33,9 @@ import globals
 ohgen_templates = []                        # templates for ohgen
 config_name = 'tasmohab.cfg'                # contains config data
 
+templates_path = '/ohgen/templates'         # templates path
+std_template = '/ohgen/template.yaml'             # standard template file
+
 json_config_data = {}                       # data from YAML config file. later it holds all relevant data to generate a thing an item
 json_dev_status = {}                        # all device data from device (http or serial)
 json_gpio_status = {}                       # all gpio data from device (http or serial)
@@ -45,7 +48,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         super(TasmohabUI, self).__init__(parent)
         self.setupUi(self)
         self.config = configparser.ConfigParser()
-        if os.path.isfile(config_name):
+        if os.path.isfile(config_name):                                                     # load app config file (*.cfg)
             self.read_config(c_file=config_name)
         else:
             self.read_config()
@@ -56,13 +59,15 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.UI_threads = []  # list of queued ui-threads
         self.yaml_config_data = ''
         self.json_config_data_new = {}
-        for root, dirs, files in os.walk("./ohgen/templates"):                              # scan all template files (*.tpl) in dir
+        for root, dirs, files in os.walk('.'+templates_path):                              # scan all template files (*.tpl) in dir
             for file in files:
                 if file.endswith(".tpl"):
                     ohgen_templates.append(str(file.split('.')[0]))
         self.cmb_template.addItems(ohgen_templates)
 
         self.dev_config_wind = DevConfigWindow  # create an instance
+
+        self.load_yaml_file_config(std_file=os.path.abspath(os.getcwd()+std_template))           # load std-template file
 
         # menubar
         self.actionInfo.triggered.connect(self.about)
@@ -303,23 +308,35 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         except Exception as e:
             pass
 
-    def load_yaml_file_config(self):
-        global json_config_data
-        self.conf_file = QFileDialog.getOpenFileName(filter="YAML(*.yaml)")[0]
-        if not self.conf_file == '':
-            self.txt_config_file_path.setText(self.conf_file)
-            json_config_data = self.read_yaml(self.conf_file)
+    def load_yaml_file_config(self, std_file=''):
+        try:
+            global json_config_data
+            print(std_file)
+            if os.path.isfile(std_file):
+                self.conf_file = std_file
+                self.txt_config_file_path.setText(std_file)
+                json_config_data = self.read_yaml(std_file)
+            else:
+                self.conf_file = QFileDialog.getOpenFileName(filter="YAML(*.yaml)")[0]
+                if not self.conf_file == '':
+                    self.txt_config_file_path.setText(self.conf_file)
+                    json_config_data = self.read_yaml(self.conf_file)
+                self.tabWidget.setCurrentIndex(2)                                           # jump ti final tab
             if 'settings' in json_config_data:
                 self.txt_thing_file.setText(json_config_data['settings']['outputs']['default-output']['things-file'])
                 self.txt_item_file.setText(json_config_data['settings']['outputs']['default-output']['items-file'])
             else:
                 self.append_to_log('Corrupt YAML file loaded! Exiting here!')
+                QMessageBox.warning(self, 'Corrupt template file', 'Corrupt YAML file loaded! Try another one.')
+                return
             self.set_config_settings()
             self.update_json_to_yaml_config_data()
             self.gen_fin_objects()
             self.update_ui_device_config()
             self.btn_gen_fin_objts.setEnabled(True)
             self.btn_save_final_obj.setEnabled(True)
+        except Exception:
+            self.report_error()
 
     def show_device_details(self):
         self.det_window = DetailWindow(json_dev_status)                 # initialize 2. windows for dev details
@@ -544,12 +561,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.json_config_data_new['settings']['topic'] = json_dev_status['Status']['Topic']
             except Exception as e:
                 pass
-            self.json_config_data_new['settings']['outputs']['default-output'][
-                'items-file'] = self.txt_item_file.text()  # item file
-            self.json_config_data_new['settings']['outputs']['default-output'][
-                'things-file'] = self.txt_thing_file.text()  # thing file
-            json_config_data['settings'] = self.json_config_data_new[
-                'settings'].copy()  # already copy new values to standard config data
+            self.json_config_data_new['settings']['outputs']['default-output']['items-file'] = self.txt_item_file.text()  # item file
+            self.json_config_data_new['settings']['outputs']['default-output']['things-file'] = self.txt_thing_file.text()  # thing file
+            json_config_data['settings'] = self.json_config_data_new['settings'].copy()  # already copy new values to standard config data
             self.append_to_log('JSON settings config updated!')
             return True
         return False
@@ -620,7 +634,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         json_config_data = self.json_config_data_new.copy()  # copy dict to dict
         self.update_json_to_yaml_config_data()
         cur_index = self.tabWidget.currentIndex()
-        self.tabWidget.setCurrentIndex(cur_index + 1)
+        self.tabWidget.setCurrentIndex(cur_index + 2)
+        self.gen_fin_objects()
 
     def read_ui_widgets_user(self, row, col):
         self.item_feature = self.objects_grid.itemAtPosition(row, col + 4).widget().text()                      # qlineedit
@@ -632,7 +647,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.item_icon = self.objects_grid.itemAtPosition(row, col + 10).widget().text()                        # qlineedit
 
     def update_item_by_name(self, item_name):
-        self.item_feature = self.item_feature.split(',') if (self.item_feature != '') else ''                             # returns a list (for jinja2 template)
+        self.item_feature = self.item_feature.split(',') if (self.item_feature != '') else []                             # returns a list (for jinja2 template)
 
         # openhab specific syntax
         if self.config.getboolean('DEFAULT','RawOutput') == False:
@@ -735,7 +750,6 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             ohgen.output_buffer.clear()  # clear data to avoid duplicates
             del data  # del data to avoid duplicates
             cur_index = self.tabWidget.currentIndex()
-            self.tabWidget.setCurrentIndex(2)  # jump ti final tab
         except Exception as e:
             print(e)
 
@@ -939,7 +953,7 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
 
     def save_config(self):
         global json_config_data
-        if str(self.backlog.text()) is not '':
+        if str(self.backlog.text()) != '':
             try:
                 json_config_data['settings']['backlog'] = str(self.backlog.text())
                 self.ui.update_json_to_yaml_config_data()
@@ -969,13 +983,13 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
             tmp = ''
             for cmd, value in cmds.items():
                 if cmd == 'backlog':
-                    if value is not '':
+                    if value != '':
                         backlog_str2 = 'backlog '
                         backlog_str2 += str(value)
                         continue
                     else:
                         continue
-                if value is not '':
+                if value != '':
                     tmp += str(cmd + ' ' + value)
                     tmp += '; '
             if tmp != '':
