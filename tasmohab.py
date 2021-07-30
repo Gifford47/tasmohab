@@ -33,8 +33,8 @@ import globals
 ohgen_templates = []                        # templates for ohgen
 config_name = 'tasmohab.cfg'                # contains config data
 
-templates_path = '/ohgen/templates'         # templates path
-std_template = '/ohgen/template.yaml'             # standard template file
+templates_path = 'ohgen/templates'         # templates path
+std_yaml_config_file = 'template.yaml'             # standard template file
 
 json_config_data = {}                       # data from YAML config file. later it holds all relevant data to generate a thing an item
 json_dev_status = {}                        # all device data from device (http or serial)
@@ -59,7 +59,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.UI_threads = []  # list of queued ui-threads
         self.yaml_config_data = ''
         self.json_config_data_new = {}
-        for root, dirs, files in os.walk('.'+templates_path):                              # scan all template files (*.tpl) in dir
+        for root, dirs, files in os.walk('./'+templates_path):                              # scan all template files (*.tpl) in dir
             for file in files:
                 if file.endswith(".tpl"):
                     ohgen_templates.append(str(file.split('.')[0]))
@@ -67,7 +67,10 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
         self.dev_config_wind = DevConfigWindow  # create an instance
 
-        self.load_yaml_file_config(std_file=os.path.abspath(os.getcwd()+std_template))           # load std-template file
+        if os.path.isfile(os.path.abspath(os.getcwd()+'/'+std_yaml_config_file)):
+            self.load_yaml_file_config(std_file=os.path.abspath(os.getcwd()+'/'+std_yaml_config_file))           # load std-template file for pyinstaller one-file
+        elif os.path.isfile(os.path.abspath(os.getcwd()+'/ohgen/'+std_yaml_config_file)):
+            self.load_yaml_file_config(std_file=os.path.abspath(os.getcwd()+'/ohgen/'+std_yaml_config_file))  # load std-template file in project dir
 
         # menubar
         self.actionInfo.triggered.connect(self.about)
@@ -328,6 +331,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             else:
                 self.append_to_log('Corrupt YAML file loaded! Exiting here!')
                 QMessageBox.warning(self, 'Corrupt template file', 'Corrupt YAML file loaded! Try another one.')
+                self.tabWidget.setCurrentIndex(0)
                 return
             self.set_config_settings()
             self.update_json_to_yaml_config_data()
