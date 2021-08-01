@@ -76,13 +76,13 @@ tasmohab.TasmohabUI.start_queued_threads -> tasmohab.TasmohabUI.append_to_log
 Show whole data (gpio information, openhab items, peripheral name, sensors, etc.) in a table/grid. The program differences between sensors
 and actuators. Sensors are objects, which are appear under 'StatusSNS' from the json response of the tasmota device.
 All other objects that do not appear there are actuators.
-```
+```python
 def add_ui_widgets(self):
 ```
 
 ### [Add user widgets](https://github.com/Gifford47/tasmohab/blob/21476741217365b3b653a0ad79f24ffff54650b5/tasmohab.py#L436)<br>
 Add the user specific widgets behind the corresponding object:
-```
+```python
 def add_ui_widgets_user(self, layout, row, label, peripheral_no='default'):
 ```
 The values for every widget about an item comes from: [openhab.py](The values for every widget about an item comes from:) 

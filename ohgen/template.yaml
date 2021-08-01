@@ -5,47 +5,50 @@ settings:
   outputs:
     default-output:
       items-file: ./files/test.items
-      items-file-header: Group g_home
+      items-file-header: Group g_group1
       things-file: ./files/test.things
-  hostname: tasmota_D09D79-7545
-  friendlyname: Tasmota
-  deviceName: Tasmota
-  topic: tasmota_D09D79
-tasmota_D09D79-7545:
-  thingid: tasmota_D09D79-7545
-  label: Tasmota
+  hostname: tasmota_AAA-123
+  friendlyname: Multisensor1
+  deviceName: Multisensor1
+  topic: tasmota_AAA
+tasmota_AAA_123:
+  thingid: tasmota_AAA
+  label: Multisensor
   template: tasmota
-  topic: tasmota_D09D79
-  dimmer:
-  - name: WS2812
-    label: WS2812
-    groups: ''
-    features: ''
-    metadata: ''
-    tags: 'WS2812'
-  color:
-  - name: PWM1
-    label: PWM1
-    groups: ''
-    features: ''
-    metadata: ''
-    tags: ''
+  topic: tasmota_AAA
   number:
-  - name: Time
-    label: Time
-    groups: ''
-    features: ''
-    metadata: ''
-    tags: ''
   - name: Switch1
     label: Switch1
     groups: ''
-    features: ''
+    features: []
     metadata: ''
     tags: ''
-  - name: TempUnit
-    label: TempUnit
+    icon: ''
+  - name: BME280
+    label: Temperature
     groups: ''
-    features: ''
+    features: []
     metadata: ''
     tags: ''
+    icon: ''
+  - name: BME280
+    label: Humidity
+    groups: ''
+    features: []
+    metadata: ''
+    tags: ''
+    icon: ''
+  - name: BME280
+    label: DewPoint
+    groups: ''
+    features: []
+    metadata: ''
+    tags: ''
+    icon: ''
+  - name: BME280
+    label: Pressure
+    groups: ''
+    features: []
+    metadata: ''
+    tags: ''
+    icon: ''

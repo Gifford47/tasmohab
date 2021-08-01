@@ -207,8 +207,10 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         json_dev_status = data.copy()
         self.update_ui_device_config()
 
-    def datathread_on_error(self, data):
+    def datathread_on_error(self, data, notification=False):
         self.append_to_log(str(data))
+        if notification:
+            QMessageBox.warning(self, 'Warning', str(data))
 
     def datathread_finish(self):
         self.btn_get_serial.setEnabled(True)
@@ -315,7 +317,6 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
     def load_yaml_file_config(self, std_file=''):
         try:
             global json_config_data
-            print(std_file)
             if os.path.isfile(std_file):
                 self.conf_file = std_file
                 self.txt_config_file_path.setText(std_file)
@@ -887,6 +888,8 @@ class HttpDataThread(QThread):
                     if (self.ui.is_json(json_tmp)):  # if the string is valid json
                         result.update(json.loads(json_tmp))
                     self.pyqt_signal_progress.emit(round(100 / len(cmds) * (cmds.index(cmd)+1)))     # update progressbar
+            else:
+                self.pyqt_signal_error.emit('Connection error. Cannot login with credentials. Please check username and password.')
         except Exception as e:
             #self.report_error()                                                                    # for debug
             self.pyqt_signal_error.emit('Err in http thread:' + str(e))
