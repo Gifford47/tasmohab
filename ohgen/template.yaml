@@ -16,41 +16,36 @@ tasmota_D09D79-7545:
   label: Tasmota
   template: tasmota
   topic: tasmota_D09D79
-  Dimmer:
+  dimmer:
   - name: WS2812
     label: WS2812
     groups: ''
-    features:
-    - colortemp
+    features: ''
     metadata: ''
     tags: 'WS2812'
-  Color:
+  color:
   - name: PWM1
     label: PWM1
     groups: ''
-    features:
-    - ''
+    features: ''
     metadata: ''
     tags: ''
-  Number:
+  number:
   - name: Time
     label: Time
     groups: ''
-    features:
-    - ''
+    features: ''
     metadata: ''
     tags: ''
   - name: Switch1
     label: Switch1
     groups: ''
-    features:
-    - ''
+    features: ''
     metadata: ''
     tags: ''
   - name: TempUnit
     label: TempUnit
     groups: ''
-    features:
-    - ''
+    features: ''
     metadata: ''
     tags: ''

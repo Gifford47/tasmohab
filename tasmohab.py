@@ -64,6 +64,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 if file.endswith(".tpl"):
                     ohgen_templates.append(str(file.split('.')[0]))
         self.cmb_template.addItems(ohgen_templates)
+        self.cmb_template.setCurrentIndex(1)
 
         self.dev_config_wind = DevConfigWindow  # create an instance
 
@@ -87,7 +88,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.btn_show_json_obj.clicked.connect(self.show_tasmota_gpios)
         self.btn_refr_obj_data.clicked.connect(self.update_json_config_data_from_ui)
         self.btn_show_json_config.clicked.connect(self.show_json_config)
-        self.btn_gen_fin_objts.clicked.connect(self.gen_fin_objects)
+        self.btn_gen_fin_objts.clicked.connect(self.gen_objects_from_file)
         self.btn_save_final_obj.clicked.connect(self.save_final_files)
         self.btn_clear_log.clicked.connect(self.clear_log)
 
@@ -164,7 +165,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def append_to_log(self, text):
         self.txt_log.append(datetime.today().strftime('%d-%m-%Y %H:%M:%S') + '\t' + str(text))  # '\t' = tab space
-        self.lbl_last_log.setText(str(text))
+        self.lbl_last_log.setText(datetime.today().strftime('%d-%m-%Y %H:%M:%S') + '\t' + str(text))
 
     def save_yaml_file_config(self):
         if bool(json_config_data):  # if json_config_data is not empty
@@ -676,6 +677,10 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                                       'tags': self.item_tags,
                                       'icon':self.item_icon}
                                      )
+
+    def gen_objects_from_file(self):
+        self.gen_fin_objects()
+        self.tabWidget.setCurrentIndex(2)
 
     def gen_fin_objects(self):
         self.txt_output_thing.clear()  # clear the textbrowser
