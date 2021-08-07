@@ -27,7 +27,7 @@ import tas_cmds
 import tasmohabUI
 
 sys.path.append('./ohgen')                  # import ohgen folder
-import ohgen
+from ohgen import ohgen
 import globals
 
 ohgen_templates = []                        # templates for ohgen
@@ -49,9 +49,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.setupUi(self)
         self.config = configparser.ConfigParser()
         if os.path.isfile(config_name):                                                     # load app config file (*.cfg)
-            self.read_config(c_file=config_name)
+            self.read_tasmohab_config(c_file=config_name)
         else:
-            self.read_config()
+            self.read_tasmohab_config()
 
         self.http_url = ''
         self.last_communication_class = None
@@ -76,7 +76,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # menubar
         self.actionInfo.triggered.connect(self.about)
         self.actionExit.triggered.connect(self.exit)
-        self.actionLoad_conf.triggered.connect(self.read_config)
+        self.actionLoad_conf.triggered.connect(self.read_tasmohab_config)
 
         self.btn_serport_refr.clicked.connect(self.list_com_ports)                          # Remember to pass the definition/method (without '()'), not the return value!
         self.btn_load_object.clicked.connect(self.load_yaml_file_config)
@@ -92,7 +92,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.btn_save_final_obj.clicked.connect(self.save_final_files)
         self.btn_clear_log.clicked.connect(self.clear_log)
 
-    def read_config(self, c_file=None):
+    def read_tasmohab_config(self, c_file=None):
         """Reads tasmohab config file (*.cfg)"""
         if c_file is bool(c_file) or c_file is None:                     # if file is None
             if bool(self.config.sections()) == False:                    # if config file is empty
@@ -115,6 +115,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.append_to_log('Config file loaded:' + str(c_file))
             except Exception as e:
                 self.append_to_log('Config file corrupted:' + str(c_file))
+                self.report_error()
 
     def clear_log(self):
         """Clears all log entries"""
@@ -148,7 +149,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             with open(filepath, 'w') as file:
                 yaml.dump(dict, file, sort_keys=False)
         except Exception as e:
-            self.report_error(e)
+            self.report_error()
         self.append_to_log("Config file saved:" + str(filepath))
 
     def list_com_ports(self):
@@ -199,7 +200,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.clear_ui_widgets()
             self.add_ui_widgets()
         except Exception as e:
-            traceback.print_exc(limit=2, file=sys.stdout)
+            self.report_error()
             self.append_to_log('Failure when creating tasmota objects:'+str(e))
 
     def datathread_dev_data(self, data):
@@ -337,8 +338,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 return
             self.set_config_settings()
             self.update_json_to_yaml_config_data()
-            self.gen_fin_objects()
             self.update_ui_device_config()
+            self.gen_fin_objects()
             self.btn_gen_fin_objts.setEnabled(True)
             self.btn_save_final_obj.setEnabled(True)
         except Exception:
@@ -761,7 +762,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             del data  # del data to avoid duplicates
             cur_index = self.tabWidget.currentIndex()
         except Exception as e:
-            print(e)
+            self.report_error()
 
     def save_final_files(self):
         thing_file = json_config_data['settings']['outputs']['default-output']['things-file']
@@ -791,7 +792,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 with open(file_path, 'w') as file:
                     file.write(self.txt_output_item.toPlainText())
         except Exception as e:
-            print('Exception in files:' + str(e))
+            self.report_error()
 
     def about(self):
         self.det_window = DetailWindow('A Tasmota object configurator for smarthome systems. <p>Created by Gifford47<\p>')                 # initialize 2. windows for dev details
