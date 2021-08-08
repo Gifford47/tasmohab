@@ -27,7 +27,10 @@ import tas_cmds
 import tasmohabUI
 
 sys.path.append('./ohgen')                  # import ohgen folder
-from ohgen import ohgen
+try:
+    from ohgen import ohgen                 # for pyinstaller one-file option
+except:
+    import ohgen
 import globals
 
 ohgen_templates = []                        # templates for ohgen
@@ -587,6 +590,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             return
         if self.set_config_settings():
             thing_id = self.json_config_data_new['settings']['hostname']
+            thing_id = str(thing_id).replace('-', '_')
             self.json_config_data_new[thing_id] = {}                              # create a new thing entry
             self.json_config_data_new[thing_id]['thingid'] = thing_id             # generate thingid
             self.json_config_data_new[thing_id]['label'] = self.json_config_data_new['settings']['deviceName']             # generate thing label
@@ -656,19 +660,16 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
     def update_item_by_name(self, item_name):
         self.item_feature = self.item_feature.split(',') if (self.item_feature != '') else []                             # returns a list (for jinja2 template)
 
-        # openhab specific syntax
+        # use the following syntax only, when 'RawOutput' is False in config
         if self.config.getboolean('DEFAULT','RawOutput') == False:
             system = self.config[self.cmb_outp_format.currentText()]                                            # choose smart home system
 
             self.item_label = str(system['PrefixLabel']+self.item_label+system['SuffixLabel']).replace("'", '') if (self.item_label!='') else ''
             self.item_groups = str(system['PrefixGroups']+self.item_groups+system['SuffixGroups']).replace("'", '') if (self.item_groups!='') else ''
             self.item_meta = str(system['PrefixMeta']+self.item_meta+system['SuffixMeta']).replace("'", '') if (self.item_meta!='') else ''
-            print(self.item_tags)
             self.item_tags = str(system['PrefixTags'] + self.item_tags + system['SuffixTags']).replace("'", '') if (self.item_tags != '') else ''
-            print(self.item_tags)
             if self.config.getboolean(self.cmb_outp_format.currentText(), 'TagsList') == True:
                 self.item_tags = json.dumps(self.item_tags.split(',')) if (self.item_tags!='') else ''
-                print(self.item_tags)
             self.item_icon = str(system['PrefixIcons']+self.item_icon+system['SuffixIcons']).replace("'",'') if (self.item_icon!='') else ''
 
         self.items_dict[self.item_type].append({'name': item_name,
