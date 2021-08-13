@@ -398,18 +398,11 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid = QGridLayout(self.scrollAreaWidgetContents)
         # generate the headlines
         for name, col in self.tbl_columns.items():
-            self.objects_grid.addWidget(QLabel(name), 0, col)
-        # self.objects_grid.addWidget(QLabel(self.tbl_columns[0]), 0, 0)                  # Adds a widget at specified row and column
-        # self.objects_grid.addWidget(QLabel('GPIO'), 0, 1)
-        # self.objects_grid.addWidget(QLabel('GPIO Value'), 0, 2)
-        # self.objects_grid.addWidget(QLabel('Peripheral Name'), 0, 3)
-        # self.objects_grid.addWidget(QLabel('Feature'), 0, 4)
-        # self.objects_grid.addWidget(QLabel('Item Label'), 0, 5)
-        # self.objects_grid.addWidget(QLabel('Item Type'), 0, 6)
-        # self.objects_grid.addWidget(QLabel('Groups'), 0, 7)
-        # self.objects_grid.addWidget(QLabel('Metadata'), 0, 8)
-        # self.objects_grid.addWidget(QLabel('Tags'), 0, 9)
-        # self.objects_grid.addWidget(QLabel('Icon'), 0, 10)
+            myFont = QtGui.QFont()
+            myFont.setBold(True)
+            label = QLabel(name)
+            label.setFont(myFont)
+            self.objects_grid.addWidget(label, 0, col)        # Adds a widget at specified row and column
 
     def add_ui_widgets(self):
         global json_tasmota_objects
@@ -446,7 +439,11 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # all gpios, corresponding sensors and actuators were added, but not sensors,
         # these sensors will be added in the following
         row += 1
-        self.objects_grid.addWidget(QLabel('Sensors:'), row, 0)  # add Header for additional sensors
+        myFont = QtGui.QFont()
+        myFont.setBold(True)
+        label = QLabel('Sensors:')
+        label.setFont(myFont)
+        self.objects_grid.addWidget(label, row, 0)  # add Header for additional sensors
         row += 1
         for sensorname, value in json_dev_status['StatusSNS'].items():
             if isinstance(json_dev_status['StatusSNS'][sensorname], dict):                    # if sensor has a following dict
@@ -524,7 +521,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             col_checkb = col_cb
         cb = QCheckBox()
         cb.setChecked(True)
-        layout.addWidget(cb, row, col_checkb)                                                   # add the checkbox for the sensor
+        layout.addWidget(cb, row, col_checkb+1)                                                   # add the checkbox for the sensor
         layout.addWidget(QLabel(sensor+':'+str(value)), row, 2)
         line = QLabel(sensor)
         layout.addWidget(line, row, 3)                                                      # add sensor name
