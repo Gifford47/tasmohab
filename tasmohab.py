@@ -106,6 +106,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.btn_gen_fin_objts.clicked.connect(self.gen_objects_from_file)
         self.btn_save_final_obj.clicked.connect(self.save_final_files)
         self.btn_clear_log.clicked.connect(self.clear_log)
+        self.btn_edittmpl.clicked.connect(self.edit_template)
 
     def read_tasmohab_config(self, c_file=None):
         """Reads tasmohab config file (*.cfg)"""
@@ -436,6 +437,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                     row += 1                                                            # next line
             else:
                 row += 1                                                                # next line
+
         # all gpios, corresponding sensors and actuators were added, but not sensors,
         # these sensors will be added in the following
         row += 1
@@ -445,17 +447,19 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         label.setFont(myFont)
         self.objects_grid.addWidget(label, row, 0)  # add Header for additional sensors
         row += 1
+        col_subsensor = self.tbl_columns['GPIO']                                             # adds the checkbox for the sensor, but in the next coloumn
         for sensorname, value in json_dev_status['StatusSNS'].items():
             if isinstance(json_dev_status['StatusSNS'][sensorname], dict):                    # if sensor has a following dict
                 # Sensor is a multisensor with multiple sensors
                 # create an item for every row:
                 cb = QCheckBox()
                 cb.setChecked(True)
-                self.objects_grid.addWidget(cb, row, self.tbl_columns['Active'])  # add the checkbox for the sensor
+                self.objects_grid.addWidget(cb, row, self.tbl_columns['Active'])                             # add the checkbox for the sensor
                 self.add_ui_widget_peripheral(sensorname, row)
                 row += 1
                 for sensor, value in json_dev_status['StatusSNS'][sensorname].items():        # iter over items
-                    self.add_ui_widgets_sensor_single_line(self.objects_grid, row, sensor, value, peripheral_name=sensorname)             # add sensor to layout
+                    # add the checkbox for the sensor, but in the next coloumn
+                    self.add_ui_widgets_sensor_single_line(self.objects_grid, row, sensor, value, col_cb=self.tbl_columns['GPIO'], peripheral_name=sensorname)
                     row += 1
             # sensor is a single sensor with one value
             else:
@@ -521,7 +525,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             col_checkb = col_cb
         cb = QCheckBox()
         cb.setChecked(True)
-        layout.addWidget(cb, row, col_checkb+1)                                                   # add the checkbox for the sensor
+        layout.addWidget(cb, row, col_checkb)                                                   # add the checkbox for the sensor
         layout.addWidget(QLabel(sensor+':'+str(value)), row, 2)
         line = QLabel(sensor)
         layout.addWidget(line, row, 3)                                                      # add sensor name
@@ -812,6 +816,12 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def exit(self):
         self.close()
+
+    def edit_template(self):
+        file_path = os.path.abspath(os.getcwd() + '/' + templates_path + '/' + self.cmb_template.currentText() + '.tpl')
+        print(file_path)
+        if os.path.isfile(file_path):
+            os.system(str(file_path))
 
 class SerialDataThread(QThread):
     pyqt_signal_json_out = pyqtSignal(dict)
