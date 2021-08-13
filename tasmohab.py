@@ -59,6 +59,18 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.http_url = ''
         self.last_communication_class = None
 
+        self.tbl_columns = {'Active' :              0,
+                             'GPIO' :               1,
+                             'GPIO Value' :         2,
+                             'Peripheral Name' :    3,
+                             'Feature' :            4,
+                             'Item Label' :         5,
+                             'Item Type' :          6,
+                             'Groups' :             7,
+                             'Metadata' :           8,
+                             'Tags' :               9,
+                             'Icon' :               10}
+
         self.UI_threads = []  # list of queued ui-threads
         self.yaml_config_data = ''
         self.json_config_data_new = {}
@@ -385,17 +397,19 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 379, 207))
         self.objects_grid = QGridLayout(self.scrollAreaWidgetContents)
         # generate the headlines
-        self.objects_grid.addWidget(QLabel('Active'), 0, 0)                  # Adds a widget at specified row and column
-        self.objects_grid.addWidget(QLabel('GPIO'), 0, 1)
-        self.objects_grid.addWidget(QLabel('GPIO Value'), 0, 2)
-        self.objects_grid.addWidget(QLabel('Peripheral Name'), 0, 3)
-        self.objects_grid.addWidget(QLabel('Feature'), 0, 4)
-        self.objects_grid.addWidget(QLabel('Item Label'), 0, 5)
-        self.objects_grid.addWidget(QLabel('Item Type'), 0, 6)
-        self.objects_grid.addWidget(QLabel('Groups'), 0, 7)
-        self.objects_grid.addWidget(QLabel('Metadata'), 0, 8)
-        self.objects_grid.addWidget(QLabel('Tags'), 0, 9)
-        self.objects_grid.addWidget(QLabel('Icon'), 0, 10)
+        for name, col in self.tbl_columns.items():
+            self.objects_grid.addWidget(QLabel(name), 0, col)
+        # self.objects_grid.addWidget(QLabel(self.tbl_columns[0]), 0, 0)                  # Adds a widget at specified row and column
+        # self.objects_grid.addWidget(QLabel('GPIO'), 0, 1)
+        # self.objects_grid.addWidget(QLabel('GPIO Value'), 0, 2)
+        # self.objects_grid.addWidget(QLabel('Peripheral Name'), 0, 3)
+        # self.objects_grid.addWidget(QLabel('Feature'), 0, 4)
+        # self.objects_grid.addWidget(QLabel('Item Label'), 0, 5)
+        # self.objects_grid.addWidget(QLabel('Item Type'), 0, 6)
+        # self.objects_grid.addWidget(QLabel('Groups'), 0, 7)
+        # self.objects_grid.addWidget(QLabel('Metadata'), 0, 8)
+        # self.objects_grid.addWidget(QLabel('Tags'), 0, 9)
+        # self.objects_grid.addWidget(QLabel('Icon'), 0, 10)
 
     def add_ui_widgets(self):
         global json_tasmota_objects
@@ -405,13 +419,13 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         row = 1  # row
         for gpio, value in json_tasmota_objects['gpios'].items():
             peripheral_no = []
-            peripheral_no = list(json_tasmota_objects['gpios'][gpio]['gpio_val'].keys())[0]  # get the tasmota peripheral no f.e. '1216' (for AM2301)
+            peripheral_no = list(json_tasmota_objects['gpios'][gpio]['gpio_val'].keys())[0]     # get the tasmota peripheral no f.e. '1216' (for AM2301)
             # now the first four coloums will be filled:
             cb = QCheckBox()
             cb.setChecked(json_tasmota_objects['gpios'][gpio]['active'])
-            self.objects_grid.addWidget(cb, row, 0)  # Adds a widget at specified row and column                                # add the checkbox
-            self.objects_grid.addWidget(QLabel(gpio), row, 1)  # add the gpio label
-            self.objects_grid.addWidget(QLabel(str(json_tasmota_objects['gpios'][gpio]['gpio_val'])), row, 2)  # add the gpio value(s)
+            self.objects_grid.addWidget(cb, row, self.tbl_columns['Active'])                    # Adds a widget (checkbox) at specified row and column
+            self.objects_grid.addWidget(QLabel(gpio), row, self.tbl_columns['GPIO'])                                   # add the gpio label
+            self.objects_grid.addWidget(QLabel(str(json_tasmota_objects['gpios'][gpio]['gpio_val'])), row, self.tbl_columns['GPIO Value'])  # add the gpio value(s)
             # for the following coloums:
             # check if it is a sensor or a actuator and display the appropriate widgets:
             if json_tasmota_objects['gpios'][gpio]['active']:  # only create following widgets when gpio has an peripheral
@@ -440,7 +454,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 # create an item for every row:
                 cb = QCheckBox()
                 cb.setChecked(True)
-                self.objects_grid.addWidget(cb, row, 0)  # add the checkbox for the sensor
+                self.objects_grid.addWidget(cb, row, self.tbl_columns['Active'])  # add the checkbox for the sensor
                 self.add_ui_widget_peripheral(sensorname, row)
                 row += 1
                 for sensor, value in json_dev_status['StatusSNS'][sensorname].items():        # iter over items
@@ -454,11 +468,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.btn_refr_obj_data.setEnabled(True)
 
-    def add_ui_widget_peripheral(self, name, row, col=3):
+    def add_ui_widget_peripheral(self, name, row):
         lbl = QLabel(name)
-        #line.setMaximumWidth(200)
-        #line.setMaxLength(80)
-        self.objects_grid.addWidget(lbl, row, col)  # add the peripheral name/ sensor name
+        self.objects_grid.addWidget(lbl, row, self.tbl_columns['Peripheral Name'])  # add the peripheral name/ sensor name
 
     def add_ui_widgets_user(self, layout, row, label, peripheral_no='default'):
         try:
@@ -467,49 +479,52 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             line = QLineEdit(openhab.std_items['default']['feature'])                           # else: return default value
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 4)
+        layout.addWidget(line, row, self.tbl_columns['Feature'])
         line = QLineEdit(label)                                                         # item label
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 5)
+        layout.addWidget(line, row, self.tbl_columns['Item Label'])
         cb = QComboBox()                                                                # item type
         cb.addItems(openhab.item_types)
         try:
             cb.setCurrentIndex(openhab.std_items[peripheral_no]['std_type'])
         except:
             pass  # if index is not found
-        layout.addWidget(cb, row, 6)
+        layout.addWidget(cb, row, self.tbl_columns['Item Type'])
         line = QLineEdit()                                                              # item group
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 7)
+        layout.addWidget(line, row, self.tbl_columns['Groups'])
         try:
             line = QLineEdit(openhab.std_items[peripheral_no]['meta'])                      # metadata
         except:
             line = QLineEdit(openhab.std_items['default']['meta'])
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 8)
+        layout.addWidget(line, row, self.tbl_columns['Metadata'])
         try:
             line = QLineEdit(openhab.std_items[peripheral_no]['tags'])                      # tags
         except:
             line = QLineEdit(openhab.std_items['default']['tags'])
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 9)
+        layout.addWidget(line, row, self.tbl_columns['Tags'])
         try:
             line = QLineEdit(openhab.std_items[peripheral_no]['icon'])                      # icon
         except:
             line = QLineEdit(openhab.std_items['default']['icon'])
         line.setMaximumWidth(200)
         line.setMaxLength(80)
-        layout.addWidget(line, row, 10)
+        layout.addWidget(line, row, self.tbl_columns['Icon'])
 
     # a single sensor will be shown in the ui in the following
-    def add_ui_widgets_sensor_single_line(self, layout, row, sensor, value, col_cb=1, peripheral_name=None):
+    def add_ui_widgets_sensor_single_line(self, layout, row, sensor, value, col_cb=None, peripheral_name=None):
+        col_checkb = self.tbl_columns['Active']
+        if col_cb is not None:
+            col_checkb = col_cb
         cb = QCheckBox()
         cb.setChecked(True)
-        layout.addWidget(cb, row, col_cb)                                                   # add the checkbox for the sensor
+        layout.addWidget(cb, row, col_checkb)                                                   # add the checkbox for the sensor
         layout.addWidget(QLabel(sensor+':'+str(value)), row, 2)
         line = QLabel(sensor)
         layout.addWidget(line, row, 3)                                                      # add sensor name
@@ -605,12 +620,12 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 try:
                     item = self.objects_grid.itemAtPosition(row, col)                                                       # get first item: the sensor, i.e. AM2301
                     if type(item.widget()) == QCheckBox and item.widget().isChecked():                              # if gpio checkbox is checked
-                        item_name = str(self.objects_grid.itemAtPosition(row, col + 3).widget().text()).replace(' ','_')    # f.e.: the sensor name. replace space with underline
+                        item_name = str(self.objects_grid.itemAtPosition(row, self.tbl_columns['Peripheral Name']).widget().text()).replace(' ','_')    # f.e.: the sensor name. replace space with underline
                         ###################### Check if sensor or actuator ######################
                         # if the next line is a QCheckbox: create a new item in last thing
                         # if the next line in next coloumn is a QCheckbox: create a new sensoritem
                         try:
-                            next_item = self.objects_grid.itemAtPosition(row+1, col + 1).widget()                   # get item at next row and col
+                            next_item = self.objects_grid.itemAtPosition(row+1, self.tbl_columns['GPIO']).widget()                   # get item at next row and col
                         except:
                             next_item = None
                         if next_item is not None and type(next_item) == QCheckBox:
@@ -618,16 +633,16 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                             row += 1                                                                                # next line
                             while (type(next_item) == QCheckBox):
                                 if next_item.isChecked():                                                           # get the sensor checkbox (not the gpio checkbox!)
-                                    self.read_ui_widgets_user(row, col)                                             # read item in row and col
+                                    self.read_ui_widgets_user(row)                                             # read item in row and col
                                     self.update_item_by_name(item_name)                                             # add/update item in dict
                                 row += 1
                                 try:
-                                    next_item = self.objects_grid.itemAtPosition(row, col + 1).widget()             # try to get the next checkbox
+                                    next_item = self.objects_grid.itemAtPosition(row, self.tbl_columns['GPIO']).widget()             # try to get the next checkbox
                                 except:
                                     next_item = None
                         else:                                                                                       # this line has no item and is a actuator
                             # i am a single sensor (one line in ui) or a actuator: read in and fill the dict
-                            self.read_ui_widgets_user(row, col)                                                 # read item in row and col
+                            self.read_ui_widgets_user(row)                                                 # read item in row and col
                             self.update_item_by_name(item_name)                                                 # add/ update item in dict
                             row += 1
                         ###################### END ######################
@@ -642,20 +657,19 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         else:                                                                                                   # no config file is loaded
             print('TODO: create a template for new config file ...')
         json_config_data.clear()  # clear to avoid duplicates
-        json_config_data = self.json_config_data_new.copy()  # copy dict to dict
-        self.update_json_to_yaml_config_data()
-        cur_index = self.tabWidget.currentIndex()
-        self.tabWidget.setCurrentIndex(cur_index + 2)
-        self.gen_fin_objects()
+        json_config_data = self.json_config_data_new.copy()                 # copy dict to dict
+        self.update_json_to_yaml_config_data()                              # update yaml
+        self.tabWidget.setCurrentIndex(2)                                   # jump to tabwidget Index=2
+        self.gen_fin_objects()                                              # generate objects
 
-    def read_ui_widgets_user(self, row, col):
-        self.item_feature = self.objects_grid.itemAtPosition(row, col + 4).widget().text()                      # qlineedit
-        self.item_label = self.objects_grid.itemAtPosition(row, col + 5).widget().text()                        # qlineedit
-        self.item_type = self.objects_grid.itemAtPosition(row, col + 6).widget().currentText()                  # qcombobox
-        self.item_groups = self.objects_grid.itemAtPosition(row, col + 7).widget().text()                       # qlineedit
-        self.item_meta = self.objects_grid.itemAtPosition(row, col + 8).widget().text()                         # qlineedit
-        self.item_tags = self.objects_grid.itemAtPosition(row, col + 9).widget().text()                         # qlineedit
-        self.item_icon = self.objects_grid.itemAtPosition(row, col + 10).widget().text()                        # qlineedit
+    def read_ui_widgets_user(self, row):
+        self.item_feature = self.objects_grid.itemAtPosition(row, self.tbl_columns['Feature']).widget().text()                      # qlineedit
+        self.item_label = self.objects_grid.itemAtPosition(row, self.tbl_columns['Item Label']).widget().text()                        # qlineedit
+        self.item_type = self.objects_grid.itemAtPosition(row, self.tbl_columns['Item Type']).widget().currentText()                  # qcombobox
+        self.item_groups = self.objects_grid.itemAtPosition(row, self.tbl_columns['Groups']).widget().text()                       # qlineedit
+        self.item_meta = self.objects_grid.itemAtPosition(row, self.tbl_columns['Metadata']).widget().text()                         # qlineedit
+        self.item_tags = self.objects_grid.itemAtPosition(row, self.tbl_columns['Tags']).widget().text()                         # qlineedit
+        self.item_icon = self.objects_grid.itemAtPosition(row, self.tbl_columns['Icon']).widget().text()                        # qlineedit
 
     def update_item_by_name(self, item_name):
         self.item_feature = self.item_feature.split(',') if (self.item_feature != '') else []                             # returns a list (for jinja2 template)
