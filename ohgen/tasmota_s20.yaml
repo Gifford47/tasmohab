@@ -5,7 +5,7 @@ settings:
   outputs:
     default-output:
       items-file: Z:/items/test.items
-      items-file-header: Group g_group1
+      items-file-header: Group gPowerOutlets "Power Outlets" <poweroutlet> ["PowerOutlet"]
       things-file: Z:/things/test.things
   hostname: tasmota_AAA-123
   friendlyname: Multisensor1
