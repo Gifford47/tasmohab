@@ -107,6 +107,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.btn_save_final_obj.clicked.connect(self.save_final_files)
         self.btn_clear_log.clicked.connect(self.clear_log)
         self.btn_edittmpl.clicked.connect(self.edit_template)
+        self.btn_helpfullurls.clicked.connect(self.show_config_urls)
 
     def read_tasmohab_config(self, c_file=None):
         """Reads tasmohab config file (*.cfg)"""
@@ -811,7 +812,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.report_error()
 
     def about(self):
-        self.det_window = DetailWindow('A Tasmota object configurator for smarthome systems. <p>Created by Gifford47<\p>')                 # initialize 2. windows for dev details
+        self.det_window = DetailWindow('A Tasmota object configurator for smarthome systems. <p>Created by Gifford47<\p>', format_to_json=False)                 # initialize 2. window for dev details
         self.det_window.show()
 
     def exit(self):
@@ -822,6 +823,19 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         print(file_path)
         if os.path.isfile(file_path):
             os.system(str(file_path))
+
+    def show_config_urls(self):
+        urls = {}
+        try:
+            urls = json.loads(self.config[self.cmb_outp_format.currentText()]['URLs'])
+        except Exception as e:
+            self.report_error()
+        formatted_urls = ''
+        for name, url in urls.items():
+            formatted_urls += '<P>' + name + ': <a href='+url+'>'+str(url)+'</a>' + '</P>'
+        self.det_window = DetailWindow(formatted_urls, format_to_json=False)                 # initialize 2. window
+        self.det_window.show()
+
 
 class SerialDataThread(QThread):
     pyqt_signal_json_out = pyqtSignal(dict)
@@ -935,12 +949,16 @@ class HttpDataThread(QThread):
 
 
 class DetailWindow(QWidget):
-    def __init__(self, json_str):
+    def __init__(self, string, format_to_json=True):
         super().__init__()
         # global json_dev_status
         layout = QVBoxLayout()
         self.textbrowser = QTextBrowser()
-        self.textbrowser.append(json.dumps(json_str, indent=4, sort_keys=False))
+        self.textbrowser.setOpenExternalLinks(True)
+        if format_to_json:
+            self.textbrowser.append(json.dumps(string, indent=4, sort_keys=False))
+        else:
+            self.textbrowser.append(string)
         layout.addWidget(self.textbrowser)
         self.setLayout(layout)
         self.setWindowTitle('Details')
