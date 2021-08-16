@@ -12,10 +12,10 @@ meta_hum = 'synonyms="Humidity"'
 meta_switch = 'synonyms="switch"'
 meta_light = 'synonyms="Lights, Lighting"'
 
-tags_temp = 'sensor,Temperature'
-tags_hum = 'sensor,Humidity'
-tags_switch = 'switch,button'
-tags_light = 'light,led'
+tags_temp = 'Sensor,Measurement,Temperature'
+tags_hum = 'Sensor,Measurement,Humidity'
+tags_switch = 'Switch'
+tags_light = 'Light'
 
 # PLEASE DO NOT EDIT THE TABLE BELOW. ONLY USE THE FILE 'tasmota_gpios.xlsx' AND COPY THE OUTPUT TO THIS FILE!
 # standard definitions (for items) for sensors and actuators:
@@ -243,5 +243,19 @@ std_items = {
 '5344':{'name':'DYP Rx', 'std_type':item_types.index('number'), 'feature':'', 'meta':'', 'tags':'', 'icon':''},
 
 
-'default': {'name': 'Default', 'std_type': item_types.index('number'), 'feature': '', 'meta': '', 'tags': '', 'icon': ''}  # default value, dont delete!
+
+
+'Temperature':{'name':'Temperature', 'std_type':item_types.index('number'), 'feature':'', 'meta':meta_temp, 'tags':tags_temp, 'icon':'temperature'},
+'Humidity':{'name':'Humidity', 'std_type':item_types.index('number'), 'feature':'', 'meta':meta_hum, 'tags':tags_hum, 'icon':'humidity'},
+'DewPoint':{'name':'DewPoint', 'std_type':item_types.index('number'), 'feature':'', 'meta':meta_temp, 'tags':tags_temp, 'icon':'temperature'},
+'Pressure':{'name':'Pressure', 'std_type':item_types.index('number'), 'feature':'', 'meta':'', 'tags':'Pressure', 'icon':'pressure'},
+'Switch':{'name':'Switch', 'std_type':item_types.index('number'), 'feature':'', 'meta':meta_switch, 'tags':'Switch', 'icon':'switch'},
+'Brightness':{'name':'Brightness', 'std_type':item_types.index('number'), 'feature':'', 'meta':meta_light, 'tags':tags_light, 'icon':'light'},
+'Time':{'name':'Time', 'std_type':item_types.index('number'), 'feature':'', 'meta':'', 'tags':'Timestamp', 'icon':'time'},
+
+
+
+
+
+'default': {'name': 'Default', 'std_type': item_types.index('number'), 'feature': '', 'meta': '', 'tags': 'Equipment', 'icon': ''}  # default value, dont delete!
 }

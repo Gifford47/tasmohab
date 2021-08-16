@@ -431,7 +431,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                         self.add_ui_widget_peripheral(json_tasmota_objects['gpios'][gpio]['peripheral'], row)        # add the peripheral name/ sensor name
                         row += 1
                     else:                                                               # peripheral is not a sensor, but an actuator
-                        # i am a actuator
+                        # i am a actuator (no dict)
                         # write in same line like 'gpiox'
                         self.add_ui_widget_peripheral(json_tasmota_objects['gpios'][gpio]['peripheral'], row)
                         self.add_ui_widgets_user(self.objects_grid, row, json_tasmota_objects['gpios'][gpio]['peripheral'], peripheral_no=peripheral_no)
@@ -527,15 +527,14 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         cb = QCheckBox()
         cb.setChecked(True)
         layout.addWidget(cb, row, col_checkb)                                                   # add the checkbox for the sensor
-        layout.addWidget(QLabel(sensor+':'+str(value)), row, 2)
+        layout.addWidget(QLabel(sensor+':'+str(value)), row, self.tbl_columns['GPIO Value'])
         line = QLabel(sensor)
-        layout.addWidget(line, row, 3)                                                      # add sensor name
-        # if peripheral_name was submitted, get ther peripheral_number, else use default values
+        layout.addWidget(line, row, self.tbl_columns['Peripheral Name'])                                                      # add sensor name
+        # if peripheral_name was submitted, get the peripheral_number, else use default values
         if peripheral_name != None:
             peripheral_no = self.get_peripheral_no_by_name(peripheral_name)
         else:
-            peripheral_no = 'default'
-        self.add_ui_widgets_user(layout, row, sensor, peripheral_no=peripheral_no)
+            self.add_ui_widgets_user(layout, row, sensor, peripheral_no=sensor)
         row += 1
 
     def get_peripheral_no_by_name(self, name):                                              # try to find the appropriate peripheral number from list
