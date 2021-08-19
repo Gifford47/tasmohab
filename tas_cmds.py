@@ -11,7 +11,7 @@ status = {'state':'status',
     'stk':'status 12',
     'wifi':'ssid',
     'pass':'password',
-    'ftopic':'FullTopic'}
-
-# all gpio related cmds here:
-gpio = {'gpio':'gpio'}
+    'ftopic':'FullTopic',
+    'avail_components':'gpios',
+    'user_gpio':'gpio',
+    'template':'template 0'}
