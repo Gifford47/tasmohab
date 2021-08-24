@@ -118,6 +118,7 @@ _Backup/
 .owncloud*
 Desktop.ini
 *.xlsx
+*.svg
 
 # Sensitive or high-churn files:
 .idea/dataSources.ids
