@@ -9,3 +9,5 @@ PyYAML
 requests
 urllib3
 jinja2
+pyinstaller
+importlib-metadata

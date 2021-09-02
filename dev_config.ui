@@ -225,6 +225,49 @@
           </property>
          </widget>
         </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_15">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Device</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_16">
+          <property name="text">
+           <string>DeviceName</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="DeviceName"/>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>GroupTopic</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="GroupTopic"/>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>OtaUrl</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QLineEdit" name="OtaUrl"/>
+        </item>
        </layout>
       </item>
       <item>
@@ -269,6 +312,9 @@
  <tabstops>
   <tabstop>ssid1</tabstop>
   <tabstop>password1</tabstop>
+  <tabstop>DeviceName</tabstop>
+  <tabstop>GroupTopic</tabstop>
+  <tabstop>OtaUrl</tabstop>
   <tabstop>MqttHost</tabstop>
   <tabstop>MqttPort</tabstop>
   <tabstop>Topic</tabstop>
