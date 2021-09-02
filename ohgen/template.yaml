@@ -5,7 +5,7 @@ settings:
   outputs:
     default-output:
       items-file: ./files/test.items
-      items-file-header: Group g_group1
+      items-file-header:
       things-file: ./files/test.things
   hostname: tasmota_AAA-123
   friendlyname: Multisensor1
