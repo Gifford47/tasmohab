@@ -10,6 +10,7 @@ from datetime import datetime
 
 import json
 import requests
+import urllib
 import serial
 import threading
 import time
@@ -215,7 +216,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         json_dev_status = data.copy()
         self.thing_id = json_dev_status[tas_cmds.status['network']]['StatusNET']['Hostname']           # set the global thingid
         self.thing_id = str(self.thing_id).replace('-', '_')
-        self.update_ui_device_config()
+        self.update_ui_device_info()
         self.clear_ui_widgets()
         try:
             self.create_tasmota_objects()
@@ -307,7 +308,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.last_communication_class = self.get_http_dev_info                               # if we want to use the last class to communicate with the device
         self.start_queued_threads()  # start queued threads
 
-    def update_ui_device_config(self):
+    def update_ui_device_info(self):
         """Update the device status section in the ui with current values."""
         global json_dev_status
         if not bool(json_dev_status):                                                       # if json is empty
@@ -321,7 +322,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.lbl_dev_hostname.setText(str(json_dev_status[tas_cmds.status['network']]['StatusNET']['Hostname']))
                 self.lbl_dev_firmware.setText(str(json_dev_status[tas_cmds.status['fw']]['StatusFWR']['Version']))
                 self.lbl_dev_name.setText(str(json_dev_status[tas_cmds.status['state']]['Status']['DeviceName']))
-                self.lbl_dev_module.setText(str(json_dev_status[tas_cmds.status['state']]['Status']['Module']))
+                self.lbl_dev_module.setText(str(json_dev_status[tas_cmds.status['state']]['Status']['Module'])+' ('+str(json_dev_status[tas_cmds.status['template']]['NAME'])+')')
                 if self.config['DEFAULT']['UpdateFileName'] != 'False':
                     # replace the old filename from things and items file with the new devicename:
                     conf_filename = self.config['DEFAULT']['UpdateFileName']
@@ -367,7 +368,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 return
             self.set_config_settings()
             self.update_json_to_yaml_config_data()
-            self.update_ui_device_config()
+            self.update_ui_device_info()
             self.gen_fin_objects()
             self.btn_gen_fin_objts.setEnabled(True)
             self.btn_save_final_obj.setEnabled(True)
@@ -887,10 +888,12 @@ class SerialDataThread(QThread):
         self.cmd_list = cmd_list
         self.port = port
         self.baud = baud
-        self.timeout = timeout
-        self.max_retries = 5
+        self.timeout = timeout                  # read timeout for serialport to get a byte
+        self.max_retries = 5                    # max retries for one cmd to get a response
+        self.response_waiting = .01                 # no of sec (time diff) that MUST be waited for next cmd (awaiting more responses)
 
     def run(self):
+        response_waiting_max = self.response_waiting + 2
         try:
             ser = Serial(str(self.port), str(self.baud), timeout=self.timeout)
         except Exception as e:
@@ -912,34 +915,41 @@ class SerialDataThread(QThread):
                         ser.reset_output_buffer()
                         ser.reset_input_buffer()
                         ser.write(str.encode(cmd + '\n'))
+                        print('send:'+cmd)
                         ser.flush()                                                 # it is buffering. required to get the data out *now*
-                        while bool(buffer) == False:                                # if buffer is still empty (in case of large response)
-                            while ser.inWaiting() > 0:
+                        t1 = datetime.now()
+                        while bool(buffer) == False:                                # if buffer is still empty (in case of large response time (reboot))
+                            if (datetime.now()-t1).total_seconds() > response_waiting_max:
+                                break                                               # leave first while, if response comes anymore
+                            while ser.inWaiting() > 0 or (datetime.now()-t1).total_seconds() < self.response_waiting:       # get into loop if serial>1 char or time is not ended
                                 #msg = ser.read_until('\r\n').decode(encoding='utf-8')  # get serial response and encode (old)
                                 buffer = ser.readline().decode(encoding='utf-8')                    # get response line by line
-                                json_tmp.append(buffer[buffer.find('{'):buffer.find('\r\n')])       # find json between string and add it to list
-                                json_tmp = list(filter(None, json_tmp))  # filter/delete empty elements
+                                print('buffer:'+buffer)
+                                x = buffer[buffer.find('{'):buffer.find('\r\n')]
+                                if TasmohabUI.is_json(x):
+                                    json_tmp.append(x)                               # find json between string and add it to list
+                                    json_tmp = list(filter(None, json_tmp))              # filter/delete empty elements
+                                print('json_tmp:'+str(json_tmp))
                                 if bool(json_tmp) == False:                          # if json_tmp is still empty (no json received)
                                     buffer = None
-                                time.sleep(.01)                                     # wait 10ms if another response is coming
                         #print(json_tmp)
                         tmp = {}
-                        for resp in json_tmp:
-                            if bool(json_tmp) and (TasmohabUI.is_json(resp)):         # if list json_tmp is not empty AND the string is valid json
+                        if bool(json_tmp):                                          # if (list) json_tmp is not empty
+                            for resp in json_tmp:
+                                print(resp, bool(json_tmp), (TasmohabUI.is_json(resp)))
                                 tmp.update(json.loads(resp))                        # save data in a temp var
                                 self.pyqt_signal_progress.emit(round(100 / len(self.cmd_list) * (no + 1)))  # update progress
-                            else:
-                                if retry >= self.max_retries:
-                                    self.pyqt_signal_error.emit('Could not get valid JSON data.')
-                                    return                                          # leave the whole function
-                                else:
-                                    retry += 1                                      # retry if not valid json
-                                    print('Non valid JSON response received, retrying ...')
-                                    self.pyqt_signal_error.emit('Non valid JSON response received, retrying ...')
-                                    time.sleep(.1)                                  # wait for new data
-                                    break                                           # on first non valid json: get out of for loop
+                        else:
+                            retry += 1                                              # retry if not valid json
+                            if retry >= self.max_retries:
+                                self.pyqt_signal_error.emit('Could not get valid JSON data.')
+                                print('Could not get valid JSON data.')
+                                return  # leave the whole function
+                            print('Non valid JSON response received, retrying ...')
+                            self.pyqt_signal_error.emit('Non valid JSON response received, retrying ...')
                         result[cmd] = tmp
-                        retry = self.max_retries + 1                                # get out of while loop
+                        if bool(result[cmd]):                                       # if a response to the cmd exists
+                            break                                                   # get out of while loop of cmds
 
                 time.sleep(.1)
                 ser.close()
@@ -966,6 +976,7 @@ class HttpDataThread(QThread):
         self.ui = TasmohabUI()
         self.timeout = .5
         self.max_retries = 2
+        self.response_waiting = .1
 
     def run(self):
         self.send_http_cmd(self.cmd_list)
@@ -976,21 +987,31 @@ class HttpDataThread(QThread):
         result = {}
         try:
             #self.http_url = 'https://jsonplaceholder.typicode.com/todos/1'                         # for debug
-            resp_code = self.url_response_code(self.url + cmds[0])                                  # check connection with first command
-            if resp_code == 200:  # if http ok (200) ...
-                for cmd in cmds:
-                    json_tmp = self.load_json_url(self.url + cmd)                                   # save return data
-                    if (self.ui.is_json(json_tmp)):  # if the string is valid json
-                        #result.update(json.loads(json_tmp))
-                        result[cmd] = json.loads(json_tmp)
-                    self.pyqt_signal_progress.emit(round(100 / len(cmds) * (cmds.index(cmd)+1)))     # update progressbar
-            else:
-                self.pyqt_signal_error.emit(self.ui.http_err_msg)
+            for cmd in cmds:
+                retry = 0
+                while retry <= self.max_retries:
+                    resp_code = self.url_response_code(self.url + 'Time')  # check connection with some command
+                    if resp_code == 200:  # if http ok (200) ...
+                            json_tmp = ''
+                            json_tmp = self.load_json_url(self.url, cmd)                                   # save return data
+                            if (self.ui.is_json(json_tmp)):  # if the string is valid json
+                                #result.update(json.loads(json_tmp))
+                                result[cmd] = json.loads(json_tmp)
+                            self.pyqt_signal_progress.emit(round(100 / len(cmds) * (cmds.index(cmd)+1)))     # update progressbar
+                            break
+                    else:
+                        retry += 1
+                        result[cmd] = {}
+                        time.sleep(self.response_waiting)
+                if retry >= self.max_retries:
+                    self.pyqt_signal_error.emit(self.ui.http_err_msg)
+                    break
         except Exception as e:
             #self.report_error()                                                                    # for debug
             self.pyqt_signal_error.emit('Err in http thread:' + str(e))
             pass
         self.pyqt_signal_json_out.emit(result)
+        self.cmd_list.clear()
 
     def url_response_code(self, url):
         resp_code = None
@@ -1002,8 +1023,9 @@ class HttpDataThread(QThread):
             self.ui.report_error()                                        # for debug
             self.pyqt_signal_error.emit("Connection Error to " + self.ip + '. HTTP Response Code:' + str(resp_code))
 
-    def load_json_url(self, x):
-        data = json.dumps(requests.get(x).json())
+    def load_json_url(self, url, params):
+        para = urllib.parse.quote(params)
+        data = json.dumps(requests.get(url+para).json())
         return data
 
 
@@ -1095,13 +1117,13 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                     tmp += str(cmd + ' ' + value)
                     tmp += '; '
             if tmp != '':
-                backlog_str1 = 'backlog ' + tmp
-                backlog_str1 = backlog_str1[:-2]                                                               # remove last two chars
-                queue.append(backlog_str1)
+                backlog_str1 = 'backlog ' + tmp                                         # generate the backlog string
+                backlog_str1 = backlog_str1[:-2]                                        # remove last two chars
+                queue.append(backlog_str1)                                              # append the first backlog STRING (!) to list
             if backlog_str2 != '':
                 queue.append(backlog_str2)
             if bool(queue):                                                               # if cmd is not empty
-                queue.append('restart 1')
+                #queue.append('restart 1')
                 buttonreply = QMessageBox.question(self, 'Sending device config',
                                                "Are you sure to send the following commands to the device?:\n\n"+backlog_str1+'\n\n'+backlog_str2,
                                                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -1110,11 +1132,13 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                 return
             if buttonreply == QMessageBox.Yes:
                 self.ui.last_communication_class.timeout = .7                                                 # set the timeout of class
-                self.ui.last_communication_class.max_retries = 0
+                self.ui.last_communication_class.max_retries = 4
+                self.ui.last_communication_class.response_waiting = len(cmds)*0.2                             # adaptive waiting: 0.1s times no of cmds
                 self.ui.last_communication_class.cmd_list = queue
                 #self.ui.last_communication_class.pyqt_signal_error.connect(self.ui.datathread_on_error)      # 2nd argument is the returned data!!!
                 self.ui.last_communication_class.pyqt_signal_error.disconnect()
                 self.ui.last_communication_class.pyqt_signal_json_out.disconnect()                          # dont save the response into 'json_dev_status'
+                self.ui.last_communication_class.pyqt_signal_json_out.connect(self.datathread_response)
                 self.ui.last_communication_class.finished.connect(self.datathread_finished)
                 self.loader_img = QLabel(self.frame)
                 self.loader_img.setObjectName("loader")
@@ -1123,11 +1147,24 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                 self.lay_button.addWidget(self.loader_img)
                 try:
                     self.movie.start()                                                                     # show loadging gif
+                    self.btn_send_conf.setEnabled(False)
+                    self.ui.btn_set_dev_conf.setEnabled(False)
                     self.ui.append_to_log('Sending new configuration to device ...')
                     print('Sending to device:' + str(queue))
                     self.ui.last_communication_class.start()
                 except Exception as e:
                     self.ui.report_error()
+
+    def datathread_response(self, data):
+        #a = json.dumps(data)
+        self.label = QLabel('Response:')
+        self.browser = QTextBrowser(self.frame)
+        self.browser.setObjectName("response_browser")
+        self.lay_button.addWidget(self.label)
+        self.lay_button.addWidget(self.browser)
+        for key, value in data.items():
+            self.browser.append(key+':\n')
+            self.browser.append(json.dumps(value)+'\n')
 
     def datathread_finished(self):
         global json_dev_status
@@ -1135,7 +1172,7 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
         self.ui.append_to_log('Configuration send, rebooting device!')
         json_dev_status.clear()                                                             # clear device data, because it maybe contains old data
         json_tasmota_objects.clear()                                                        # clear tasmota objects
-        self.ui.update_ui_device_config()                                                   # clear device info data on ui
+        self.ui.update_ui_device_info()                                                   # clear device info data on ui
         self.ui.clear_ui_widgets()                                                          # clear widgets in scrollarea
         self.movie.stop()                                                                   # stop and delete spinner
         self.loader_img.deleteLater()                                                       # delete loader
