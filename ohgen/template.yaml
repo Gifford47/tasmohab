@@ -4,9 +4,9 @@ settings:
   output: default-output
   outputs:
     default-output:
-      items-file: ./files/test.items
+      items-file: C:\TasmoHab\test.items
       items-file-header:
-      things-file: ./files/test.things
+      things-file: C:\TasmoHab\test.things
   hostname: tasmota_AAA-123
   friendlyname: Multisensor1
   deviceName: Multisensor1
