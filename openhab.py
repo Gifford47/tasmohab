@@ -243,8 +243,6 @@ std_items = {
 '5344':{'name':'DYP Rx', 'std_type':item_types.index('number'), 'feature':'', 'meta':'', 'tags':'', 'icon':''},
 
 
-
-
 'Temperature':{'name':'Temperature', 'std_type':item_types.index('number'), 'feature':'', 'meta':meta_temp, 'tags':tags_temp, 'icon':'temperature'},
 'Humidity':{'name':'Humidity', 'std_type':item_types.index('number'), 'feature':'', 'meta':meta_hum, 'tags':tags_hum, 'icon':'humidity'},
 'DewPoint':{'name':'DewPoint', 'std_type':item_types.index('number'), 'feature':'', 'meta':meta_temp, 'tags':tags_temp, 'icon':'temperature'},
@@ -254,8 +252,5 @@ std_items = {
 'Time':{'name':'Time', 'std_type':item_types.index('number'), 'feature':'', 'meta':'', 'tags':'Timestamp', 'icon':'time'},
 
 
-
-
-
-'default': {'name': 'Default', 'std_type': item_types.index('number'), 'feature': '', 'meta': '', 'tags': 'Equipment', 'icon': ''}  # default value, dont delete!
+'default':{'name': 'Default', 'std_type': item_types.index('number'), 'feature': '', 'meta': '', 'tags': 'Equipment', 'icon': ''}  # default value, dont delete!
 }

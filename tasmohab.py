@@ -532,7 +532,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         try:
             cb.setCurrentIndex(openhab.std_items[peripheral_no]['std_type'])
         except:
-            pass  # if index is not found
+            cb.setCurrentIndex(openhab.item_types.index('number'))  # if index is not found
         layout.addWidget(cb, row, self.tbl_columns['Item Type'])
         line = QLineEdit(self.thing_id)                                              # item group
         line.setMaximumWidth(200)
@@ -574,8 +574,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # if peripheral_name was submitted, get the peripheral_number, else use default values
         if peripheral_name != None:
             peripheral_no = self.get_peripheral_no_by_name(peripheral_name)
-        else:
-            self.add_ui_widgets_user(layout, row, sensor, peripheral_no=sensor)
+        self.add_ui_widgets_user(layout, row, sensor, peripheral_no=sensor)
         row += 1
 
     def get_peripheral_no_by_name(self, name):                                              # try to find the appropriate peripheral number from list
@@ -671,6 +670,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                             next_item = self.objects_grid.itemAtPosition(row+1, self.tbl_columns['GPIO']).widget()                   # get item at next row and col
                         except:
                             next_item = None
+                        #print("item:"+item_name)
                         if next_item is not None and type(next_item) == QCheckBox:
                             # i am a sensor: read the sensor and fill the dict
                             row += 1                                                                                # next line
@@ -678,6 +678,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                                 if next_item.isChecked():                                                           # get the sensor checkbox (not the gpio checkbox!)
                                     self.read_ui_widgets_user(row)                                             # read item in row and col
                                     self.update_item_by_name(item_name)                                             # add/update item in dict
+                                    print("Added sub-sensor:" + item_name + "from line:" + str(row))
                                 row += 1
                                 try:
                                     next_item = self.objects_grid.itemAtPosition(row, self.tbl_columns['GPIO']).widget()             # try to get the next checkbox
@@ -687,6 +688,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                             # i am a single sensor (one line in ui) or a actuator: read in and fill the dict
                             self.read_ui_widgets_user(row)                                                 # read item in row and col
                             self.update_item_by_name(item_name)                                                 # add/ update item in dict
+                            print("Added sensor:"+item_name+"from line:"+str(row))
                             row += 1
                         ###################### END ######################
                         self.json_config_data_new[self.thing_id].update(self.items_dict)                                 # write new items to dict
@@ -694,7 +696,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                         row += 1                                                                                # next line, last was unchecked
                 except Exception as e:
                     # line is empty or has no widget at row, col
-                    #self.report_error()                                                                        # optional
+                    self.report_error()                                                                        # optional
                     row += 1
             self.json_config_data_new = dict(self.json_config_data_new)
         else:                                                                                                   # no config file is loaded
