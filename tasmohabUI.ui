@@ -310,7 +310,11 @@
                  </widget>
                 </item>
                 <item row="3" column="1">
-                 <widget class="QLineEdit" name="txt_location"/>
+                 <widget class="QLineEdit" name="txt_location">
+                  <property name="text">
+                   <string>GroundFloor</string>
+                  </property>
+                 </widget>
                 </item>
                 <item row="1" column="1">
                  <widget class="QLineEdit" name="txt_thing_file"/>
@@ -390,7 +394,7 @@
                      <x>0</x>
                      <y>0</y>
                      <width>988</width>
-                     <height>157</height>
+                     <height>158</height>
                     </rect>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_17"/>
@@ -732,7 +736,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTasmHAB">
