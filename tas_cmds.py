@@ -15,3 +15,7 @@ status = {'state':'status',
     'avail_components':'gpios',
     'user_gpio':'gpio',
     'template':'template 0'}
+
+rules = {'rule_1':'rule1',
+         'rule_2':'rule2',
+         'rule_3':'rule3'}
