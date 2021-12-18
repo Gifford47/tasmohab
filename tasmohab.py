@@ -10,6 +10,7 @@ from datetime import datetime
 
 import json
 import requests
+import re
 import urllib
 import serial
 import threading
@@ -26,6 +27,7 @@ import dev_config
 import openhab
 import tas_cmds
 import tasmohabUI
+import rules
 
 sys.path.append('./ohgen')                  # import ohgen folder
 try:
@@ -109,6 +111,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.btn_clear_log.clicked.connect(self.clear_log)
         self.btn_edittmpl.clicked.connect(self.edit_template)
         self.btn_helpfullurls.clicked.connect(self.show_config_urls)
+        self.btn_gen_rules.clicked.connect(self.show_rule_generator)
 
     def read_tasmohab_config(self, c_file=None):
         """Reads tasmohab config file (*.cfg)"""
@@ -334,6 +337,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.report_error()
             if json_config_data is not None and bool(json_config_data):
                 self.btn_set_dev_conf.setEnabled(True)
+                self.btn_gen_rules.setEnabled(True)
 
     def clear_ui_widgets(self):                                                          # removes all objects from scrollarea
         """Clears the scrollarea with all widget in it."""
@@ -383,6 +387,10 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.dev_config_wind = DevConfigWindow(self)                    # pass the current class object to modify its objects
         self.dev_config_wind.show()
 
+    def show_rule_generator(self):
+        self.dev_rules = rules.Rule_Gen(self)                    # pass the current class object to modify its objects
+        self.dev_rules.show()
+
     def create_tasmota_objects(self):
         """Create a dict 'json_tasmota_objects' and copy the gpio configuration from device into it.
         The Template cmd is used to get all gpios from the device."""
@@ -391,46 +399,27 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         if bool(json_dev_status) == False:
             return
         # read every tasmota gpio and set object dict
-        json_tasmota_objects['gpios'] = {}
+        json_tasmota_objects = {}
         if '8266' in  str(json_dev_status[tas_cmds.status['fw']]['StatusFWR']['Hardware']).lower():     # for esp8266ex
             gpio_no_list = [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 14, 15, 16, 17]        # see https://tasmota.github.io/docs/Templates/#gpio
         else:                                                                       # for ESP32
             gpio_no_list = [0, 1, 2, 3, 4, 5, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]        # see https://tasmota.github.io/docs/Templates/#gpio
         for i, val in enumerate(gpio_no_list):
             gpio_no_list[i] = 'GPIO'+str(val)                                         # add 'GPIO' before every value/ reformat List
-        gpios = json_dev_status[tas_cmds.status['template']]['GPIO']                # get all the gpios from the template cmd
-        gpio_dict = dict(zip(gpio_no_list, gpios))                                  # create a dict with gpios as key and its values as gpio no coming 'from json_dev_status[tas_cmds.status['template']]['GPIO']'
+        gpios_template = json_dev_status[tas_cmds.status['template']]['GPIO']                # get all the gpios from the template cmd
+        gpio_dict_template = dict(zip(gpio_no_list, gpios_template))                                  # create a dict with gpios as key and its values with gpio-no coming 'from json_dev_status[tas_cmds.status['template']]['GPIO']'
         gpio_dict_user = {}                                                         # create a new dict for user gpios
         for gpio, val in json_dev_status[tas_cmds.status['user_gpio']].items():
-            gpio_dict_user.update({gpio:list(val.keys())[0]})                       # save every gpio with its first value (peripheral number) to dict
-        gpio_dict.update(gpio_dict_user)                                 # update the existing dict with the user dict
-        for gpio, val in gpio_dict.items():
-            gpio_no = str(val)
+            #gpio = re.findall(r'\d+', gpio)                                         # get only numbers from string (GPIO5->5)
             try:
-                if gpio_no in json_dev_status[tas_cmds.status['avail_components']]['GPIOs1']:
-                    peripheral = json_dev_status[tas_cmds.status['avail_components']]['GPIOs1'][gpio_no]
-                elif gpio_no in json_dev_status[tas_cmds.status['avail_components']]['GPIOs2']:
-                    peripheral = json_dev_status[tas_cmds.status['avail_components']]['GPIOs2'][gpio_no]
-                else:
-                    peripheral = 'unknown'
+                gpio_dict_user[gpio] = int(list(val.keys())[0])
             except Exception:
-                peripheral = 'unknown'
-
-            json_tasmota_objects['gpios'][gpio] = {}                                            # placeholder (dict)
-            json_tasmota_objects['thingid'] = self.thing_id
-            if int(val) not in [1, 0]:                                                            # if val is not in list. 1=user, 0=None
-                json_tasmota_objects['gpios'][gpio]['active'] = True
-            else:
-                json_tasmota_objects['gpios'][gpio]['active'] = False
-            json_tasmota_objects['gpios'][gpio]['gpio_val'] = gpio_no
-            json_tasmota_objects['gpios'][gpio]['peripheral'] = peripheral
-            json_tasmota_objects['gpios'][gpio]['sensors'] = {}
-            if peripheral in json_dev_status[tas_cmds.status['sensor']]['StatusSNS']:                              # list all possible sensor data
-                # check if val is a dict. if not, create a dict with gpio name and gpio val
-                if isinstance(json_dev_status[tas_cmds.status['sensor']]['StatusSNS'][peripheral], dict):          # check if val of sensor data is a dict
-                    json_tasmota_objects['gpios'][gpio]['sensors'] = json_dev_status[tas_cmds.status['sensor']]['StatusSNS'][peripheral]  # fill in sensor data
-                else:
-                    json_tasmota_objects['gpios'][gpio]['sensors'][peripheral] = json_dev_status[tas_cmds.status['sensor']]['StatusSNS'][peripheral]
+                pass
+            #gpio_dict_user.update({gpio:list(val.keys())[0]})                       # save every gpio with its first value (peripheral number) to dict. i.e.: {2:35} ...
+        gpio_dict_merged = {}
+        gpio_dict_merged.update(gpio_dict_template)                                 # update the existing dict with the template dict
+        gpio_dict_merged.update(gpio_dict_user)                                     # update the existing dict with the user dict
+        json_tasmota_objects = gpio_dict_merged.copy()                              # copy gpio_dict_merged into json_tasmota_objects
 
     def add_ui_headers(self):
         self.scrollAreaWidgetContents = QWidget()
@@ -446,43 +435,31 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def add_ui_widgets(self):
         global json_tasmota_objects
-        if bool(json_tasmota_objects) == False:
+        if bool(json_tasmota_objects) == False:                 # if empty, leave return
             return
         self.add_ui_headers()
         # creating UI Widgets:
         # iter items for every single widget
         row = 1  # row
-        for gpio, value in json_tasmota_objects['gpios'].items():
-            #peripheral_no = []
-            #peripheral_no = list(json_tasmota_objects['gpios'][gpio]['gpio_val'].keys())[0]     # get the tasmota peripheral no f.e. '1216' (for AM2301)
-            peripheral_no = json_tasmota_objects['gpios'][gpio]['gpio_val']
+        for gpio, peripheral_no in json_tasmota_objects.items():
             # now the first four coloums will be filled:
+            peripheral = self.get_peripheral_name_by_no(peripheral_no)
             cb = QCheckBox()
-            cb.setChecked(json_tasmota_objects['gpios'][gpio]['active'])
+            if peripheral_no not in [1,0]:              # peripheral 1='User', 0='Mone'
+                cb.setChecked(True)
+            else:
+                cb.setChecked(False)
             self.objects_grid.addWidget(cb, row, self.tbl_columns['Active'])                    # Adds a widget (checkbox) at specified row and column
             self.objects_grid.addWidget(QLabel(gpio), row, self.tbl_columns['GPIO'])                                   # add the gpio label
-            self.objects_grid.addWidget(QLabel(str(json_tasmota_objects['gpios'][gpio]['gpio_val'])), row, self.tbl_columns['GPIO Value'])  # add the gpio value(s)
-            # for the following coloums:
-            # check if it is a sensor or a actuator and display the appropriate widgets:
-            if json_tasmota_objects['gpios'][gpio]['active']:  # only create following widgets when gpio has an peripheral
-                # if the peripheral is a sensor, create an item for every measurement item
-                if 'sensors' in json_tasmota_objects['gpios'][gpio]:                    # if key in dict exists ...
-                    if bool(json_tasmota_objects['gpios'][gpio]['sensors']):            # if dict is not empty (peripheral is a sensor...)
-                        # i am a sensor
-                        self.add_ui_widget_peripheral(json_tasmota_objects['gpios'][gpio]['peripheral'], row)        # add the peripheral name/ sensor name
-                        row += 1
-                    else:                                                               # peripheral is not a sensor, but an actuator
-                        # i am a actuator (no dict)
-                        # write in same line like 'gpiox'
-                        self.add_ui_widget_peripheral(json_tasmota_objects['gpios'][gpio]['peripheral'], row)
-                        self.add_ui_widgets_user(self.objects_grid, row, json_tasmota_objects['gpios'][gpio]['peripheral'], peripheral_no=peripheral_no)
-                    row += 1                                                            # next line
-            else:
-                row += 1                                                                # next line
+            self.objects_grid.addWidget(QLabel(str(peripheral_no)), row, self.tbl_columns['GPIO Value'])  # add the gpio value(s)
+            # print all gpios and their peripheral name and number
+            self.add_ui_widget_peripheral(peripheral, row)  # add the peripheral name/ sensor name
+            if peripheral_no not in [0,1]:              # peripheral number 1='User', 2='None'
+                self.add_ui_widgets_user(self.objects_grid, row, peripheral,peripheral_no=peripheral_no)
+            row += 1  # next line
 
-        # all gpios, corresponding sensors and actuators were added, but not sensors,
+        # all gpios and actuators were added, but not sensors (i.e I2C),
         # these sensors will be added in the following
-        row += 1
         myFont = QtGui.QFont()
         myFont.setBold(True)
         label = QLabel('Sensors:')
@@ -592,6 +569,13 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             pass
         return peripheral_no
 
+    def get_peripheral_name_by_no(self, peripheral_no):
+        peripheral_no = str(peripheral_no)
+        if peripheral_no in openhab.std_items:
+            return openhab.std_items[peripheral_no]['name']
+        else:
+            return None
+
     def update_json_to_yaml_config_data(self):
         global json_config_data
         self.yaml_config_data = yaml.dump(json_config_data, sort_keys=False)                      # yaml.load(f.read(), Loader=yaml.BaseLoader)
@@ -621,7 +605,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         if 'settings' in json_config_data:                                               # config file is loaded
             self.json_config_data_new['settings'] = json_config_data['settings'].copy()  # copy settings section
             try:  # add here things, that comes from device data...
-                self.json_config_data_new['settings']['hostname'] = json_tasmota_objects['thingid']  # json_tasmota_objects could not be initiated
+                self.json_config_data_new['settings']['hostname'] = self.thing_id        # json_tasmota_objects could not be initiated
                 self.json_config_data_new['settings']['friendlyname'] = json_dev_status[tas_cmds.status['state']]['Status']['FriendlyName'][0]
                 self.json_config_data_new['settings']['deviceName'] = json_dev_status[tas_cmds.status['state']]['Status']['DeviceName']
                 self.json_config_data_new['settings']['topic'] = json_dev_status[tas_cmds.status['state']]['Status']['Topic']
@@ -923,22 +907,25 @@ class SerialDataThread(QThread):
                         while bool(buffer) == False:                                # if buffer is still empty (in case of large response time (reboot))
                             if (datetime.now()-t1).total_seconds() > response_waiting_max:
                                 break                                               # leave first while, if response comes anymore
-                            while ser.inWaiting() > 0 or (datetime.now()-t1).total_seconds() < self.response_waiting:       # get into loop if serial>1 char or time is not ended
+                            wait_time = self.response_waiting
+                            if cmd.count(';') > 1:                                  # for long cmds (i.e. backlog) increase waiting time till response
+                                wait_time = self.response_waiting * cmd.count(';') * 0.1
+                            while ser.inWaiting() > 0 or (datetime.now()-t1).total_seconds() < wait_time:       # get into loop if serial>1 char or time is not ended
                                 #msg = ser.read_until('\r\n').decode(encoding='utf-8')  # get serial response and encode (old)
                                 buffer = ser.readline().decode(encoding='utf-8')                    # get response line by line
-                                print('buffer:'+buffer)
+                                #print('buffer:'+buffer)
                                 x = buffer[buffer.find('{'):buffer.find('\r\n')]
                                 if TasmohabUI.is_json(x):
                                     json_tmp.append(x)                               # find json between string and add it to list
                                     json_tmp = list(filter(None, json_tmp))              # filter/delete empty elements
-                                print('json_tmp:'+str(json_tmp))
+                                #print('json_tmp:'+str(json_tmp))
                                 if bool(json_tmp) == False:                          # if json_tmp is still empty (no json received)
                                     buffer = None
                         #print(json_tmp)
                         tmp = {}
                         if bool(json_tmp):                                          # if (list) json_tmp is not empty
                             for resp in json_tmp:
-                                print(resp, bool(json_tmp), (TasmohabUI.is_json(resp)))
+                                #print(resp, bool(json_tmp), (TasmohabUI.is_json(resp)))
                                 tmp.update(json.loads(resp))                        # save data in a temp var
                                 self.pyqt_signal_progress.emit(round(100 / len(self.cmd_list) * (no + 1)))  # update progress
                         else:
@@ -1203,7 +1190,7 @@ def resource_path(relative_path):
 
 def keys_exists(element, *keys):
     '''
-    Check if *keys (nested) exists in `element` (dict).
+    Check if keys exists in in dict.
     '''
     if not isinstance(element, dict):
         raise AttributeError('keys_exists() expects dict as first argument.')
@@ -1219,6 +1206,9 @@ def keys_exists(element, *keys):
     return True
 
 def get_key_val_pair(dictionary):
+    '''
+    Get key, value pair in (nested) in nested dict.
+    '''
     for key, value in dictionary.items():
         if type(value) is dict:
             yield from get_key_val_pair(value)
@@ -1234,7 +1224,8 @@ if __name__ == '__main__':
         print(thread.name)
     print('\n')
 
-    while 1:
-        time.sleep(1)
-        if not t_ui.is_alive():
-            sys.exit()
+    while not t_ui.is_alive():
+        pass
+        #time.sleep(.5)
+        #if not t_ui.is_alive():
+    sys.exit()
