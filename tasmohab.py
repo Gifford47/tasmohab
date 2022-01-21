@@ -3,31 +3,34 @@
 
 import os
 import sys
+import subprocess
 import traceback
 import yaml
 from collections import defaultdict
 from datetime import datetime
 
 import json
+import dirtyjson
 import requests
-import re
 import urllib
 import serial
 import threading
 import time
 import configparser
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, QFile, QTextStream
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextBrowser, QLabel, QVBoxLayout, QWidget, \
     QGridLayout, QCheckBox, QLineEdit, QComboBox
 from serial import Serial
 from serial.tools.list_ports import comports
 
+import breeze_resources         # import breeze style
 import dev_config
 import openhab
 import tas_cmds
 import tasmohabUI
 import rules
+import api
 
 sys.path.append('./ohgen')                  # import ohgen folder
 try:
@@ -53,10 +56,11 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         super(TasmohabUI, self).__init__(parent)
         self.setupUi(self)
         self.config = configparser.ConfigParser()
+        self.config_file_path = ''
         if os.path.isfile(config_name):                                                     # load app config file (*.cfg)
-            self.read_tasmohab_config(c_file=config_name)
+            self.load_tasmohab_config(c_file=config_name)
         else:
-            self.read_tasmohab_config()
+            self.load_tasmohab_config()
 
         self.http_url = ''
         self.http_err_msg = 'Connection error. Cannot login with credentials. Please check username and password.'
@@ -76,7 +80,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
         self.UI_threads = []  # list of queued ui-threads
         self.yaml_config_data = ''
-        self.json_config_data_new = {}
+        self.yaml_conf_file = ''
         for root, dirs, files in os.walk('./'+templates_path):                              # scan all template files (*.tpl) in dir
             for file in files:
                 if file.endswith(".tpl"):
@@ -86,15 +90,16 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
         self.dev_config_wind = DevConfigWindow  # create an instance
 
-        if os.path.isfile(os.path.abspath(os.getcwd()+'/'+std_yaml_config_file)):
-            self.load_yaml_file_config(std_file=os.path.abspath(os.getcwd()+'/'+std_yaml_config_file))           # load std-template file for pyinstaller one-file
-        elif os.path.isfile(os.path.abspath(os.getcwd()+'/ohgen/'+std_yaml_config_file)):
-            self.load_yaml_file_config(std_file=os.path.abspath(os.getcwd()+'/ohgen/'+std_yaml_config_file))  # load std-template file in project dir
+        # set ui elements
+        self.txt_thing_file.setText(self.config[self.cmb_outp_format.currentText()]['Thing_Path'] + 'new_thing.things')
+        self.txt_item_file.setText(self.config[self.cmb_outp_format.currentText()]['Item_Path'] + 'new_items.items')
+        self.cmb_oh_ips.addItems(self.config[self.cmb_outp_format.currentText()]['Openhab_Instances'].split(','))
 
         # menubar
         self.actionInfo.triggered.connect(self.about)
         self.actionExit.triggered.connect(self.exit)
-        self.actionLoad_conf.triggered.connect(self.read_tasmohab_config)
+        self.actionLoad_conf.triggered.connect(self.load_tasmohab_config)
+        self.actionEdit_conf.triggered.connect(self.edit_tasmohab_config)
 
         self.btn_serport_refr.clicked.connect(self.list_com_ports)                          # Remember to pass the definition/method (without '()'), not the return value!
         self.btn_load_object.clicked.connect(self.load_yaml_file_config)
@@ -107,22 +112,29 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.btn_refr_obj_data.clicked.connect(self.update_json_config_data_from_ui)
         self.btn_show_json_config.clicked.connect(self.show_json_config)
         self.btn_gen_fin_objts.clicked.connect(self.gen_objects_from_file)
-        self.btn_save_final_obj.clicked.connect(self.save_final_files)
+        self.btn_save_final_to_file.clicked.connect(self.save_final_obj_to_file)
         self.btn_clear_log.clicked.connect(self.clear_log)
         self.btn_edittmpl.clicked.connect(self.edit_template)
         self.btn_helpfullurls.clicked.connect(self.show_config_urls)
         self.btn_gen_rules.clicked.connect(self.show_rule_generator)
+        self.btn_save_final_via_rest.clicked.connect(self.save_final_obj_via_rest)
+        self.cb_sel_all.stateChanged.connect(self.sel_all_checkboxes)
+        
+        self.txt_pass.returnPressed.connect(self.get_data_on_http)
 
-    def read_tasmohab_config(self, c_file=None):
+    def load_tasmohab_config(self, c_file=None):
         """Reads tasmohab config file (*.cfg)"""
-        if c_file is bool(c_file) or c_file is None:                     # if file is None
+        if c_file is bool(c_file) or c_file is None:                     # if file is None, no existing file
             if bool(self.config.sections()) == False:                    # if config file is empty
                 QMessageBox.warning(self,'No config file loaded!', 'Please make sure, that a "tasmohab.cfg" exists and is loaded!')
             c_file = QFileDialog.getOpenFileName(filter="Config(*.cfg)")[0]
             if not c_file == '':
+                self.config_file_path = c_file
                 self.config.read(c_file)
                 self.cmb_outp_format.clear()
                 self.cmb_outp_format.addItems(self.config.sections())
+                self.cmb_oh_ips.clear()
+                self.cmb_oh_ips.addItems(self.config[self.cmb_outp_format.currentText()]['Openhab_Instances'].split(','))
 
                 self.append_to_log('Config file loaded:' + str(c_file))
             else:
@@ -130,6 +142,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                     sys.exit()
         else:
             try:
+                self.config_file_path = c_file
                 self.config.read(c_file)
                 self.cmb_outp_format.clear()
                 self.cmb_outp_format.addItems(self.config.sections())
@@ -137,6 +150,12 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             except Exception as e:
                 self.append_to_log('Config file corrupted:' + str(c_file))
                 self.report_error()
+
+    def edit_tasmohab_config(self):
+        #file_path = os.path.abspath(str(os.getcwd()) + '/' + config_name)
+        if os.path.isfile(self.config_file_path):
+            p = subprocess.Popen([self.config_file_path], shell=True)
+            #p.wait()
 
     def clear_log(self):
         """Clears all log entries"""
@@ -335,9 +354,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                     self.txt_thing_file.setText(new_thingfilename)
             except Exception:
                 self.report_error()
-            if json_config_data is not None and bool(json_config_data):
-                self.btn_set_dev_conf.setEnabled(True)
-                self.btn_gen_rules.setEnabled(True)
+            #if json_config_data is not None and bool(json_config_data):
+            self.btn_set_dev_conf.setEnabled(True)
+            self.btn_gen_rules.setEnabled(True)
 
     def clear_ui_widgets(self):                                                          # removes all objects from scrollarea
         """Clears the scrollarea with all widget in it."""
@@ -361,21 +380,23 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 if not self.yaml_conf_file == '':
                     self.txt_config_file_path.setText(self.yaml_conf_file)
                     json_config_data = self.read_yaml(self.yaml_conf_file)
-                self.tabWidget.setCurrentIndex(2)                                           # jump ti final tab
+                else:
+                    return
             if 'settings' in json_config_data:
                 self.txt_thing_file.setText(json_config_data['settings']['outputs']['default-output']['things-file'])
                 self.txt_item_file.setText(json_config_data['settings']['outputs']['default-output']['items-file'])
+                self.tabWidget.setCurrentIndex(2)  # jump to final tab
             else:
                 self.append_to_log('Corrupt YAML file loaded! Exiting here!')
                 QMessageBox.warning(self, 'Corrupt template file', 'Corrupt YAML file loaded! Try another one.')
                 self.tabWidget.setCurrentIndex(0)
                 return
-            self.set_config_settings()
             self.update_json_to_yaml_config_data()
             self.update_ui_device_info()
             self.gen_fin_objects()
             self.btn_gen_fin_objts.setEnabled(True)
-            self.btn_save_final_obj.setEnabled(True)
+            self.btn_save_final_to_file.setEnabled(True)
+            self.btn_save_final_via_rest.setEnabled(True)
         except Exception:
             self.report_error()
 
@@ -492,7 +513,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         lbl = QLabel(name)
         self.objects_grid.addWidget(lbl, row, self.tbl_columns['Peripheral Name'])  # add the peripheral name/ sensor name
 
-    def add_ui_widgets_user(self, layout, row, label, peripheral_no='default'):
+    def add_ui_widgets_user(self, layout, row, peripheral, peripheral_no='default'):
         try:
             line = QLineEdit(openhab.std_items[peripheral_no]['feature'])                    # feature
         except:
@@ -500,7 +521,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         line.setMaximumWidth(200)
         line.setMaxLength(80)
         layout.addWidget(line, row, self.tbl_columns['Feature'])
-        line = QLineEdit(label)                                                         # item label
+        line = QLineEdit(peripheral)                                                         # item label
         line.setMaximumWidth(200)
         line.setMaxLength(80)
         layout.addWidget(line, row, self.tbl_columns['Item Label'])
@@ -600,98 +621,108 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     # configure the 'settings' header in json_config_data
     def set_config_settings(self):
+        '''
+        configure the 'settings' header in json_config_data
+        '''
         global json_config_data
-        self.json_config_data_new.clear()                                                # clearing all entries
-        if 'settings' in json_config_data:                                               # config file is loaded
-            self.json_config_data_new['settings'] = json_config_data['settings'].copy()  # copy settings section
-            try:  # add here things, that comes from device data...
-                self.json_config_data_new['settings']['hostname'] = self.thing_id        # json_tasmota_objects could not be initiated
-                self.json_config_data_new['settings']['friendlyname'] = json_dev_status[tas_cmds.status['state']]['Status']['FriendlyName'][0]
-                self.json_config_data_new['settings']['deviceName'] = json_dev_status[tas_cmds.status['state']]['Status']['DeviceName']
-                self.json_config_data_new['settings']['topic'] = json_dev_status[tas_cmds.status['state']]['Status']['Topic']
-            except Exception as e:
-                pass
-            self.json_config_data_new['settings']['outputs']['default-output']['items-file'] = self.txt_item_file.text()  # item file
-            self.json_config_data_new['settings']['outputs']['default-output']['things-file'] = self.txt_thing_file.text()  # thing file
-            json_config_data['settings'] = self.json_config_data_new['settings'].copy()  # already copy new values to standard config data
-            self.append_to_log('JSON settings config updated!')
-            return True
-        return False
-
+        # the following sets the default values of the dict
+        json_config_data.setdefault('settings',{})
+        json_config_data['settings'].setdefault('header', '')
+        json_config_data['settings'].setdefault('output', 'default-output')
+        json_config_data['settings'].setdefault('hostname', '')
+        json_config_data['settings'].setdefault('friendlyname', '')
+        json_config_data['settings'].setdefault('deviceName', '')
+        json_config_data['settings'].setdefault('topic', '')
+        json_config_data['settings'].update({'outputs':{'default-output':{'items-file':''}}})
+        json_config_data['settings'].update({'outputs': {'default-output': {'things-file':''}}})
+        try:  # add here things, that comes from device data...
+            json_config_data['settings']['hostname'] = self.thing_id        # json_tasmota_objects could not be initiated
+            json_config_data['settings']['friendlyname'] = json_dev_status[tas_cmds.status['state']]['Status']['FriendlyName'][0]
+            json_config_data['settings']['deviceName'] = json_dev_status[tas_cmds.status['state']]['Status']['DeviceName']
+            json_config_data['settings']['topic'] = json_dev_status[tas_cmds.status['state']]['Status']['Topic']
+        except Exception as e:
+            pass
+        json_config_data['settings']['outputs']['default-output']['items-file'] = self.txt_item_file.text()  # item file
+        json_config_data['settings']['outputs']['default-output']['things-file'] = self.txt_thing_file.text()  # thing file
+        self.append_to_log('JSON config settings updated!')
+        return True
 
     def update_json_config_data_from_ui(self):
         """Update the json configuration here in relation to the user configurations for the tasmota objects
-        all entries from tasmota objects in the ui are read in here and stored in the 'json_config_data'
-        then the 'json_config_data' is taken to create the things and items."""
+        all entries from tasmota objects in the ui are read in and stored in the 'json_config_data'.
+        Then the 'json_config_data' is taken to create the things and items."""
         global json_config_data
-        if bool(json_config_data) == False:  # if dict is empty (no config file loaded
-            QMessageBox.information(self, 'No device config File!', 'Please load a template config file at minimum.',
-                                    QMessageBox.Ok, QMessageBox.Ok)
-            return
+        json_config_data.clear()                                                                    # clear all existing data
         if self.set_config_settings():
-            #self.thing_id = self.json_config_data_new['settings']['hostname']
+            #self.thing_id = json_config_data['settings']['hostname']
             #self.thing_id = str(self.thing_id).replace('-', '_')
-            self.json_config_data_new[self.thing_id] = {}                              # create a new thing entry
-            self.json_config_data_new[self.thing_id]['thingid'] = self.thing_id             # generate thingid
-            self.json_config_data_new[self.thing_id]['label'] = self.json_config_data_new['settings']['deviceName']             # generate thing label
-            self.json_config_data_new[self.thing_id]['template'] = str(self.cmb_template.currentText())      # qcombobox
-            self.json_config_data_new[self.thing_id]['topic'] = self.json_config_data_new['settings']['topic']
-            self.json_config_data_new[self.thing_id]['location'] = self.txt_location.text()
-            self.items_dict = defaultdict(list)                                        # create a dict with list for each item
-            self.items_dict.clear()                                                 # clear old content
-            row = 1
-            col = 0
-            tot_rows = self.objects_grid.rowCount()
-            while row < tot_rows:  # loop through all rows
-                try:
-                    item = self.objects_grid.itemAtPosition(row, col)                                                       # get first item: the sensor, i.e. AM2301
-                    if type(item.widget()) == QCheckBox and item.widget().isChecked():                              # if gpio checkbox is checked
-                        item_name = str(self.objects_grid.itemAtPosition(row, self.tbl_columns['Peripheral Name']).widget().text()).replace(' ','_')    # f.e.: the sensor name. replace space with underline
-                        ###################### Check if sensor or actuator ######################
-                        # if the next line is a QCheckbox: create a new item in last thing
-                        # if the next line in next coloumn is a QCheckbox: create a new sensoritem
-                        try:
-                            next_item = self.objects_grid.itemAtPosition(row+1, self.tbl_columns['GPIO']).widget()                   # get item at next row and col
-                        except:
-                            next_item = None
-                        #print("item:"+item_name)
-                        if next_item is not None and type(next_item) == QCheckBox:
-                            # i am a sensor: read the sensor and fill the dict
-                            row += 1                                                                                # next line
-                            while (type(next_item) == QCheckBox):
-                                if next_item.isChecked():                                                           # get the sensor checkbox (not the gpio checkbox!)
-                                    self.read_ui_widgets_user(row)                                             # read item in row and col
-                                    self.update_item_by_name(item_name)                                             # add/update item in dict
-                                    print("Added sub-sensor:" + item_name + "from line:" + str(row))
-                                row += 1
-                                try:
-                                    next_item = self.objects_grid.itemAtPosition(row, self.tbl_columns['GPIO']).widget()             # try to get the next checkbox
-                                except:
-                                    next_item = None
-                        else:                                                                                       # this line has no item and is a actuator
-                            # i am a single sensor (one line in ui) or a actuator: read in and fill the dict
-                            self.read_ui_widgets_user(row)                                                 # read item in row and col
-                            self.update_item_by_name(item_name)                                                 # add/ update item in dict
-                            print("Added sensor:"+item_name+"from line:"+str(row))
-                            row += 1
-                        ###################### END ######################
-                        self.json_config_data_new[self.thing_id].update(self.items_dict)                                 # write new items to dict
-                    else:
-                        row += 1                                                                                # next line, last was unchecked
-                except Exception as e:
-                    # line is empty or has no widget at row, col
-                    self.report_error()                                                                        # optional
-                    row += 1
-            self.json_config_data_new = dict(self.json_config_data_new)
-        else:                                                                                                   # no config file is loaded
-            print('TODO: create a template for new config file ...')
-        json_config_data.clear()  # clear to avoid duplicates
-        json_config_data = self.json_config_data_new.copy()                 # copy dict to dict
-        self.update_json_to_yaml_config_data()                              # update yaml
-        self.tabWidget.setCurrentIndex(2)                                   # jump to tabwidget Index=2
-        self.gen_fin_objects()                                              # generate objects
+            json_config_data[self.thing_id] = {}                                                    # create a new thing entry
+            json_config_data[self.thing_id]['thingid'] = self.thing_id                              # generate thingid
+            json_config_data[self.thing_id]['label'] = json_config_data['settings']['deviceName']   # generate thing label
+            json_config_data[self.thing_id]['template'] = str(self.cmb_template.currentText())      # qcombobox
+            json_config_data[self.thing_id]['topic'] = json_config_data['settings']['topic']
+            json_config_data[self.thing_id]['location'] = self.txt_location.text()
 
-    def read_ui_widgets_user(self, row):
+            self.read_items_from_ui()                                       # updates
+            json_config_data[self.thing_id].update(self.items_dict)         # write new items to dict
+
+            self.update_json_to_yaml_config_data()                          # update yaml from json
+            self.tabWidget.setCurrentIndex(2)                               # jump to tabwidget Index=2
+            self.gen_fin_objects()                                          # generate objects
+            self.btn_gen_fin_objts.setEnabled(True)
+            self.btn_save_final_to_file.setEnabled(True)
+            self.btn_save_final_via_rest.setEnabled(True)
+
+    def read_items_from_ui(self):
+        """
+        Reads in every item in table and saves them in 'self.items_dict'.
+        """
+        self.items_dict = defaultdict(list)                                        # create a dict with list for each item
+        self.items_dict.clear()                                                 # clear old content
+        row = 1
+        col = 0
+        tot_rows = self.objects_grid.rowCount()
+        while row < tot_rows:  # loop through all rows
+            try:
+                item = self.objects_grid.itemAtPosition(row, col)                                                       # get first item: the sensor, i.e. AM2301
+                if type(item.widget()) == QCheckBox and item.widget().isChecked():                              # if gpio checkbox is checked
+                    item_name = str(self.objects_grid.itemAtPosition(row, self.tbl_columns['Peripheral Name']).widget().text()).replace(' ','_')    # f.e.: the sensor name. replace space with underline
+                    ###################### Check if sensor or actuator ######################
+                    # if the next line is a QCheckbox: create a new item in last thing
+                    # if the next line in next coloumn is a QCheckbox: create a new sensoritem
+                    try:
+                        next_item = self.objects_grid.itemAtPosition(row+1, self.tbl_columns['GPIO']).widget()                   # get item at next row and col
+                    except:
+                        next_item = None
+                    #print("item:"+item_name)
+                    if next_item is not None and type(next_item) == QCheckBox:
+                        # i am a sensor: read the sensor and fill the dict
+                        row += 1                                                                                # next line
+                        while (type(next_item) == QCheckBox):
+                            if next_item.isChecked():                                                           # get the sensor checkbox (not the gpio checkbox!)
+                                self.read_ui_widgets_user_by_row(row)                                             # read item in row and col
+                                self.update_item_by_name(item_name)                                             # add/update item in dict
+                                print("Added sub-sensor:" + item_name + "from line:" + str(row))
+                            row += 1
+                            try:
+                                next_item = self.objects_grid.itemAtPosition(row, self.tbl_columns['GPIO']).widget()             # try to get the next checkbox
+                            except:
+                                next_item = None
+                    else:                                                                                       # this line has no item and is a actuator
+                        # i am a single sensor (one line in ui) or a actuator: read in and fill the dict
+                        self.read_ui_widgets_user_by_row(row)                                                 # read item in row and col
+                        self.update_item_by_name(item_name)                                                 # add/ update item in dict
+                        print("Added sensor:"+item_name+" from line:"+str(row))
+                        row += 1
+                    ###################### END ######################
+                else:
+                    row += 1                                                                                # next line, last was unchecked
+            except Exception as e:
+                # line is empty or has no widget at row, col
+                self.report_error()                                                                        # optional
+                row += 1
+
+    def read_ui_widgets_user_by_row(self, row):
         self.item_feature = self.objects_grid.itemAtPosition(row, self.tbl_columns['Feature']).widget().text()                      # qlineedit
         self.item_label = self.objects_grid.itemAtPosition(row, self.tbl_columns['Item Label']).widget().text()                        # qlineedit
         self.item_type = self.objects_grid.itemAtPosition(row, self.tbl_columns['Item Type']).widget().currentText()                  # qcombobox
@@ -808,9 +839,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         except Exception as e:
             self.report_error()
 
-    def save_final_files(self):
-        thing_file = json_config_data['settings']['outputs']['default-output']['things-file']
-        item_file = json_config_data['settings']['outputs']['default-output']['items-file']
+    def save_final_obj_to_file(self):
+        thing_file = self.txt_thing_file.text()
+        item_file = self.txt_item_file.text()
         if os.path.isfile(thing_file) or os.path.isfile(item_file):
             # noinspection PyTypeChecker
             buttonReply = QMessageBox.question(self, 'Confirm overwrite',
@@ -839,7 +870,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.report_error()
 
     def about(self):
-        self.det_window = DetailWindow('A Tasmota object configurator for smarthome systems. <p>Created by Gifford47<\p>', format_to_json=False)                 # initialize 2. window for dev details
+        self.det_window = DetailWindow('A Tasmota object configurator for OpenHab. <p>Created by Gifford47<\p>', format_to_json=False)                 # initialize 2. window for dev details
         self.det_window.show()
 
     def exit(self):
@@ -847,9 +878,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
 
     def edit_template(self):
         file_path = os.path.abspath(os.getcwd() + '/' + templates_path + '/' + self.cmb_template.currentText() + '.tpl')
-        print(file_path)
         if os.path.isfile(file_path):
-            os.system(str(file_path))
+            p = subprocess.Popen([file_path], shell=True)
+            #p.wait()
 
     def show_config_urls(self):
         urls = {}
@@ -863,6 +894,83 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.det_window = DetailWindow(formatted_urls, format_to_json=False)                 # initialize 2. window
         self.det_window.show()
 
+    def save_final_obj_via_rest(self):
+        self.btn_save_final_via_rest.setEnabled(False)
+        api_user = self.config[self.cmb_outp_format.currentText()]['OpenHab_User']
+        api_pass = self.config[self.cmb_outp_format.currentText()]['OpenHab_Pass']
+
+        # thing
+        thing_data = self.read_and_fix_json(self.txt_output_thing.toPlainText())
+        if (thing_data == False):
+            self.append_to_log('Template error: Thing is no valid json format, could not fix it!')
+            self.btn_save_final_via_rest.setEnabled(True)
+            return False
+        item_links_as_list = self.get_rest_links_from_channels(thing_data)
+
+        # items
+        item_data = self.read_and_fix_json(self.txt_output_item.toPlainText())
+        if (item_data == False):
+            self.append_to_log('Template error: Items do not have a valid json format, could not fix it!')
+            self.btn_save_final_via_rest.setEnabled(True)
+            return False
+
+        if (item_links_as_list == False):
+            self.append_to_log('Template error: Links are not generated. Please do it manually!')
+
+        ip = self.cmb_oh_ips.currentText()
+        action = 'create'
+        # create thing
+        self.txt_output_thing.setText(json.dumps(thing_data, indent=4, sort_keys=True))
+        response = api.handle_thing(ip, action, body=thing_data, user=api_user, passw=api_pass)
+        self.append_to_log('Thing:'+response)
+        # create items
+        self.txt_output_item.setText(json.dumps(item_data, indent=4, sort_keys=True))
+        response = api.handle_item(ip, action, body=item_data, user=api_user, passw=api_pass)
+        self.append_to_log('Item:'+response)
+        # create links to items
+        for link in item_links_as_list:
+            response = api.handle_link(ip, action, body=link, user=api_user, passw=api_pass)
+            self.append_to_log('Links:'+response)
+
+        self.btn_save_final_via_rest.setEnabled(True)
+
+    def read_and_fix_json(self, json_str):
+        data = ''
+        if self.is_json(json_str):
+            data = json.loads(json_str)
+            return data
+        else:
+            self.append_to_log('Template error: Trying to fix broken json ...')
+            try:
+                data = dirtyjson.loads(json_str)                       # if template return a broken json, try to repair
+            except Exception:
+                return False
+            if not self.is_json(json.dumps(data)):                                            # if still broken ...
+                return False
+            else:
+                return data
+
+    def get_rest_links_from_channels(self, data):
+        links_list = []
+        link_dict = {}
+        try:
+            for channel in data['channels']:                                # create dict for link
+                link_dict['itemName'] = channel['linkedItems'][0]           # get first item of array
+                link_dict['channelUID'] = channel['uid']
+                link_dict['configuration'] = {}
+                links_list.append(link_dict)
+        except Exception:
+            return False
+        return links_list
+
+    def sel_all_checkboxes(self):
+        cbs = self.frame.findChildren(QCheckBox)  # returns a list of all QLineEdit objects
+        if self.cb_sel_all.isChecked():
+            for cb in cbs:
+                cb.setChecked(True)
+        else:
+            for cb in cbs:
+                cb.setChecked(False)
 
 class SerialDataThread(QThread):
     pyqt_signal_json_out = pyqtSignal(dict)
@@ -1054,15 +1162,15 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                 self.btn_save_conf.setEnabled(True)
             if 'backlog' in json_config_data['settings']:
                 self.backlog.setText(json_config_data['settings']['backlog'])
-
-            qline_edits = self.frame.findChildren(QLineEdit)                    # returns a list of all QLineEdit objects
-            for widget in qline_edits:                                          # loop through all found QLineEdit widgets
-                for key, value in get_key_val_pair(json_dev_status):            # loop through all key value pairs in 'json_dev_status' ...
-                    if str(key).lower() == str(widget.objectName()).lower():                              # and look if the widget name is in 'json_dev_status' dict
-                        obj = self.frame.findChild(QLineEdit, widget.objectName())      # get widget ...
-                        obj.setText(str(value))                                      # and set the text
         except Exception as e:
             print(e)
+        qline_edits = self.frame.findChildren(QLineEdit)                    # returns a list of all QLineEdit objects
+        for widget in qline_edits:                                          # loop through all found QLineEdit widgets
+            for key, value in get_key_val_pair(json_dev_status):            # loop through all key value pairs in 'json_dev_status' ...
+                if str(key).lower() == str(widget.objectName()).lower():                              # and look if the widget name is in 'json_dev_status' dict
+                    obj = self.frame.findChild(QLineEdit, widget.objectName())      # get widget ...
+                    obj.setText(str(value))                                      # and set the text
+
 
     def save_config(self):
         global json_config_data
@@ -1170,6 +1278,16 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
 ### MAIN ###
 def main_ui():
     app = QApplication(sys.argv)
+
+    ## set stylesheet
+    ## https://github.com/Alexhuszagh/BreezeStyleSheets
+    ## python stylesheet/configure.py --styles=all --extensions=all --resource breeze.qrc
+    ## pyrcc5 stylesheet/dist/breeze.qrc -o breeze_resources.py
+    #file = QFile(":/light/stylesheet.qss")
+    #file.open(QFile.ReadOnly | QFile.Text)
+    #stream = QTextStream(file)
+    #app.setStyleSheet(stream.readAll())
+
     app.setWindowIcon(QtGui.QIcon(resource_path('icon.ico')))
     UI = TasmohabUI()
     UI.show()

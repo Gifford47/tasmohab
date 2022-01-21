@@ -302,25 +302,19 @@
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
                <layout class="QGridLayout" name="gridLayout_4">
-                <item row="3" column="0">
+                <item row="1" column="0">
                  <widget class="QLabel" name="lbl_location">
                   <property name="text">
                    <string>Location</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="1">
+                <item row="1" column="1">
                  <widget class="QLineEdit" name="txt_location">
                   <property name="text">
                    <string>GroundFloor</string>
                   </property>
                  </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLineEdit" name="txt_thing_file"/>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="txt_config_file_path"/>
                 </item>
                 <item row="0" column="0">
                  <widget class="QPushButton" name="btn_load_object">
@@ -329,24 +323,10 @@
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="txt_config_file_path"/>
+                </item>
                 <item row="2" column="1">
-                 <widget class="QLineEdit" name="txt_item_file"/>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="lbl_thing_file">
-                  <property name="text">
-                   <string>Thing File</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="lbl_item_file">
-                  <property name="text">
-                   <string>Item File</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
                    <widget class="QPushButton" name="btn_set_dev_conf">
@@ -382,6 +362,13 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <item>
+               <widget class="QCheckBox" name="cb_sel_all">
+                <property name="text">
+                 <string>select/ deselect all Checkboxes</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <layout class="QVBoxLayout" name="verticalLayout_8">
                 <item>
                  <widget class="QScrollArea" name="scrollArea">
@@ -394,7 +381,7 @@
                      <x>0</x>
                      <y>0</y>
                      <width>988</width>
-                     <height>158</height>
+                     <height>186</height>
                     </rect>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_17"/>
@@ -407,29 +394,10 @@
                <layout class="QGridLayout" name="gridLayout">
                 <item row="7" column="0">
                  <layout class="QGridLayout" name="gridLayout_10">
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_10">
-                    <property name="maximumSize">
-                     <size>
-                      <width>100</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_11">
                     <property name="text">
-                     <string>Device template:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QComboBox" name="cmb_template">
-                    <property name="maximumSize">
-                     <size>
-                      <width>200</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
+                     <string>Output format:</string>
                     </property>
                    </widget>
                   </item>
@@ -446,10 +414,23 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_11">
+                  <item row="1" column="2">
+                   <widget class="QPushButton" name="btn_edittmpl">
                     <property name="text">
-                     <string>Output format:</string>
+                     <string>Edit Template</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QComboBox" name="cmb_template">
+                    <property name="maximumSize">
+                     <size>
+                      <width>200</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::LeftToRight</enum>
                     </property>
                    </widget>
                   </item>
@@ -477,10 +458,16 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="2">
-                   <widget class="QPushButton" name="btn_edittmpl">
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_10">
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <property name="text">
-                     <string>Edit Template</string>
+                     <string>Device template:</string>
                     </property>
                    </widget>
                   </item>
@@ -538,7 +525,7 @@
             <item row="0" column="0">
              <widget class="QPushButton" name="btn_show_json_obj">
               <property name="text">
-               <string>Show Json Object from Tasmota Device</string>
+               <string>Show Tasmota GPIOs</string>
               </property>
              </widget>
             </item>
@@ -580,6 +567,83 @@
         <string>Object Output</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_14">
+        <item row="2" column="0">
+         <layout class="QGridLayout" name="gridLayout_16">
+          <item row="3" column="1">
+           <widget class="QPushButton" name="btn_save_final_via_rest">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(85, 255, 127);</string>
+            </property>
+            <property name="text">
+             <string>Save Thing and Item via REST API</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="btn_save_final_to_file">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(85, 255, 127);</string>
+            </property>
+            <property name="text">
+             <string>Save Thing and Item to file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="cmb_oh_ips"/>
+          </item>
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_18">
+            <item row="0" column="0">
+             <widget class="QLabel" name="lbl_thing_file">
+              <property name="text">
+               <string>Things path</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="txt_thing_file">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="lbl_item_file">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Items path</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="txt_item_file">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="0" column="0">
@@ -593,12 +657,16 @@
                </font>
               </property>
               <property name="text">
-               <string>Things</string>
+               <string>Thing</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QTextBrowser" name="txt_output_thing"/>
+             <widget class="QTextBrowser" name="txt_output_thing">
+              <property name="readOnly">
+               <bool>false</bool>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QLabel" name="lbl_output_2">
@@ -614,18 +682,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QTextBrowser" name="txt_output_item"/>
-            </item>
-            <item>
-             <widget class="QPushButton" name="btn_save_final_obj">
-              <property name="enabled">
+             <widget class="QTextBrowser" name="txt_output_item">
+              <property name="readOnly">
                <bool>false</bool>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">background-color: rgb(85, 255, 127);</string>
-              </property>
-              <property name="text">
-               <string>Save Thing and Item file</string>
               </property>
              </widget>
             </item>
@@ -724,6 +783,9 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
         <property name="text">
          <string/>
         </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -736,7 +798,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTasmHAB">
@@ -747,6 +809,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
      <property name="title">
       <string>Config</string>
      </property>
+     <addaction name="actionEdit_conf"/>
      <addaction name="actionLoad_conf"/>
     </widget>
     <addaction name="separator"/>
@@ -783,6 +846,11 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
     <string>Load Config</string>
    </property>
   </action>
+  <action name="actionEdit_conf">
+   <property name="text">
+    <string>Edit Config</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>txt_ip</tabstop>
@@ -796,8 +864,6 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
   <tabstop>btn_dev_details</tabstop>
   <tabstop>btn_load_object</tabstop>
   <tabstop>txt_config_file_path</tabstop>
-  <tabstop>txt_thing_file</tabstop>
-  <tabstop>txt_item_file</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>config_txtbrowser</tabstop>
   <tabstop>btn_show_json_obj</tabstop>

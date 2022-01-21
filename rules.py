@@ -54,7 +54,11 @@ class Rule_Gen(QtWidgets.QMainWindow):
 
         # add widgets in an own GRID(!) for every rule
         for key, value in self.rule_results.items():
-            first_key = list(value.keys())[0]
+            try:
+                first_key = list(value.keys())[0]
+            except Exception as e:
+                print(e)
+                return
             self.grid_layout = QGridLayout()
             self.grid_layout.setObjectName(first_key)                # set the obj name
 
