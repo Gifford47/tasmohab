@@ -143,7 +143,8 @@ def load_template(template_name):
             if line_stripped == '':
                 continue
             
-            if line_stripped.startswith("Thing ") or line_stripped.startswith("Bridge "):
+            if line_stripped.startswith("Thing ") or line_stripped.startswith("Bridge ") or line_stripped.endswith("{") and things_template == '':       # gifford47 changed: line_stripped.startswith("Thing ")
+                #gifford47: note that with ' and things_template == '' ' it is not possible to add more than one thing in template!
                 if things_template != '':
                     things_template += '\n'
                 things_template += line
@@ -155,6 +156,8 @@ def load_template(template_name):
                 things_template += line
                 if line_stripped.startswith('}'):
                     things_nest_level -= 1
+                if line_stripped.endswith('{'):                             # gifford47: added check for nested dicts in template
+                    things_nest_level += 1
                 continue
 
             items_template += line

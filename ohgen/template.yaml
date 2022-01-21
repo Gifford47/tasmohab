@@ -14,7 +14,7 @@ settings:
 tasmota_AAA_123:
   thingid: tasmota_AAA
   label: Multisensor
-  template: tasmota
+  template: tasmota_TXT_File
   topic: tasmota_AAA
   number:
   - name: Switch1
