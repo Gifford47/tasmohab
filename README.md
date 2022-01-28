@@ -2,7 +2,14 @@
 
 ## What is it for?
 TasmoHAB is a Python program with GUI which can read Tasmota devices and 
-automatically integrate and configure them in OpenHab.
+automatically integrate and configure them in OpenHab by TXT files or by REST API.
+
+---
+**NOTE**
+
+Please check the template and adapt it to your own OpenHab if necessary (f.e.:'set mqttUID').
+
+---
 
 ##Features:
 - Readout of Tasmota devices
