@@ -630,6 +630,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         json_config_data['settings'].setdefault('header', '')
         json_config_data['settings'].setdefault('output', 'default-output')
         json_config_data['settings'].setdefault('hostname', '')
+        json_config_data['settings'].setdefault('ip', '')
         json_config_data['settings'].setdefault('friendlyname', '')
         json_config_data['settings'].setdefault('deviceName', '')
         json_config_data['settings'].setdefault('topic', '')
@@ -640,6 +641,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             json_config_data['settings']['friendlyname'] = json_dev_status[tas_cmds.status['state']]['Status']['FriendlyName'][0]
             json_config_data['settings']['deviceName'] = json_dev_status[tas_cmds.status['state']]['Status']['DeviceName']
             json_config_data['settings']['topic'] = json_dev_status[tas_cmds.status['state']]['Status']['Topic']
+            json_config_data['settings']['ip'] = json_dev_status[tas_cmds.status['network']]['StatusNET']['IPAddress']
         except Exception as e:
             pass
         json_config_data['settings']['outputs']['default-output']['items-file'] = self.txt_item_file.text()  # item file
@@ -662,6 +664,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             json_config_data[self.thing_id]['template'] = str(self.cmb_template.currentText())      # qcombobox
             json_config_data[self.thing_id]['topic'] = json_config_data['settings']['topic']
             json_config_data[self.thing_id]['location'] = self.txt_location.text()
+            json_config_data[self.thing_id]['ip'] = json_config_data['settings']['ip']
 
             self.read_items_from_ui()                                       # updates
             json_config_data[self.thing_id].update(self.items_dict)         # write new items to dict
