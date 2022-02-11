@@ -7,7 +7,14 @@ automatically integrate and configure them in OpenHab by TXT files or by REST AP
 ---
 **NOTE**
 
-Please check the template and adapt it to your own OpenHab if necessary (f.e.:'set mqttUID').
+Please check the template and adapt it to your own OpenHab if necessary (f.e.:'**set mqttUID**').
+Also check '**tasmohab.cfg**' for following parameters:<br>
+**Openhab_Instances**<br>
+**OpenHab_User**<br>
+**OpenHab_Pass**<br>
+**Thing_Path**<br>
+**Item_Path**<br>
+and so on ...
 
 ---
 
@@ -116,8 +123,16 @@ Go to [Openhab-DEMO](https://demo.openhab.org/settings/items/add-from-textual-de
 
 ### Convert to .exe
 
+####PyQT5:
 * python -m PyQt5.uic.pyuic tasmohabUI.ui -o tasmohabUI.py # for UI components
 * pyrcc5 resource.qrc -o resource_rc.py # for resource items f.e. images (ressource.qrc)
+####PyQT6:
+* pyuic6 -x tasmohabUI.ui -o tasmohabUI.py
+* pyuic6 -x dev_config.ui -o dev_config.py
+####PyQt6 Designer:
+* pyqt6-tools designer
+
+#### PyInstaller:
 * pyinstaller --onefile --windowed --icon=icon.ico --noconsole --clean --paths=...\\TasmoHAB --pat hs=...\\TasmoHAB\\ohgen tasmohab.py
 
 with virtualenv path:
@@ -132,11 +147,6 @@ For Debug (not windowed):
 after successfull build (uses last build config in spec file):
 
 * pyinstaller tasmohab.spec
-
-alternatives:
-
-* pip install auto-py-to-exe
-* auto-py-to-exe
 
 ## Requirements:
 
