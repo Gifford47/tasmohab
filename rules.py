@@ -1,6 +1,6 @@
-from PyQt5 import QtCore, QtGui, QtWidgets, QtGui
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox, QTextBrowser, QLabel, QVBoxLayout, QWidget, \
+from PyQt6 import QtCore, QtGui, QtWidgets, QtGui
+from PyQt6.QtCore import QObject, QThread, pyqtSignal
+from PyQt6.QtWidgets import QMessageBox, QTextBrowser, QLabel, QVBoxLayout, QWidget, \
     QGridLayout, QCheckBox, QPushButton, QFrame
 import tas_cmds
 import scrape_docs
@@ -37,7 +37,7 @@ class Rule_Gen(QtWidgets.QMainWindow):
         self.movie = QtGui.QMovie(resource_path('loader.gif'))
         self.loader_img = QLabel(self.frame)
         self.loader_img.setObjectName("loader")
-        self.loader_img.setAlignment(QtCore.Qt.AlignCenter)
+        self.loader_img.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.loader_img.setMovie(self.movie)
         self.layout.addWidget(self.loader_img)
 
@@ -115,7 +115,7 @@ class Rule_Gen(QtWidgets.QMainWindow):
 
         self.loader_img = QLabel(self.frame)
         self.loader_img.setObjectName("loader")
-        self.loader_img.setAlignment(QtCore.Qt.AlignCenter)
+        self.loader_img.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.loader_img.setMovie(self.movie)
         self.layout.addWidget(self.loader_img)
         self.loader_img.hide()

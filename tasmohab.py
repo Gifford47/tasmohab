@@ -17,9 +17,9 @@ import serial
 import threading
 import time
 import configparser
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QThread, pyqtSignal, QFile, QTextStream
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextBrowser, QLabel, QVBoxLayout, QWidget, \
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import QThread, pyqtSignal, QFile, QTextStream
+from PyQt6.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextBrowser, QLabel, QVBoxLayout, QWidget, \
     QGridLayout, QCheckBox, QLineEdit, QComboBox
 from serial import Serial
 from serial.tools.list_ports import comports
@@ -1151,7 +1151,7 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
     def __init__(self, mainui):
         super(DevConfigWindow, self).__init__()
         self.setupUi(self)
-        self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.ui = mainui
         # uic.loadUi('dev_config.ui', self)  # Load the .ui file                 # alternativ with ui-file (class DevConfigWindow(QtWidgets.QDialog):)
         self.movie = QtGui.QMovie(resource_path('loader.gif'))
@@ -1296,7 +1296,7 @@ def main_ui():
     UI.show()
     UI.setWindowIcon(QtGui.QIcon(resource_path('icon.ico')))
     UI.list_com_ports()  # at startup list ports
-    sys.exit(app.exec_())  # return code of ui app
+    sys.exit(app.exec())  # return code of ui app
 
 # this is only for pyinstaller (path for data in --onefile mode)
 def resource_path(relative_path):
