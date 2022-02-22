@@ -702,12 +702,11 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                         next_item = None
                     #print("item:"+item_name)
                     if next_item is not None and type(next_item) == QCheckBox:
-                        # i am a sensor: read the sensor and fill the dict
+                        # i am a subsensor: read the sensor and fill the dict
                         row += 1                                                                                # next line
                         while (type(next_item) == QCheckBox):
                             if next_item.isChecked():                                                           # get the sensor checkbox (not the gpio checkbox!)
-                                self.read_ui_widgets_user_by_row(row)                                             # read item in row and col
-                                self.update_item_by_name(item_name)                                             # add/update item in dict
+                                self.update_items_dict(item_name, row)                                             # read user items in row and col and add/update item in dict
                                 print("Added sub-sensor:" + item_name + " from line:" + str(row))
                             row += 1
                             try:
@@ -716,8 +715,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                                 next_item = None
                     else:                                                                                       # this line has no item and is a actuator
                         # i am a single sensor (one line in ui) or a actuator: read in and fill the dict
-                        self.read_ui_widgets_user_by_row(row)                                                 # read item in row and col
-                        self.update_item_by_name(item_name)                                                 # add/ update item in dict
+                        self.update_items_dict(item_name, row)                                                 # read item in row and col and add/ update item in dict
                         print("Added sensor:"+item_name+" from line:"+str(row))
                         row += 1
                     ###################### END ######################
@@ -725,7 +723,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                     row += 1                                                                                # next line, last was unchecked
             except Exception as e:
                 # line is empty or has no widget at row, col
-                self.report_error()                                                                        # optional
+                self.report_error(error=repr(e))                                                                        # optional
                 row += 1
 
     def read_ui_widgets_user_by_row(self, row):
@@ -737,7 +735,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.item_tags = self.objects_grid.itemAtPosition(row, self.tbl_columns['Tags']).widget().text()                         # qlineedit
         self.item_icon = self.objects_grid.itemAtPosition(row, self.tbl_columns['Icon']).widget().text()                        # qlineedit
 
-    def update_item_by_name(self, item_name):
+    def update_items_dict(self, item_name, row):
+        self.read_ui_widgets_user_by_row(row)
         self.item_feature = self.item_feature.split(',') if (self.item_feature != '') else []                             # returns a list (for jinja2 template)
 
         # use the following syntax only, when 'RawOutput' is False in config
@@ -753,6 +752,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.item_icon = str(system['PrefixIcons']+self.item_icon+system['SuffixIcons']).replace("'",'') if (self.item_icon!='') else ''
 
         self.items_dict[self.item_type].append({'name': item_name,
+                                      'key': item_name+'.'+self.objects_grid.itemAtPosition(row, self.tbl_columns['Peripheral Name']).widget().text(),
                                       'label': self.item_label,
                                       'groups': self.item_groups,
                                       'features': self.item_feature,                                         # returns a list (for jinja2 template)
@@ -841,12 +841,19 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             # print(ohgen.output_buffer)
             ohgen.output_buffer.clear()  # clear data to avoid duplicates
             del data  # del data to avoid duplicates
+            special_char_map = {ord('ä'): 'ae', ord('ü'): 'ue', ord('ö'): 'oe', ord('ß'): 'ss'}         # replace all umlaute
             # remove all empty lines in thing and item:
             tmp = [line for line in self.txt_output_thing.toPlainText().split('\n') if line.strip() != '']
-            self.txt_output_thing.setText('\n'.join(tmp))
+            tmp = '\n'.join(tmp)
+            tmp = tmp.translate(special_char_map)
+            self.txt_output_thing.setText(tmp)
+
             tmp = [line for line in self.txt_output_item.toPlainText().split('\n') if line.strip() != '']
-            self.txt_output_item.setText('\n'.join(tmp))
-            cur_index = self.tabWidget.currentIndex()
+            tmp = '\n'.join(tmp)
+            tmp = tmp.translate(special_char_map)
+            self.txt_output_item.setText(tmp)
+
+            #cur_index = self.tabWidget.currentIndex()
         except Exception as e:
             self.report_error()
 
@@ -926,7 +933,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             return False
 
         if (item_links_as_list == False):
-            self.append_to_log('Template error: Links are not generated. Please do it manually!')
+            self.append_to_log('Template error: Links were not generated. Please do it manually or check your template!')
+            return
 
         ip = self.cmb_oh_ips.currentText()
         action = 'create'
@@ -941,7 +949,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # create links to items
         for link in item_links_as_list:
             response = api.handle_link(ip, action, body=link, user=api_user, passw=api_pass)
-            self.append_to_log('Links:'+response)
+            self.append_to_log('Sending link:'+json.dumps(link)+'\n'+'Response:'+response)
 
         self.btn_save_final_via_rest.setEnabled(True)
 
@@ -969,8 +977,10 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 link_dict['itemName'] = channel['linkedItems'][0]           # get first item of array
                 link_dict['channelUID'] = channel['uid']
                 link_dict['configuration'] = {}
-                links_list.append(link_dict)
-        except Exception:
+                links_list.append(link_dict.copy())
+        except Exception as e:
+            self.report_error(error=repr(e))
+            self.append_to_log(repr(e))
             return False
         return links_list
 
