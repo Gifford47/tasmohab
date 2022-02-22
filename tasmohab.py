@@ -688,6 +688,9 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         while row < tot_rows:  # loop through all rows
             try:
                 item = self.objects_grid.itemAtPosition(row, col)                                                       # get first item: the sensor, i.e. AM2301
+                if item is None:
+                    row += 1                                                                                    # next line
+                    continue                                                                                    # return to the beginning of the while loop
                 if type(item.widget()) == QCheckBox and item.widget().isChecked():                              # if gpio checkbox is checked
                     item_name = str(self.objects_grid.itemAtPosition(row, self.tbl_columns['Peripheral Name']).widget().text()).replace(' ','_')    # f.e.: the sensor name. replace space with underline
                     ###################### Check if sensor or actuator ######################
@@ -705,7 +708,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                             if next_item.isChecked():                                                           # get the sensor checkbox (not the gpio checkbox!)
                                 self.read_ui_widgets_user_by_row(row)                                             # read item in row and col
                                 self.update_item_by_name(item_name)                                             # add/update item in dict
-                                print("Added sub-sensor:" + item_name + "from line:" + str(row))
+                                print("Added sub-sensor:" + item_name + " from line:" + str(row))
                             row += 1
                             try:
                                 next_item = self.objects_grid.itemAtPosition(row, self.tbl_columns['GPIO']).widget()             # try to get the next checkbox
@@ -838,6 +841,11 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             # print(ohgen.output_buffer)
             ohgen.output_buffer.clear()  # clear data to avoid duplicates
             del data  # del data to avoid duplicates
+            # remove all empty lines in thing and item:
+            tmp = [line for line in self.txt_output_thing.toPlainText().split('\n') if line.strip() != '']
+            self.txt_output_thing.setText('\n'.join(tmp))
+            tmp = [line for line in self.txt_output_item.toPlainText().split('\n') if line.strip() != '']
+            self.txt_output_item.setText('\n'.join(tmp))
             cur_index = self.tabWidget.currentIndex()
         except Exception as e:
             self.report_error()
