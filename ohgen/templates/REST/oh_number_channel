@@ -1,7 +1,7 @@
 {%- for item in number %}
     {
-      "linkeditems": [
-        "{{thingid}}_{{item.name}}_{{item.label}}"          {# must match "linkeditems" definition from item #}
+      "linkedItems": [
+        "{{thingid}}_{{item.name}}_{{item.label}}"          {# must match "linkedItems" definition from item #}
       ],
       "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}",
       "id": "{{item.label|replace(" ", "_")}}_{{item.name}}",
