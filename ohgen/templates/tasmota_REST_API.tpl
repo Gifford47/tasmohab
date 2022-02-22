@@ -34,6 +34,31 @@
     {% include "REST/oh_location_channel" %}
     {% include "REST/oh_image_channel" %}
     {% include "REST/oh_color_channel" %}
+    
+    {
+      "linkeditems": [
+        "{{thingid}}_Version"          {# must match "linkeditems" definition from item #}
+      ],
+      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:Version",
+      "id": "{{label|replace(" ", "_")}}_Version",
+      "channelTypeUID": "mqtt:string",
+      "itemType": "string",
+      "kind": "STATE",
+      "label": "Firmware Version",
+      "description": "Tasmota Firmware Version",
+      "defaultTags": [
+      ],
+      "properties": {
+      },
+      "configuration": {
+        "retained": false,
+        "postCommand": false,
+        "formatBeforePublish": "%s",
+        "step": 1,
+        "stateTopic": "tele/{{topic}}/INFO1",
+        "transformationPattern": "JSONPATH:$.Version"
+      }
+    }
   ]
 }
 
@@ -113,4 +138,18 @@ Here are the items:
     {% set item_obj = item %}
     {% include "REST/oh_color_item" %}
   {%- endfor %}
+  
+  {# This is the (constant) item for the FW-Version: #}
+  {
+    "type": "String",
+    "name": "{{thingid}}_Version",          {# must match "linkedItems" in channel definition (from thing) #}
+    "label": "{{thingid}}_Version",
+    "category": "",
+    "tags": [
+      "Equipment"
+    ],
+    "groupNames": [
+      "{{location}}"
+    ],
+  }
 ]
