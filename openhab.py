@@ -12,8 +12,8 @@ meta_hum = 'synonyms="Humidity"'
 meta_switch = 'synonyms="switch"'
 meta_light = 'synonyms="Lights, Lighting"'
 
-tags_temp = 'Sensor,Measurement,Temperature'
-tags_hum = 'Sensor,Measurement,Humidity'
+tags_temp = 'Measurement'
+tags_hum = 'Measurement'
 tags_switch = 'Switch'
 tags_light = 'Light'
 
@@ -253,5 +253,5 @@ std_items = {
 'Time':{'name':'Time', 'std_type':item_types.index('number'), 'feature':'', 'meta':'', 'tags':'Timestamp', 'icon':'time'},
 
 
-'default':{'name': 'Default', 'std_type': item_types.index('number'), 'feature': '', 'meta': '', 'tags': 'Equipment', 'icon': ''}  # default value, dont delete!
+'default':{'name': 'Default', 'std_type': item_types.index('number'), 'feature': '', 'meta': '', 'tags': 'Point', 'icon': ''}  # default value, dont delete!
 }
