@@ -1,0 +1,10 @@
+{
+"type": "Dimmer",
+"name": "{{thingid}}_{{item.name}}_{{for_loop.index}}",          {# must match "linkeditems" in channel definition (from thing) #}
+"label": "{{item.label}}",
+"category": "{{item.icon}}",
+"tags": [
+  "{{item.tags}}"
+],
+"groupNames": {{item.groups.split(',')}},
+},

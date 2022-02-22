@@ -1,0 +1,28 @@
+{%- for item in rollershutter %}
+    {
+      "linkeditems": [
+        "{{thingid}}_{{item.name}}_{{loop.index}}"          {# must match "linkeditems" definition from item #}
+      ],
+      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}_{{loop.index}}",
+      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}_{{loop.index}}",
+      "channelTypeUID": "mqtt:rollershutter",
+      "itemType": "rollershutter",
+      "kind": "STATE",
+      "label": "{{item.label}}",
+      "description": "{{item.label}}",
+      "defaultTags": [
+        "{{item.tags}}"
+      ],
+      "properties": {
+      },
+      "configuration": {
+        "retained": false,
+        "postCommand": false,
+        "formatBeforePublish": "%s",
+        "commandTopic": "cmnd/{{topic}}/ShutterPosition{{loop.index}}",
+        "step": 1,
+        "stateTopic": "tele/{{topic}}/SENSOR",
+        "transformationPattern": "JSONPATH:$.RESULT"
+      }
+    },
+{%- endfor %}

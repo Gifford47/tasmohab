@@ -1,0 +1,30 @@
+{%- for item in switch %}
+    {
+      "linkeditems": [
+        "{{thingid}}_{{item.name}}_{{loop.index}}"          {# must match "linkeditems" definition from item #}
+      ],
+      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}{{loop.index}}",
+      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}{{loop.index}}",
+      "channelTypeUID": "mqtt:switch",
+      "itemType": "switch",
+      "kind": "STATE",
+      "label": "{{item.label}}",
+      "description": "{{item.label}}",
+      "defaultTags": [
+        "{{item.tags}}"
+      ],
+      "properties": {
+      },
+      "configuration": {
+        "retained": false,
+        "postCommand": false,
+        "formatBeforePublish": "%s",
+        "commandTopic": "cmnd/{{topic}}/POWER{{loop.index}}",
+        "step": 1,
+        "stateTopic": "stat/{{topic}}/RESULT",
+        "transformationPattern": "JSONPATH:$.POWER{{loop.index}}",
+        "off": "0",
+        "on": "1"
+      }
+    },
+{%- endfor %}

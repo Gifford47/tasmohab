@@ -1,0 +1,2 @@
+{%- for item in location %}
+{%- endfor %}

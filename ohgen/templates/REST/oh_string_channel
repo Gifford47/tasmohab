@@ -1,0 +1,27 @@
+{%- for item in string %}
+    {
+      "linkeditems": [
+        "{{thingid}}_{{item.name}}_{{item.label}}"          {# must match "linkeditems" definition from item #}
+      ],
+      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}_{{loop.index}}",
+      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}_{{loop.index}}",
+      "channelTypeUID": "mqtt:string",
+      "itemType": "string",
+      "kind": "STATE",
+      "label": "{{item.label}}",
+      "description": "{{item.label}}",
+      "defaultTags": [
+        "{{item.tags}}"
+      ],
+      "properties": {
+      },
+      "configuration": {
+        "retained": false,
+        "postCommand": false,
+        "formatBeforePublish": "%s",
+        "step": 1,
+        "stateTopic": "tele/{{topic}}/SENSOR",
+        "transformationPattern": "JSONPATH:$.{{item.name}}.{{item.label}}"
+      }
+    },
+{%- endfor %}
