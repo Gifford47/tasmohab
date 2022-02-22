@@ -1,5 +1,11 @@
 {#
-  First is the thing
+  TODO:
+  - metadata not included
+  - add. items: reachable, RSSI, version
+  - cmd and state topic for all types correct?
+#}
+{#
+  First is the thing. Use Following url for explanations: https://www.openhab.org/addons/bindings/mqtt.generic/
 #}
 
 {
@@ -17,145 +23,17 @@
   "thingTypeUID": "mqtt:topic",
   "location": "",
   "channels": [
-    {%- for item in switch %}
-    {
-      "linkedItems": [
-        "{{thingid}}_{{item.name}}{{loop.index}}"
-      ],
-      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}{{loop.index}}",
-      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}{{loop.index}}",
-      "channelTypeUID": "mqtt:switch",
-      "itemType": "switch",
-      "kind": "STATE",
-      "label": "{{item.label}}",
-      "description": "{{item.label}}",
-      "defaultTags": [
-        "{{item.tags}}"
-      ],
-      "properties": {
-      },
-      "configuration": {
-        "retained": false,
-        "postCommand": false,
-        "formatBeforePublish": "%s",
-        "commandTopic": "cmnd/{{topic}}/POWER{{loop.index}}",
-        "step": 1,
-        "stateTopic": "stat/{{topic}}/RESULT",
-        "transformationPattern": "JSONPATH:$.POWER{{loop.index}}",
-        "off": "0",
-        "on": "1"
-      }
-    },
-    {%- endfor %}
-    {%- for item in number %}
-    {
-      "linkedItems": [
-        "{{thingid}}_{{item.name}}_{{item.label}}"
-      ],
-      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}",
-      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}",
-      "channelTypeUID": "mqtt:number",
-      "itemType": "number",
-      "kind": "STATE",
-      "label": "{{item.label}}",
-      "description": "{{item.label}}",
-      "defaultTags": [
-        "{{item.tags}}"
-      ],
-      "properties": {
-      },
-      "configuration": {
-        "retained": false,
-        "postCommand": false,
-        "formatBeforePublish": "%s",
-        "step": 1,
-        "stateTopic": "tele/{{topic}}/SENSOR",
-        "transformationPattern": "JSONPATH:$.{{item.name}}.{{item.label}}"
-      }
-    },
-    {%- endfor %}
-    {%- for item in dimmer %}
-    {
-      "linkedItems": [
-        "{{thingid}}_{{item.name}}{{loop.index}}"
-      ],
-      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}{{loop.index}}",
-      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}{{loop.index}}",
-      "channelTypeUID": "mqtt:number",
-      "itemType": "dimmer",
-      "kind": "STATE",
-      "label": "{{item.label}}",
-      "description": "{{item.label}}",
-      "defaultTags": [
-        "{{item.tags}}"
-      ],
-      "properties": {
-      },
-      "configuration": {
-        "retained": false,
-        "postCommand": false,
-        "formatBeforePublish": "%s",
-        "commandTopic": "cmnd/{{topic}}/Dimmer{{loop.index}}",
-        "step": 1,
-        "stateTopic": "tele/{{topic}}/SENSOR",
-        "transformationPattern": "JSONPATH:$.Dimmer{{loop.index}}"
-      }
-    },
-    {%- endfor %}
-    {%- for item in string %}
-    {
-      "linkedItems": [
-        "{{thingid}}_{{item.name}}_{{item.label}}"
-      ],
-      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}{{loop.index}}",
-      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}{{loop.index}}",
-      "channelTypeUID": "mqtt:string",
-      "itemType": "string",
-      "kind": "STATE",
-      "label": "{{item.label}}",
-      "description": "{{item.label}}",
-      "defaultTags": [
-        "{{item.tags}}"
-      ],
-      "properties": {
-      },
-      "configuration": {
-        "retained": false,
-        "postCommand": false,
-        "formatBeforePublish": "%s",
-        "step": 1,
-        "stateTopic": "tele/{{topic}}/SENSOR",
-        "transformationPattern": "JSONPATH:$.{{item.name}}.{{item.label}}"
-      }
-    },
-    {%- endfor %}
-    {%- for item in contact %}
-    {
-      "linkedItems": [
-        "{{thingid}}_{{item.name}}"
-      ],
-      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}{{loop.index}}",
-      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}{{loop.index}}",
-      "channelTypeUID": "mqtt:string",
-      "itemType": "string",
-      "kind": "STATE",
-      "label": "{{item.label}}",
-      "description": "{{item.label}}",
-      "defaultTags": [
-        "{{item.tags}}"
-      ],
-      "properties": {
-      },
-      "configuration": {
-        "retained": false,
-        "postCommand": false,
-        "formatBeforePublish": "%s",
-        "step": 1,
-        "stateTopic": "tele/{{topic}}/SENSOR",
-        "transformationPattern": "JSONPATH:$.Switch{{loop.index}}.{{item.label}}"
-      }
-    },
-    {%- endfor %}
+    {% include "REST/oh_contact_channel" %}
+    {% include "REST/oh_dimmer_channel" %}
+    {% include "REST/oh_number_channel" %}
+    {% include "REST/oh_rollershutter_channel" %}
+    {% include "REST/oh_switch_channel" %}
+    {% include "REST/oh_string_channel" %}
+    {% include "REST/oh_group_channel" %}
+    {% include "REST/oh_player_channel" %}
+    {% include "REST/oh_location_channel" %}
+    {% include "REST/oh_image_channel" %}
+    {% include "REST/oh_color_channel" %}
   ]
 }
 
@@ -177,52 +55,62 @@ Here are the items:
       "{{location}}"
     ],
   },
-  {%- for item in switch %}
-  {
-    "type": "Switch",
-    "name": "{{thingid}}_{{item.name}}{{loop.index}}",
-    "label": "{{item.label}}",
-    "category": "{{item.icon}}",
-    "tags": [
-      "{{item.tags}}"
-    ],
-    "groupNames": {{item.groups.split(',')}},
-  },
-  {%- endfor %}
-    {%- for item in number %}
-  {
-    "type": "Number",
-    "name": "{{thingid}}_{{item.name}}_{{item.label}}",
-    "label": "{{item.label}}",
-    "category": "{{item.icon}}",
-    "tags": [
-      "{{item.tags}}"
-    ],
-    "groupNames": {{item.groups.split(',')}},
-  },
+  {%- for item in contact %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_contact_item" %}
   {%- endfor %}
   {%- for item in dimmer %}
-  {
-    "type": "Dimmer",
-    "name": "{{thingid}}_{{item.name}}{{loop.index}}",
-    "label": "{{item.label}}",
-    "category": "{{item.icon}}",
-    "tags": [
-      "{{item.tags}}"
-    ],
-    "groupNames": {{item.groups.split(',')}},
-  },
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_dimmer_item" %}
+  {%- endfor %}
+  {%- for item in number %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_number_item" %}
+  {%- endfor %}
+  {%- for item in rollershutter %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+      {% include "REST/oh_dimmer_item" %}
+    {#
+      {% include "REST/oh_rollershutter_item" %}
+    #}
+  {%- endfor %}
+  {%- for item in switch %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_switch_item" %}
   {%- endfor %}
   {%- for item in string %}
-  {
-    "type": "String",
-    "name": "{{thingid}}_{{item.name}}_{{item.label}}",
-    "label": "{{item.label}}",
-    "category": "{{item.icon}}",
-    "tags": [
-      "{{item.tags}}"
-    ],
-    "groupNames": {{item.groups.split(',')}},
-  },
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_string_item" %}
+  {%- endfor %}
+  {%- for item in group %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_group_item" %}
+  {%- endfor %}
+  {%- for item in player %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_player_item" %}
+  {%- endfor %}
+  {%- for item in location %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_location_item" %}
+  {%- endfor %}
+  {%- for item in image %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_image_item" %}
+  {%- endfor %}
+  {%- for item in color %}
+    {% set for_loop = loop %}
+    {% set item_obj = item %}
+    {% include "REST/oh_color_item" %}
   {%- endfor %}
 ]
