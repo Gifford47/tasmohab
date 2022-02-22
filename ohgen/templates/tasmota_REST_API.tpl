@@ -10,7 +10,7 @@
 
 {
 {%- set mqttUID ='local_mqtt' -%}
-  "label": "{{label}} on {{ip}}",
+  "label": "{{label}} ({{ip}})",
   "bridgeUID": "mqtt:broker:{{mqttUID}}",
   "configuration": {
     "availabilityTopic": "tele/{{topic}}/LWT",
@@ -36,7 +36,7 @@
     {% include "REST/oh_color_channel" %}
     
     {
-      "linkeditems": [
+      "linkedItems": [
         "{{thingid}}_Version"          {# must match "linkeditems" definition from item #}
       ],
       "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:Version",
@@ -146,10 +146,10 @@ Here are the items:
     "label": "{{thingid}}_Version",
     "category": "",
     "tags": [
-      "Equipment"
+      "Point"
     ],
     "groupNames": [
-      "{{location}}"
+      "{{thingid}}"
     ],
   }
 ]
