@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1074</width>
-    <height>847</height>
+    <height>864</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -302,19 +302,8 @@
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
                <layout class="QGridLayout" name="gridLayout_4">
-                <item row="1" column="0">
-                 <widget class="QLabel" name="lbl_location">
-                  <property name="text">
-                   <string>Location</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QLineEdit" name="txt_location">
-                  <property name="text">
-                   <string>GroundFloor</string>
-                  </property>
-                 </widget>
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="txt_config_file_path"/>
                 </item>
                 <item row="0" column="0">
                  <widget class="QPushButton" name="btn_load_object">
@@ -323,10 +312,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="txt_config_file_path"/>
-                </item>
-                <item row="2" column="1">
+                <item row="1" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
                    <widget class="QPushButton" name="btn_set_dev_conf">
@@ -358,9 +344,27 @@
            <item>
             <widget class="QGroupBox" name="groupBox_3">
              <property name="title">
-              <string>Objects</string>
+              <string>Items</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <layout class="QGridLayout" name="gridLayout_11">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="lbl_location">
+                  <property name="text">
+                   <string>Model location</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLineEdit" name="txt_location">
+                  <property name="text">
+                   <string>GroundFloor</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
               <item>
                <widget class="QCheckBox" name="cb_sel_all">
                 <property name="text">
@@ -380,8 +384,8 @@
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>988</width>
-                     <height>186</height>
+                     <width>972</width>
+                     <height>86</height>
                     </rect>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_17"/>
@@ -569,7 +573,7 @@
        <layout class="QGridLayout" name="gridLayout_14">
         <item row="2" column="0">
          <layout class="QGridLayout" name="gridLayout_16">
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="QPushButton" name="btn_save_final_via_rest">
             <property name="enabled">
              <bool>false</bool>
@@ -582,7 +586,10 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="1" column="1">
+           <widget class="QComboBox" name="cmb_oh_ips"/>
+          </item>
+          <item row="4" column="0">
            <widget class="QPushButton" name="btn_save_final_to_file">
             <property name="enabled">
              <bool>false</bool>
@@ -595,19 +602,9 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="cmb_oh_ips"/>
-          </item>
-          <item row="0" column="0">
+          <item row="1" column="0">
            <layout class="QGridLayout" name="gridLayout_18">
-            <item row="0" column="0">
-             <widget class="QLabel" name="lbl_thing_file">
-              <property name="text">
-               <string>Things path</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
+            <item row="1" column="1">
              <widget class="QLineEdit" name="txt_thing_file">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -618,6 +615,23 @@
              </widget>
             </item>
             <item row="1" column="0">
+             <widget class="QLabel" name="lbl_thing_file">
+              <property name="text">
+               <string>Things path</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="txt_item_file">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
              <widget class="QLabel" name="lbl_item_file">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -630,17 +644,39 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="txt_item_file">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
            </layout>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLabel" name="label_13">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>REST API</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Config text File</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -798,7 +834,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
      <x>0</x>
      <y>0</y>
      <width>1074</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTasmHAB">
