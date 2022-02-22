@@ -21,8 +21,8 @@
         "formatBeforePublish": "%s",
         "commandTopic": "cmnd/{{topic}}/ShutterPosition{{loop.index}}",
         "step": 1,
-        "stateTopic": "tele/{{topic}}/SENSOR",
-        "transformationPattern": "JSONPATH:$.RESULT"
+        "stateTopic": "stat/{{topic}}/RESULT",
+        "transformationPattern": "JSONPATH:$.{{item.key}}"
       }
     },
 {%- endfor %}

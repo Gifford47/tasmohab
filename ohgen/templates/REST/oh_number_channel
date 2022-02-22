@@ -21,7 +21,7 @@
         "formatBeforePublish": "%s",
         "step": 1,
         "stateTopic": "tele/{{topic}}/SENSOR",
-        "transformationPattern": "JSONPATH:$.{{item.name}}.{{item.label}}"
+        "transformationPattern": "JSONPATH:$.{{item.key}}"
       }
     },
 {%- endfor %}
