@@ -64,6 +64,9 @@
                 </item>
                 <item row="3" column="3">
                  <widget class="QPushButton" name="btn_get_serial">
+                  <property name="toolTip">
+                   <string>get data from tasmota device by serial</string>
+                  </property>
                   <property name="text">
                    <string>Get from Serial</string>
                   </property>
@@ -175,6 +178,9 @@
                  <widget class="QPushButton" name="btn_get_http">
                   <property name="enabled">
                    <bool>true</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>get data from tasmota device by http</string>
                   </property>
                   <property name="text">
                    <string>Get from HTTP</string>
