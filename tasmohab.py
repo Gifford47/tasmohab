@@ -122,6 +122,14 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         
         self.txt_pass.returnPressed.connect(self.get_data_on_http)
 
+        if self.config['openhab']['OpenHab_User'] == 'user' and self.config['openhab']['OpenHab_Pass'] == 'pass':
+            buttonReply = QMessageBox.question(self, 'Tasmohab Config File',
+                                               'Standard tasmohab config loaded (tasmohab.cfg). Would you like to edit it?',
+                                               QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                               QMessageBox.StandardButton.No)
+            if buttonReply == QMessageBox.StandardButton.Yes:
+                self.edit_tasmohab_config()
+
     def load_tasmohab_config(self, c_file=None):
         """Reads tasmohab config file (*.cfg)"""
         if c_file is bool(c_file) or c_file is None:                     # if file is None, no existing file
