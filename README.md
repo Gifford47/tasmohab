@@ -5,20 +5,19 @@ TasmoHAB is a Python program with GUI which can read Tasmota devices and
 automatically integrate and configure them in OpenHab by TXT files or by REST API.
 
 ---
-**NOTE**
-
-Please check the template and adapt it to your own OpenHab if necessary (f.e.:'**set mqttUID**').
-Also check '**tasmohab.cfg**' for following parameters:<br>
-**Openhab_Instances**<br>
-**OpenHab_User**<br>
-**OpenHab_Pass**<br>
-**Thing_Path**<br>
-**Item_Path**<br>
-and so on ...
+> **Note**
+> Please check the template and adapt it to your own OpenHab if necessary (f.e.:'**set mqttUID**').
+> Also check '**tasmohab.cfg**' for following parameters:<br>
+> **Openhab_Instances**<br>
+> **OpenHab_User**<br>
+> **OpenHab_Pass**<br>
+> **Thing_Path**<br>
+> **Item_Path**<br>
+> and so on ...
 
 ---
 
-##Features:
+## Features:
 - Readout of Tasmota devices
 - Inspect settings of tasmota devices
 - Display, edit and save tasmota rules
@@ -110,14 +109,9 @@ self.gridLayout_cmds.addWidget(self.ssid1, 1, 1, 1, 1)          # caution with t
 
 Theoretically, it is relatively easy to adapt the output format to other smarthome systems (e.g. homeassistant, etc.). Among other things, the file `openhab.py`, the function `add_ui_openhab_widgets` and of course the function `gen_fin_objects` must be adapted or replaced to adapt the output format. The third tab "Object output" can be filled with content e.g. at runtime to generate a different layout for other smarthome systems.
 
-## Work in progress
-
-* Device configuration:
-  * only 'backlog cmd' is implemented, other configurations are not transmitted or saved
-
 ## Debugging
 
-### Check your output
+### Check your txt output
 
 Go to [Openhab-DEMO](https://demo.openhab.org/settings/items/add-from-textual-definition) and validate your output. if erros exists, check your template first.
 
