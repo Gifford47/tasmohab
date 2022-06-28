@@ -217,9 +217,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.update_yaml_to_json_config_data()                                              # update the internal yaml data
             if os.path.isfile(self.txt_config_file_path.text()):
                 buttonReply = QMessageBox.question(self, 'Confirm overwrite',
-                                                   "File '" + self.txt_config_file_path.text() + "' exists. Overwrite?",
-                                                   QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-                if buttonReply == QMessageBox.Yes:
+                                                   "File '" + self.txt_config_file_path.text() + "' exists. Overwrite?",QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+                if buttonReply == QMessageBox.StandardButton.Yes:
                     with open(self.txt_config_file_path.text(), 'w') as file:
                         yaml.dump(yaml.safe_load(self.yaml_config_data), file, sort_keys=False)
                     self.append_to_log("Config file saved:" + self.txt_config_file_path.text())
@@ -229,8 +228,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.write_yaml(yaml.safe_load(self.yaml_config_data))
         else:
             # noinspection PyTypeChecker
-            QMessageBox.information(self, 'Information', 'Please load a object config file first!', QMessageBox.Ok,
-                                    QMessageBox.Ok)
+            QMessageBox.information(self, 'Information', 'Please load a object config file first!', QMessageBox.StandardButton.Ok,
+                                    QMessageBox.StandardButton.Ok)
 
     def datathread_dev_data(self, data):
         """Copy data from thread from the device into 'json_dev_status' and update the ui widgets."""
@@ -864,8 +863,8 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             # noinspection PyTypeChecker
             buttonReply = QMessageBox.question(self, 'Confirm overwrite',
                                                'Openhab Files exists.\nShould i overwrite?',
-                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if buttonReply == QMessageBox.Yes:
+                                               QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+            if buttonReply == QMessageBox.StandardButton.Yes:
                 self.write_oh_files(thing_file)
                 self.write_oh_files(item_file)
                 self.append_to_log('Openhab Files updated!')
@@ -1244,11 +1243,11 @@ class DevConfigWindow(QtWidgets.QDialog, dev_config.Ui_Dialog):
                 #queue.append('restart 1')
                 buttonreply = QMessageBox.question(self, 'Sending device config',
                                                "Are you sure to send the following commands to the device?:\n\n"+backlog_str1+'\n\n'+backlog_str2,
-                                               QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                                               QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
             else:
                 QMessageBox.warning(self, 'Warning', 'No commands to send!')
                 return
-            if buttonreply == QMessageBox.Yes:
+            if buttonreply == QMessageBox.StandardButton.Yes:
                 self.ui.last_communication_class.timeout = .7                                                 # set the timeout of class
                 self.ui.last_communication_class.max_retries = 4
                 self.ui.last_communication_class.response_waiting = len(cmds)*0.2                             # adaptive waiting: 0.1s times no of cmds
