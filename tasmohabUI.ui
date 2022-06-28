@@ -27,6 +27,9 @@
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QFrame" name="frame">
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
@@ -37,7 +40,7 @@
            <item>
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
-              <string>Connection</string>
+              <string>Connection to Tasmota device</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
               <item>
@@ -130,7 +133,7 @@
                 <item row="0" column="0">
                  <widget class="QLabel" name="label">
                   <property name="text">
-                   <string>Ip Address</string>
+                   <string>Tasmota IP</string>
                   </property>
                  </widget>
                 </item>
@@ -218,7 +221,7 @@
            <item>
             <widget class="QGroupBox" name="groupBox_4">
              <property name="title">
-              <string>Device Status</string>
+              <string>Tasmota Device Status</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
@@ -307,6 +310,9 @@
                 </item>
                 <item row="0" column="0">
                  <widget class="QPushButton" name="btn_load_object">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;loads a predefined config file for the tasmota device.&lt;/p&gt;&lt;p&gt;You can use this to restore settings from another tasmota device to a new one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="text">
                    <string>Load device config</string>
                   </property>
@@ -343,6 +349,9 @@
            </item>
            <item>
             <widget class="QGroupBox" name="groupBox_3">
+             <property name="toolTip">
+              <string/>
+             </property>
              <property name="title">
               <string>Items</string>
              </property>
@@ -400,8 +409,23 @@
                  <layout class="QGridLayout" name="gridLayout_10">
                   <item row="0" column="0">
                    <widget class="QLabel" name="label_11">
+                    <property name="toolTip">
+                     <string>Select the right OpenHab config (definded in tasmohab.cfg)</string>
+                    </property>
+                    <property name="toolTipDuration">
+                     <number>-1</number>
+                    </property>
+                    <property name="statusTip">
+                     <string/>
+                    </property>
+                    <property name="whatsThis">
+                     <string/>
+                    </property>
                     <property name="text">
-                     <string>Output format:</string>
+                     <string>OpenHab Config</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::NoTextInteraction</set>
                     </property>
                    </widget>
                   </item>
@@ -413,6 +437,9 @@
                       <height>16777215</height>
                      </size>
                     </property>
+                    <property name="toolTip">
+                     <string>select the right OH config (tasmohab.cfg)</string>
+                    </property>
                     <property name="layoutDirection">
                      <enum>Qt::LeftToRight</enum>
                     </property>
@@ -420,6 +447,9 @@
                   </item>
                   <item row="1" column="2">
                    <widget class="QPushButton" name="btn_edittmpl">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Opens an associated editor (i.e. notepad) for the *.tpl files (selected template).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
                     <property name="text">
                      <string>Edit Template</string>
                     </property>
@@ -432,6 +462,9 @@
                       <width>200</width>
                       <height>16777215</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;choose the right output format (txt or API) defined in template files (... ohgen/templates/MyTemplateFile.tpl)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="layoutDirection">
                      <enum>Qt::LeftToRight</enum>
@@ -447,6 +480,9 @@
                      <font>
                       <strikeout>false</strikeout>
                      </font>
+                    </property>
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The YAML config is translated to JSON. The selected template file is then performed.&lt;/p&gt;&lt;p&gt;Please be careful which output/ template you choose!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
                     <property name="layoutDirection">
                      <enum>Qt::LeftToRight</enum>
@@ -470,13 +506,19 @@
                       <height>16777215</height>
                      </size>
                     </property>
+                    <property name="toolTip">
+                     <string>choose the right output format defined in template files (... ohgen/templates/MyTemplateFile.tpl)</string>
+                    </property>
                     <property name="text">
-                     <string>Device template:</string>
+                     <string>Output template:</string>
                     </property>
                    </widget>
                   </item>
                   <item row="0" column="2">
                    <widget class="QPushButton" name="btn_helpfullurls">
+                    <property name="toolTip">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;URL can be edited in tasmohab.cfg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
                     <property name="text">
                      <string>Helpfull config URLs</string>
                     </property>
@@ -496,7 +538,7 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Config Preview</string>
+        <string>Device Config Preview</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_13">
         <item row="0" column="0">
@@ -528,6 +570,9 @@
            <layout class="QGridLayout" name="gridLayout_9">
             <item row="0" column="0">
              <widget class="QPushButton" name="btn_show_json_obj">
+              <property name="toolTip">
+               <string>Show all GPIO info from the tasmota device.</string>
+              </property>
               <property name="text">
                <string>Show Tasmota GPIOs</string>
               </property>
@@ -535,6 +580,9 @@
             </item>
             <item row="0" column="2">
              <widget class="QPushButton" name="btn_save_config">
+              <property name="toolTip">
+               <string>Save the above configuration to a file.</string>
+              </property>
               <property name="text">
                <string>Save YAML Device Config</string>
               </property>
@@ -542,6 +590,9 @@
             </item>
             <item row="0" column="1">
              <widget class="QPushButton" name="btn_show_json_config">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The YAML configuration is translated to JSON.&lt;/p&gt;&lt;p&gt;The JSON format is used to apply the selected template.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string>Show current Json Object</string>
               </property>
@@ -551,6 +602,9 @@
              <widget class="QPushButton" name="btn_gen_fin_objts">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The YAML config is translated to JSON. The selected template file is then performed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="styleSheet">
                <string notr="true">background-color: rgb(85, 255, 127);</string>
@@ -568,7 +622,7 @@
       </widget>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
-        <string>Object Output</string>
+        <string>OH Object Output</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_14">
         <item row="2" column="0">
@@ -577,6 +631,9 @@
            <widget class="QPushButton" name="btn_save_final_via_rest">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The above configuration is saved via REST API.&lt;/p&gt;&lt;p&gt;Please check the correct settings in tasmohab.cfg.&lt;/p&gt;&lt;p&gt;Also basic authentication under API Security-&amp;gt; Show advanced must be enabled!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(85, 255, 127);</string>
@@ -587,12 +644,19 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QComboBox" name="cmb_oh_ips"/>
+           <widget class="QComboBox" name="cmb_oh_ips">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;select the right OpenHab instance for REST API&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
           </item>
           <item row="4" column="0">
            <widget class="QPushButton" name="btn_save_final_to_file">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The above configuration is saved via txt files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="styleSheet">
              <string notr="true">background-color: rgb(85, 255, 127);</string>
@@ -612,6 +676,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="toolTip">
+               <string>select where the things file should be stored</string>
+              </property>
              </widget>
             </item>
             <item row="1" column="0">
@@ -628,6 +695,9 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>select where the items file should be stored</string>
               </property>
              </widget>
             </item>
@@ -843,7 +913,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
     </property>
     <widget class="QMenu" name="menuLoad_Config">
      <property name="title">
-      <string>Config</string>
+      <string>TasmoHab config</string>
      </property>
      <addaction name="actionEdit_conf"/>
      <addaction name="actionLoad_conf"/>
