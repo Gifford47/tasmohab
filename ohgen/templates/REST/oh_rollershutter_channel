@@ -1,4 +1,32 @@
 {%- for item in rollershutter %}
+    {% if 'custom' in item.features %}
+    {
+      "linkedItems": [
+        "{{thingid}}_{{item.name}}_{{item.label}}"          {# must match "linkedItems" definition from item #}
+      ],
+      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}",
+      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}",
+      "channelTypeUID": "mqtt:rollershutter",
+      "itemType": "rollershutter",
+      "kind": "STATE",
+      "label": "{{item.label}}",
+      "description": "{{item.label}}",
+      "defaultTags": [
+        "{{item.tags}}"
+      ],
+      "properties": {
+      },
+      "configuration": {
+        "retained": false,
+        "postCommand": false,
+        "formatBeforePublish": "%s",
+        "commandTopic": "cmnd/{{topic}}/{{item.name}}",
+        "step": 1,
+        "stateTopic": "tele/{{topic}}/RESULT",
+        "transformationPattern": "JSONPATH:$.{{item.name}}"
+      }
+    },
+    {% else %}
     {
       "linkedItems": [
         "{{thingid}}_{{item.name}}_{{loop.index}}"          {# must match "linkedItems" definition from item #}
@@ -25,4 +53,5 @@
         "transformationPattern": "JSONPATH:$.{{item.key}}"
       }
     },
+    {% endif %}
 {%- endfor %}

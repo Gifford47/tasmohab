@@ -20,7 +20,7 @@ import configparser
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QThread, pyqtSignal, QFile, QTextStream
 from PyQt6.QtWidgets import QApplication, QFileDialog, QMessageBox, QTextBrowser, QLabel, QVBoxLayout, QWidget, \
-    QGridLayout, QCheckBox, QLineEdit, QComboBox
+    QGridLayout, QCheckBox, QLineEdit, QComboBox, QPushButton
 from serial import Serial
 from serial.tools.list_ports import comports
 
@@ -513,6 +513,16 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.add_ui_widget_peripheral(sensorname, row)
                 self.add_ui_widgets_sensor_single_line(self.objects_grid, row, sensorname, value, col_cb=0)
                 row += 1
+
+        btn_custom_item = QPushButton('Create custom item:')        # create buttom for custom items
+        btn_custom_item.clicked.connect(self.create_custom_item)    # connect function
+        self.qedit_custom_item = QLineEdit('Var1')                  # create qlineedit for item name (also tasmota cmd name)
+
+        self.objects_grid.addWidget(btn_custom_item, row, self.tbl_columns['Active'])        # add button
+        self.objects_grid.addWidget(self.qedit_custom_item, row, self.tbl_columns['Peripheral Name']) # add lineedit
+
+        self.scrollArea.verticalScrollBar().rangeChanged.connect(self.vscrollbar_scolltobottom)     # if vscrollbar changed, scroll to bottom
+
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.btn_refr_obj_data.setEnabled(True)
 
@@ -581,6 +591,19 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             peripheral_no = self.get_peripheral_no_by_name(peripheral_name)
         self.add_ui_widgets_user(layout, row, sensor, peripheral_no=sensor)
         row += 1
+
+    def create_custom_item(self, row):
+        row = self.objects_grid.rowCount()
+        if (self.qedit_custom_item.text() == ''):
+            QMessageBox.information(self,"Missing custom item name", "Fill in custom item name!")
+            return
+        self.add_ui_widgets_sensor_single_line(self.objects_grid, row, self.qedit_custom_item.text(), 'None')
+        self.objects_grid.itemAtPosition(row, self.tbl_columns['Feature']).widget().setText('custom')       # fill feature column
+        self.qedit_custom_item.setText('')
+
+    def vscrollbar_scolltobottom(self, min, max):
+        #print("vscrollbar werte:", min, max)
+        self.scrollArea.verticalScrollBar().setSliderPosition(max)
 
     def get_peripheral_no_by_name(self, name):                                              # try to find the appropriate peripheral number from list
         peripheral_no = 'default'
