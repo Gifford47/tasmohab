@@ -1,5 +1,4 @@
 {%- for item in number %}
-    {% if 'custom' in item.features %}
     {
       "linkedItems": [
         "{{thingid}}_{{item.name}}_{{item.label}}"          {# must match "linkedItems" definition from item #}
@@ -20,37 +19,15 @@
         "retained": false,
         "postCommand": false,
         "formatBeforePublish": "%s",
-        "commandTopic": "cmnd/{{topic}}/{{item.name}}",
         "step": 1,
+        {% if 'custom' in item.features %}
+        "commandTopic": "cmnd/{{topic}}/{{item.name}}",
         "stateTopic": "tele/{{topic}}/RESULT",
         "transformationPattern": "JSONPATH:$.{{item.name}}"
-      }
-    },
-    {% else %}
-    {
-      "linkedItems": [
-        "{{thingid}}_{{item.name}}_{{item.label}}"          {# must match "linkedItems" definition from item #}
-      ],
-      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}",
-      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}",
-      "channelTypeUID": "mqtt:number",
-      "itemType": "number",
-      "kind": "STATE",
-      "label": "{{item.label}}",
-      "description": "{{item.label}}",
-      "defaultTags": [
-        "{{item.tags}}"
-      ],
-      "properties": {
-      },
-      "configuration": {
-        "retained": false,
-        "postCommand": false,
-        "formatBeforePublish": "%s",
-        "step": 1,
+        {% else %}
         "stateTopic": "tele/{{topic}}/SENSOR",
         "transformationPattern": "JSONPATH:$.{{item.key}}"
+        {% endif %}
       }
     },
-    {% endif %}
 {%- endfor %}
