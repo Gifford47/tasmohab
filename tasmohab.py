@@ -327,7 +327,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.cmd = []  # for status cmd
         for key, value in tas_cmds.status.items():
             self.cmd.append(value)
-        self.get_http_dev_info = HttpDataThread(self.cmd, self.http_url, self.txt_ip.text())
+        self.get_http_dev_info = HttpDataThread(self, self.cmd, self.http_url, self.txt_ip.text())
         self.get_http_dev_info.pyqt_signal_json_out.connect(self.datathread_dev_data)       # 2nd argument is the returned data!!!
         self.get_http_dev_info.pyqt_signal_error.connect(self.datathread_on_error)          # 2nd argument is the returned data!!!
         self.get_http_dev_info.finished.connect(self.datathread_finish)
@@ -1116,12 +1116,12 @@ class HttpDataThread(QThread):
     pyqt_signal_error = pyqtSignal(str)
     pyqt_signal_progress = pyqtSignal(int)
 
-    def __init__(self, cmd_list, url, ip):
+    def __init__(self, ui_class, cmd_list, url, ip):
         QThread.__init__(self)
         self.cmd_list = cmd_list
         self.url = url
         self.ip = ip
-        self.ui = TasmohabUI()
+        self.ui = ui_class
         self.timeout = .5
         self.max_retries = 2
         self.response_waiting = .1
