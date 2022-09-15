@@ -56,7 +56,7 @@
         "formatBeforePublish": "%s",
         "step": 1,
         "stateTopic": "tele/{{topic}}/INFO1",
-        "transformationPattern": "JSONPATH:$.Info1.Version"
+        "transformationPattern": "REGEX:(.*Info1.*)∩JSONPATH:$.Info1.Version"
       }
     }
   ]
