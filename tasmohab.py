@@ -891,7 +891,6 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         thing_file = self.txt_thing_file.text()
         item_file = self.txt_item_file.text()
         if os.path.isfile(thing_file) or os.path.isfile(item_file):
-            # noinspection PyTypeChecker
             buttonReply = QMessageBox.question(self, 'Confirm overwrite',
                                                'Openhab Files exists.\nShould i overwrite?',
                                                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
@@ -899,10 +898,12 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 self.write_oh_files(thing_file)
                 self.write_oh_files(item_file)
                 self.append_to_log('Openhab Files updated!')
+                QMessageBox.information(self, 'File Feedback', 'Openhab Files updated!')
         else:
             self.write_oh_files(thing_file)
             self.write_oh_files(item_file)
             self.append_to_log('Openhab Files created!')
+            QMessageBox.information(self, 'File Feedback', 'Openhab Files created!')
 
     def write_oh_files(self, file_path):
         try:
@@ -966,22 +967,27 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             self.append_to_log('Template error: Links were not generated. Please do it manually or check your template!')
             return
 
+        log = []
         ip = self.cmb_oh_ips.currentText()
         action = 'create'
         # create thing
         self.txt_output_thing.setText(json.dumps(thing_data, indent=4, sort_keys=True))
         response = api.handle_thing(ip, action, body=thing_data, user=api_user, passw=api_pass)
         self.append_to_log('Thing:'+response)
+        log.append('Thing:'+response)
         # create items
         self.txt_output_item.setText(json.dumps(item_data, indent=4, sort_keys=True))
         response = api.handle_item(ip, action, body=item_data, user=api_user, passw=api_pass)
         self.append_to_log('Item:'+response)
+        log.append('Item:'+response)
         # create links to items
         for link in item_links_as_list:
             response = api.handle_link(ip, action, body=link, user=api_user, passw=api_pass)
             self.append_to_log('Sending link:'+json.dumps(link)+'\n'+'Response:'+response)
+            log.append('Sending link:'+response)
 
         self.btn_save_final_via_rest.setEnabled(True)
+        QMessageBox.information(self, 'REST Feedback', 'Received feedback via REST:\n'+"\n".join(log))
 
     def read_and_fix_json(self, json_str):
         data = ''
