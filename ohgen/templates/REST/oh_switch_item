@@ -1,6 +1,6 @@
 {
 "type": "Switch",
-"name": "{{thingid}}_{{item_obj.name}}_{{for_loop.index}}",          {# must match "linkeditem_objs" in channel definition (from thing) #}
+"name": "{{thingid}}_{{item_obj.name}}",          {# must match "linkedItems" obj in channel definition (from thing) #}
 "label": "{{item_obj.label}}",
 "category": "{{item_obj.icon}}",
 "tags": [

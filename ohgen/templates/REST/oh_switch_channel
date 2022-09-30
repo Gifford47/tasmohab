@@ -1,10 +1,10 @@
 {%- for item in switch %}
     {
       "linkedItems": [
-        "{{thingid}}_{{item.name}}_{{loop.index}}"          {# must match "linkedItems" definition from item #}
+        "{{thingid}}_{{item.name}}"          {# must match "name" definition in item #}
       ],
-      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}{{loop.index}}",
-      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}{{loop.index}}",
+      "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}",
+      "id": "{{item.label|replace(" ", "_")}}_{{item.name}}",
       "channelTypeUID": "mqtt:switch",
       "itemType": "switch",
       "kind": "STATE",
@@ -19,15 +19,15 @@
         "retained": false,
         "postCommand": false,
         "formatBeforePublish": "%s",
-        "commandTopic": "cmnd/{{topic}}/POWER{{loop.index}}",
+        "commandTopic": "cmnd/{{topic}}/{{item.name|replace("Relay", "POWER")}}",
         "step": 1,
         {% if 'custom' in item.features %}
         "commandTopic": "cmnd/{{topic}}/{{item.name}}",
-        "stateTopic": "tele/{{topic}}/RESULT",
+        "stateTopic": "stat/{{topic}}/RESULT",
         "transformationPattern": "REGEX:(.*{{item.name}}.*)∩JSONPATH:$.{{item.name}},"
         {% else %}
         "stateTopic": "stat/{{topic}}/RESULT",
-        "transformationPattern": "REGEX:(.*POWER{{loop.index}}.*)∩JSONPATH:$.POWER{{loop.index}}",
+        "transformationPattern": "REGEX:(.*POWER{{loop.index}}.*)∩JSONPATH:$.{{item.name|replace("Relay", "POWER")}}",
         {% endif %}
         "off": "0",
         "on": "1"

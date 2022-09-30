@@ -1,7 +1,7 @@
 {%- for item in string %}
     {
       "linkedItems": [
-        "{{thingid}}_{{item.name}}_{{item.label}}"          {# must match "linkedItems" definition from item #}
+        "{{thingid}}_{{item.name}}"          {# must match "name" definition from item #}
       ],
       "uid": "mqtt:topic:{{mqttUID}}:{{thingid}}:{{item.name}}_{{loop.index}}",
       "id": "{{item.label|replace(" ", "_")}}_{{item.name}}_{{loop.index}}",
@@ -22,7 +22,7 @@
         "step": 1,
         {% if 'custom' in item.features %}
         "commandTopic": "cmnd/{{topic}}/{{item.name}}",
-        "stateTopic": "tele/{{topic}}/RESULT",
+        "stateTopic": "stat/{{topic}}/RESULT",
         "transformationPattern": "REGEX:(.*{{item.name}}.*)∩JSONPATH:$.{{item.name}}"
         {% else %}
         "stateTopic": "tele/{{topic}}/SENSOR",
