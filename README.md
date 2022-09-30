@@ -1,41 +1,30 @@
 # TasmoHAB - OpenHAB Things and Items Generator via GUI
 
 ## What is it for?
-TasmoHAB is a Python program with GUI which can read Tasmota devices and 
-automatically integrate and configure them in OpenHab by TXT files or by REST API.
+
+TasmoHAB is a Python program with GUI which can read Tasmota devices and automatically integrate and configure them in OpenHab by TXT files or by REST API.
 
 ---
-> **Note** <br>
-> Please check the template and adapt it to your own OpenHab if necessary (f.e.:'**set mqttUID**').
-> Also check '**tasmohab.cfg**' for following parameters:<br>
-> **Openhab_Instances**<br>
-> **OpenHab_User**<br>
-> **OpenHab_Pass**<br>
-> **Thing_Path**<br>
-> **Item_Path**<br>
-> and so on ...
+
+> **Note** <br> Please check the template and adapt it to your own OpenHab if necessary (f.e.:'**set mqttUID**'). Also check '**tasmohab.cfg**' for following parameters:<br> **Openhab_Instances**<br> **OpenHab_User**<br> **OpenHab_Pass**<br> **Thing_Path**<br> **Item_Path**<br> and so on ...
 
 ---
 
 ## Features:
-- Readout of Tasmota devices
-- Inspect settings of tasmota devices
-- Display, edit and save tasmota rules
-- change tasmota settings
-- usage of tasmota backlog command
-- possibility to create and save a device config from any tasmota device and load it later on
-- display all components of the tasmota device
-- name, configure and create openhab things and items and linke them
-- create things,items and links via text-based files (.items or .things) or via REST API
+
+* Readout of Tasmota devices
+* Inspect settings of tasmota devices
+* Display, edit and save tasmota rules
+* change tasmota settings
+* usage of tasmota backlog command
+* possibility to create and save a device config from any tasmota device and load it later on
+* display all components of the tasmota device
+* name, configure and create openhab things and items and linke them
+* create things,items and links via text-based files (.items or .things) or via REST API
 
 ## Usage
-I was inspired by the project https://github.com/jimtng/ohgen to easily link a Tasmota device with OpenHab through a 
-GUI. The programme uses the almost identical code of 'ohgen' to generate the things and items files. In the first step, 
-all tasmota gpios of a device are queried and the peripherals are displayed in a table. Then the user can select or 
-deselect individual actuators or sensors in the table. In the next step, a yaml config for 'ohgen' is generated, 
-which contains the objects selected by the user. This config can still be edited here. In the last step, the things and 
-items objects for openhab are displayed. These can either be copied or saved as files or saved via REST API. All read-in and processed data 
-(sensors, device status, actuators, user settings, etc.) can be conveniently viewed in JSON format.
+
+I was inspired by the project https://github.com/jimtng/ohgen to easily link a Tasmota device with OpenHab through a GUI. The programme uses the almost identical code of 'ohgen' to generate the things and items files. In the first step, all tasmota gpios of a device are queried and the peripherals are displayed in a table. Then the user can select or deselect individual actuators or sensors in the table. In the next step, a yaml config for 'ohgen' is generated, which contains the objects selected by the user. This config can still be edited here. In the last step, the things and items objects for openhab are displayed. These can either be copied or saved as files or saved via REST API. All read-in and processed data (sensors, device status, actuators, user settings, etc.) can be conveniently viewed in JSON format.
 
 I would like to invite everyone to participate in the project to improve the tool!
 
@@ -89,8 +78,8 @@ The 'feature' line is not an openhab item or so. It is a special user-defined op
 
 The program uses all files with '\*.tpl' extension in the directory 'ohgen/templates' for the output of the data. Here the format of the output can be predefined for each item type (Number, Contact, String, ...). The syntax rules for Jinja2 apply. If item types are omitted here, they are also ignored in the output. So e.g. several templates for different devices can be generated and used.
 
+\##Develop
 
-##Develop
 ## Adding more commands to send
 
 Add a new widget 'QLineEdit' with 'objectname' = 'tasmota commandname' (f.e.: 'ssid1') to the QFrame with the objectname 'frame'. The [function](https://github.com/Gifford47/tasmohab/blob/7aba782daeaec75c0e80afbc790b34a958e4f5ff/tasmohab.py#L845) get this object (and its name) and put the name with its value to the backlog command.
@@ -117,16 +106,16 @@ Go to [Openhab-DEMO](https://demo.openhab.org/settings/items/add-from-textual-de
 
 ### Convert to .exe
 
-####PyQT5:
+\####PyQT5:
+
 * python -m PyQt5.uic.pyuic tasmohabUI.ui -o tasmohabUI.py # for UI components
-* pyrcc5 resource.qrc -o resource_rc.py # for resource items f.e. images (ressource.qrc)
-####PyQT6:
+* pyrcc5 resource.qrc -o resource_rc.py # for resource items f.e. images (ressource.qrc) ####PyQT6:
 * pyuic6 -x tasmohabUI.ui -o tasmohabUI.py
-* pyuic6 -x dev_config.ui -o dev_config.py
-####PyQt6 Designer:
+* pyuic6 -x dev_config.ui -o dev_config.py ####PyQt6 Designer:
 * pyqt6-tools designer
 
 #### PyInstaller:
+
 * pyinstaller --onefile --windowed --icon=icon.ico --noconsole --clean --paths=...\\TasmoHAB --pat hs=...\\TasmoHAB\\ohgen tasmohab.py
 
 with virtualenv path:
