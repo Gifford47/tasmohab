@@ -27,7 +27,7 @@
         "transformationPattern": "REGEX:(.*{{item.name}}.*)∩JSONPATH:$.{{item.name}},"
         {% else %}
         "stateTopic": "stat/{{topic}}/RESULT",
-        "transformationPattern": "REGEX:(.*POWER{{loop.index}}.*)∩JSONPATH:$.{{item.name|replace("Relay", "POWER")}}",
+        "transformationPattern": "REGEX:(.*{{item.name|replace("Relay", "POWER")}}.*)∩JSONPATH:$.{{item.name|replace("Relay", "POWER")}}",
         {% endif %}
         "off": "0",
         "on": "1"
