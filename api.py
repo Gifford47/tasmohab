@@ -5,7 +5,10 @@ session = requests.Session()
 
 def handle_thing(ip: str, action: str, user: str, passw: str, body=None):
     try:
-        endpoint = thing[action]['link']
+        if action == 'update':
+            endpoint = thing[action]['link']+body['UID']
+        else:
+            endpoint = thing[action]['link']
     except Exception as e:
         print(e)
         return 'handle_thing:wrong action used.'
@@ -14,16 +17,21 @@ def handle_thing(ip: str, action: str, user: str, passw: str, body=None):
     print(r)
     if hasattr(r, 'status_code'):
         if str(r.status_code) in thing[action]['response']:
-            return 'HTTP Response:' + str(r.status_code) + ' ' + thing[action]['response'][str(r.status_code)]
+            #return 'HTTP Response:' + str(r.status_code) + ' ' + thing[action]['response'][str(r.status_code)]
+            return r.status_code, thing[action]['response'][str(r.status_code)]
         else:
-            return 'HTTP Response:' + str(r.status_code) + ' ' + str(r.text)
+            #return 'HTTP Response:' + str(r.status_code) + ' ' + str(r.text)
+            return r.status_code, str(r.text)
     else:
         return r
 
 
 def handle_item(ip: str, action: str, user: str, passw: str, body=None):
     try:
-        endpoint = item[action]['link']
+        if action == 'update':
+            endpoint = item[action]['link']+body['UID']
+        else:
+            endpoint = item[action]['link']
     except Exception as e:
         print(e)
         return 'handle_item:wrong action used.'
@@ -32,9 +40,11 @@ def handle_item(ip: str, action: str, user: str, passw: str, body=None):
     print(r)
     if hasattr(r, 'status_code'):
         if str(r.status_code) in item[action]['response']:
-            return 'HTTP Response:' + str(r.status_code) + ' ' + item[action]['response'][str(r.status_code)]
+            #return 'HTTP Response:' + str(r.status_code) + ' ' + item[action]['response'][str(r.status_code)]
+            return r.status_code, item[action]['response'][str(r.status_code)]
         else:
-            return 'HTTP Response:' + str(r.status_code) + ' ' + str(r.text)
+            #return 'HTTP Response:' + str(r.status_code) + ' ' + str(r.text)
+            return r.status_code, str(r.text)
     else:
         return r
 
@@ -51,9 +61,11 @@ def handle_link(ip: str, action: str, user: str, passw: str, body=None):
     print(r)
     if hasattr(r, 'status_code'):
         if str(r.status_code) in links[action]['response']:
-            return 'HTTP Response:' + str(r.status_code) + ' ' + links[action]['response'][str(r.status_code)]
+            #return 'HTTP Response:' + str(r.status_code) + ' ' + links[action]['response'][str(r.status_code)]
+            return r.status_code,links[action]['response'][str(r.status_code)]
         else:
-            return 'HTTP Response:' + str(r.status_code) + ' ' + str(r.text)
+            #return 'HTTP Response:' + str(r.status_code) + ' ' + str(r.text)
+            return r.status_code, str(r.text)
     else:
         return r
 
@@ -146,6 +158,7 @@ thing =  {'list':{
                 'response':{
                    '200':'OK',
                    '404':'Thing not found',
+                   '405':'Method not allowed',
                    '409':'Thing could not be updated as it is not editable'}
                 }
           }
