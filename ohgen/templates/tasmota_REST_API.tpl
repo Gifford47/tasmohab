@@ -20,7 +20,6 @@
   "properties": {
   },
   "UID": "mqtt:topic:{{mqttUID}}:{{thingid}}",
-  "ID": "{{thingid}}",
   "thingTypeUID": "mqtt:topic",
   "location": "",
   "channels": [
