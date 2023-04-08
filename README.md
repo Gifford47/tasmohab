@@ -106,12 +106,13 @@ Go to [Openhab-DEMO](https://demo.openhab.org/settings/items/add-from-textual-de
 
 ### Convert to .exe
 
-\####PyQT5:
-
+####PyQT5:
 * python -m PyQt5.uic.pyuic tasmohabUI.ui -o tasmohabUI.py # for UI components
-* pyrcc5 resource.qrc -o resource_rc.py # for resource items f.e. images (ressource.qrc) ####PyQT6:
+* pyrcc5 resource.qrc -o resource_rc.py # for resource items f.e. images (ressource.qrc)
+####PyQT6:
 * pyuic6 -x tasmohabUI.ui -o tasmohabUI.py
-* pyuic6 -x dev_config.ui -o dev_config.py ####PyQt6 Designer:
+* pyuic6 -x dev_config.ui -o dev_config.py
+####PyQt6 Designer:
 * pyqt6-tools designer
 
 #### PyInstaller:

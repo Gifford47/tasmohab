@@ -625,7 +625,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         if peripheral_no in openhab.std_items:
             return openhab.std_items[peripheral_no]['name']
         else:
-            return None
+            return 'unknown'
 
     def update_json_to_yaml_config_data(self):
         global json_config_data
@@ -976,15 +976,17 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.append_to_log('Thing:'+response)
         log.append('Thing:'+response)
         # create items
-        self.txt_output_item.setText(json.dumps(item_data, indent=4, sort_keys=True))
-        response = api.handle_item(ip, action, body=item_data, user=api_user, passw=api_pass)
-        self.append_to_log('Item:'+response)
-        log.append('Item:'+response)
+        if self.cb_create_items.isChecked():
+            self.txt_output_item.setText(json.dumps(item_data, indent=4, sort_keys=True))
+            response = api.handle_item(ip, action, body=item_data, user=api_user, passw=api_pass)
+            self.append_to_log('Item:'+response)
+            log.append('Item:'+response)
         # create links to items
-        for link in item_links_as_list:
-            response = api.handle_link(ip, action, body=link, user=api_user, passw=api_pass)
-            self.append_to_log('Sending link:'+json.dumps(link)+'\n'+'Response:'+response)
-            log.append('Sending link:'+response)
+        if self.cb_link_items.isChecked():
+            for link in item_links_as_list:
+                response = api.handle_link(ip, action, body=link, user=api_user, passw=api_pass)
+                self.append_to_log('Sending link:'+json.dumps(link)+'\n'+'Response:'+response)
+                log.append('Sending link:'+response)
 
         self.btn_save_final_via_rest.setEnabled(True)
         QMessageBox.information(self, 'REST Feedback', 'Received feedback via REST:\n'+"\n".join(log))
