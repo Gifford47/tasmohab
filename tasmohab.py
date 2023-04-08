@@ -6,6 +6,7 @@ import sys
 import subprocess
 import traceback
 import yaml
+import random
 from collections import defaultdict
 from datetime import datetime
 
@@ -531,6 +532,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         self.objects_grid.addWidget(lbl, row, self.tbl_columns['Peripheral Name'])  # add the peripheral name/ sensor name
 
     def add_ui_widgets_user(self, layout, row, peripheral, peripheral_no='default'):
+        peripheral_no = str(peripheral_no)      # convert from int to string
         try:
             line = QLineEdit(openhab.std_items[peripheral_no]['feature'])                    # feature
         except:
@@ -545,7 +547,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         cb = QComboBox()                                                                # item type
         cb.addItems(openhab.item_types)
         try:
-            cb.setCurrentIndex(openhab.std_items[peripheral_no]['std_type'])
+            cb.setCurrentIndex(openhab.std_items[(peripheral_no)]['std_type'])
         except:
             cb.setCurrentIndex(openhab.item_types.index('number'))  # if index is not found
         layout.addWidget(cb, row, self.tbl_columns['Item Type'])
@@ -625,7 +627,12 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         if peripheral_no in openhab.std_items:
             return openhab.std_items[peripheral_no]['name']
         else:
-            return None
+            try:                            # try to find gpio number in gpio device status
+                for key in json_dev_status['gpio']:
+                    if peripheral_no in json_dev_status['gpio'][key]:
+                        return json_dev_status['gpio'][key][peripheral_no]
+            except Exception as e:
+                return random.randint(0,999)             # else return random number
 
     def update_json_to_yaml_config_data(self):
         global json_config_data
@@ -973,18 +980,44 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
         # create thing
         self.txt_output_thing.setText(json.dumps(thing_data, indent=4, sort_keys=True))
         response = api.handle_thing(ip, action, body=thing_data, user=api_user, passw=api_pass)
-        self.append_to_log('Thing:'+response)
-        log.append('Thing:'+response)
+        if response[0] == 409:          # thing exists
+            buttonReply = QMessageBox.question(self, 'Thing existing',
+                                               'The thing "'+thing_data['UID']+'" is existing. Would you like to update the existing thing?',
+                                               QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+            if buttonReply == QMessageBox.StandardButton.Yes:
+                response = api.handle_thing(ip, 'update', body=thing_data, user=api_user, passw=api_pass)
+            if buttonReply == QMessageBox.StandardButton.No:
+                QMessageBox.information(self, 'Abort!', 'No action done!')
+                self.btn_save_final_via_rest.setEnabled(True)
+                return
+        if response[0] != 201:          # in case of any failure ...
+            self.append_to_log('Thing:' + str(response[0]) + ' ' + response[1])
+            log.append('Thing:' + str(response[0]) + ' ' + response[1])
+            QMessageBox.information(self, 'REST Feedback', 'Received feedback via REST:\n' + "\n".join(log))
+        else:
+            self.append_to_log('Thing:' + str(response[0]) + ' ' + response[1])
+            log.append('Thing:' + str(response[0]) + ' ' + response[1])
+
+        #self.append_to_log('Thing:'+response)
+        #log.append('Thing:'+response)
         # create items
-        self.txt_output_item.setText(json.dumps(item_data, indent=4, sort_keys=True))
-        response = api.handle_item(ip, action, body=item_data, user=api_user, passw=api_pass)
-        self.append_to_log('Item:'+response)
-        log.append('Item:'+response)
+        if self.cb_create_items.isChecked():
+            self.txt_output_item.setText(json.dumps(item_data, indent=4, sort_keys=True))
+            response = api.handle_item(ip, action, body=item_data, user=api_user, passw=api_pass)
+            self.append_to_log('Item:' + str(response[0]) + ' ' + response[1])
+            log.append('Item:' + str(response[0]) + ' ' + response[1])
+
+            #self.append_to_log('Item:'+response)
+            #log.append('Item:'+response)
         # create links to items
-        for link in item_links_as_list:
-            response = api.handle_link(ip, action, body=link, user=api_user, passw=api_pass)
-            self.append_to_log('Sending link:'+json.dumps(link)+'\n'+'Response:'+response)
-            log.append('Sending link:'+response)
+        if self.cb_link_items.isChecked():
+            for link in item_links_as_list:
+                response = api.handle_link(ip, action, body=link, user=api_user, passw=api_pass)
+                self.append_to_log('Sending link:'+json.dumps(link)+'\n'+'Response:'+str(response[0]) + ' ' + response[1])
+                log.append('Sending link:' + str(response[0]) + ' ' + response[1])
+
+                #self.append_to_log('Sending link:'+json.dumps(link)+'\n'+'Response:'+response)
+                #log.append('Sending link:'+response)
 
         self.btn_save_final_via_rest.setEnabled(True)
         QMessageBox.information(self, 'REST Feedback', 'Received feedback via REST:\n'+"\n".join(log))
