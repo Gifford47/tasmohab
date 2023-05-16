@@ -87,7 +87,7 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
                 if file.endswith(".tpl"):
                     ohgen_templates.append(str(file.split('.')[0]))
         self.cmb_template.addItems(ohgen_templates)
-        self.cmb_template.setCurrentIndex(1)
+        #self.cmb_template.setCurrentIndex(1)
 
         self.dev_config_wind = DevConfigWindow  # create an instance
 

@@ -24,10 +24,10 @@
         {% if 'custom' in item.features %}
         "commandTopic": "cmnd/{{topic}}/{{item.name}}",
         "stateTopic": "stat/{{topic}}/RESULT",
-        "transformationPattern": "REGEX:(.*{{item.name}}.*)∩JSONPATH:$.{{item.name}}"
+        "transformationPattern": "REGEX:(.*{{item.name}}.*)\u2229JSONPATH:$.{{item.name}}"
         {% else %}
         "stateTopic": "tele/{{topic}}/SENSOR",
-        "transformationPattern": "REGEX:(.*Dimmer{{loop.index}}.*)∩JSONPATH:$.Dimmer{{loop.index}}"
+        "transformationPattern": "REGEX:(.*Dimmer{{loop.index}}.*)\u2229JSONPATH:$.Dimmer{{loop.index}}"
         {% endif %}
       }
     },
