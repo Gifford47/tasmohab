@@ -6,7 +6,7 @@ import tas_cmds
 import scrape_docs
 import json
 import re
-from tasmohab import resource_path, get_key_val_pair, DetailWindow
+from tasmohab import DetailWindow
 
 class Rule_Gen(QtWidgets.QMainWindow):
     def __init__(self, mainui):
