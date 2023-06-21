@@ -8,12 +8,14 @@ from jinja2 import Environment, FileSystemLoader
 import re
 import yaml
 import argparse
+import traceback
 
 ########### gifford47 ############
 sys.path.append('./../../TasmoHAB')                 # import ohgen folder
 import globals
 templ_dir = 'ohgen/templates/'                     # as module ...
 #templ_dir = 'templates/'                            # for standalone run
+import tasmohab
 ##################################
 
 jinja_environment = None
@@ -133,7 +135,7 @@ def load_template(template_name):
     try:
         template_file_name = settings['templates'][template_name]['template-file']
     except:
-        template_file_name = templ_dir+'{}.tpl'.format(template_name)                       # gifford47
+        template_file_name = templ_dir+'{}'.format(template_name)                       # gifford47
 
     template_file_name = os.path.join(base_path, template_file_name)
 
@@ -185,21 +187,10 @@ def generate(name, thing):
     if not template_name:
         warn("{} has no template, and no default template has been specified".format(name))
         return
-
-    try:
-        load_template(template_name)
-    except FileNotFoundError as err:
-        warn("Error loading the template for '{}', template: '{}' {}".format(name, template_name, err))
-        return
-
+    load_template(template_name)
     generated = {}
     for part in ['things', 'items']:
-        try:
-            generated[part] = templates[template_name][part].render(thing)
-        except:
-            warn("Template error. Thing: '{}' Template: '{}' Error: {}".format(thing['name'], template_name, sys.exc_info()[1]))
-            return None
-
+        generated[part] = templates[template_name][part].render(thing)
     return generated
 
 def get_output_file(output_name, section):
@@ -270,52 +261,3 @@ def save_output_buffer(overwrite=False):
                     file.write(settings['footer'])
 
             print("{} - {}".format(file_name, status))
-
-def main():
-    global settings, jinja_environment
-
-    parser = argparse.ArgumentParser(description="OpenHAB Things and Items Generator")
-    parser.add_argument('-o', '--overwrite', action='store_true', 
-        help='Overwrite output files without prompting')
-    parser.add_argument('input', nargs='?', default='devices.yaml',
-        help='A file containing the list of things/items to generate. If not specified, a file called "device.yaml" will be loaded')
-    options = parser.parse_args()
-
-    devices_file_name = options.input
-    base_path = os.path.dirname(devices_file_name)
-    try:
-        with open(devices_file_name) as f:
-            data = yaml.load(f.read(), Loader=yaml.BaseLoader)
-    except:
-        warn("{}".format(sys.exc_info()[1]))
-        sys.exit()
-
-    if not data:
-        warn("No data found in {}".format(devices_file_name))       
-        sys.exit()
-
-    settings = data.pop('settings', {})
-
-    # load jinja environment, set the loader path to dir(devices_file_name) + /templates
-    jinja_environment = Environment(loader=FileSystemLoader(os.path.join(base_path, 'templates')))
-    jinja_environment.filters.update({ 'csv': csv, 'groups': openhab_groups, 'tags': openhab_tags, 'metadata': openhab_metadata, 'quote': quote })
-
-    # load all the yaml data first and generate each thing
-    for name, thing in data.items():
-        thing.setdefault('name', name)
-        # fill in some useful variables
-        thing.setdefault('label', split_camel_case(name.replace("_", " ")))
-        thing.setdefault('thingid', name.replace("_", "-").lower())
-        thing.setdefault('name_parts', name.split("_"))
-        thing.setdefault('room', split_camel_case(name.split("_")[0]))
-
-        output = generate(name, thing)
-        if output:
-            add_thing_to_buffer(thing, output['things'], output['items'])
-
-    save_output_buffer(options.overwrite)
-
-    print("Devices: {}".format(len(data)))
-
-if __name__ == '__main__':
-    main()
