@@ -14,8 +14,9 @@ settings:
   backlog: time;power 1
 tasmota_AAA_123:
   thingid: tasmota_AAA
+  name: tasmota_AAA_123
   label: Multisensor
-  template: tasmota_TXT_File
+  template: tasmota_TXT_File.tpl
   topic: tasmota_AAA
   number:
   - name: Switch1
@@ -53,7 +54,7 @@ tasmota_AAA_123:
     metadata: ''
     tags: ''
     icon: ''
-  name: tasmota_AAA_123
+
   name_parts:
   - tasmota
   - AAA

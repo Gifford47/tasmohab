@@ -20,9 +20,130 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="tab1">
        <attribute name="title">
-        <string>Get and Set</string>
+        <string>General</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_17">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_16">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_22">
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_18">
+              <property name="toolTip">
+               <string>Select the right OpenHab config (definded in tasmohab.cfg)</string>
+              </property>
+              <property name="toolTipDuration">
+               <number>-1</number>
+              </property>
+              <property name="statusTip">
+               <string/>
+              </property>
+              <property name="whatsThis">
+               <string/>
+              </property>
+              <property name="text">
+               <string>OpenHab Config</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::NoTextInteraction</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="cmb_outp_format">
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>select the right OH config (tasmohab.cfg)</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="btn_edittmpl">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Opens an associated editor (i.e. notepad) for the *.tpl files (selected template).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Edit Template</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="cmb_template">
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;choose the right output format (txt or API) defined in template files (... ohgen/templates/MyTemplateFile.tpl)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_19">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>choose the right output format defined in template files (... ohgen/templates/MyTemplateFile.tpl)</string>
+              </property>
+              <property name="text">
+               <string>Output template:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="5" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_20"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_helpfullurls">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;URL can be edited in tasmohab.cfg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Helpfull config URLs</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab2">
+       <attribute name="title">
+        <string>Get by HTTP or Serial</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
@@ -306,25 +427,12 @@
            <item>
             <widget class="QGroupBox" name="groupBox_2">
              <property name="title">
-              <string>Device config</string>
+              <string>Device Configuration</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
                <layout class="QGridLayout" name="gridLayout_4">
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="txt_config_file_path"/>
-                </item>
                 <item row="0" column="0">
-                 <widget class="QPushButton" name="btn_load_object">
-                  <property name="toolTip">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;loads a predefined config file for the tasmota device.&lt;/p&gt;&lt;p&gt;You can use this to restore settings from another tasmota device to a new one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                  <property name="text">
-                   <string>Load device config</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
                    <widget class="QPushButton" name="btn_set_dev_conf">
@@ -400,7 +508,7 @@
                      <x>0</x>
                      <y>0</y>
                      <width>972</width>
-                     <height>86</height>
+                     <height>156</height>
                     </rect>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_17"/>
@@ -414,70 +522,6 @@
                 <item row="7" column="0">
                  <layout class="QGridLayout" name="gridLayout_10">
                   <item row="0" column="0">
-                   <widget class="QLabel" name="label_11">
-                    <property name="toolTip">
-                     <string>Select the right OpenHab config (definded in tasmohab.cfg)</string>
-                    </property>
-                    <property name="toolTipDuration">
-                     <number>-1</number>
-                    </property>
-                    <property name="statusTip">
-                     <string/>
-                    </property>
-                    <property name="whatsThis">
-                     <string/>
-                    </property>
-                    <property name="text">
-                     <string>OpenHab Config</string>
-                    </property>
-                    <property name="textInteractionFlags">
-                     <set>Qt::NoTextInteraction</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QComboBox" name="cmb_outp_format">
-                    <property name="maximumSize">
-                     <size>
-                      <width>200</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>select the right OH config (tasmohab.cfg)</string>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="2">
-                   <widget class="QPushButton" name="btn_edittmpl">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Opens an associated editor (i.e. notepad) for the *.tpl files (selected template).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Edit Template</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QComboBox" name="cmb_template">
-                    <property name="maximumSize">
-                     <size>
-                      <width>200</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;choose the right output format (txt or API) defined in template files (... ohgen/templates/MyTemplateFile.tpl)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="layoutDirection">
-                     <enum>Qt::LeftToRight</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="3">
                    <widget class="QPushButton" name="btn_refr_obj_data">
                     <property name="enabled">
                      <bool>false</bool>
@@ -504,32 +548,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="label_10">
-                    <property name="maximumSize">
-                     <size>
-                      <width>100</width>
-                      <height>16777215</height>
-                     </size>
-                    </property>
-                    <property name="toolTip">
-                     <string>choose the right output format defined in template files (... ohgen/templates/MyTemplateFile.tpl)</string>
-                    </property>
-                    <property name="text">
-                     <string>Output template:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QPushButton" name="btn_helpfullurls">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;URL can be edited in tasmohab.cfg.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                    </property>
-                    <property name="text">
-                     <string>Helpfull config URLs</string>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </item>
                </layout>
@@ -542,7 +560,261 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="tab3">
+       <attribute name="title">
+        <string>Get by MQTT</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_19">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_18">
+          <item>
+           <widget class="QFrame" name="frame_2">
+            <property name="toolTipDuration">
+             <number>-1</number>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_12">
+             <item>
+              <widget class="QGroupBox" name="groupBox_5">
+               <property name="title">
+                <string>Connection to Tasmota device</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_13">
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_20">
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_16">
+                    <property name="text">
+                     <string>Subscribe Topic</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="txt_mqttuser">
+                    <property name="maximumSize">
+                     <size>
+                      <width>150</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="txt_mqtthost">
+                    <property name="maximumSize">
+                     <size>
+                      <width>150</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>test.mosquitto.org</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="txt_mqttpass">
+                    <property name="maximumSize">
+                     <size>
+                      <width>150</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="echoMode">
+                     <enum>QLineEdit::PasswordEchoOnEdit</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_15">
+                    <property name="text">
+                     <string>MQTT Password</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_14">
+                    <property name="text">
+                     <string>MQTT Username</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_17">
+                    <property name="text">
+                     <string>MQTT Host</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="3">
+                   <spacer name="horizontalSpacer_3">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QLineEdit" name="txt_subsTopic">
+                    <property name="text">
+                     <string>#</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <layout class="QHBoxLayout" name="horizontalLayout_2">
+                    <item>
+                     <widget class="QPushButton" name="btn_get_mqtt">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="toolTip">
+                       <string>get data from tasmota device by http</string>
+                      </property>
+                      <property name="text">
+                       <string>Get from MQTT</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="btn_stopmqtt">
+                      <property name="text">
+                       <string>Stop subscription</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_21">
+               <item row="0" column="1">
+                <widget class="QGroupBox" name="groupBox_7">
+                 <property name="title">
+                  <string>MQTT output device config</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_15">
+                  <item>
+                   <widget class="QTreeWidget" name="tree_yamlconfig">
+                    <property name="contextMenuPolicy">
+                     <enum>Qt::CustomContextMenu</enum>
+                    </property>
+                    <property name="dragEnabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="dragDropOverwriteMode">
+                     <bool>false</bool>
+                    </property>
+                    <attribute name="headerCascadingSectionResizes">
+                     <bool>false</bool>
+                    </attribute>
+                    <attribute name="headerDefaultSectionSize">
+                     <number>200</number>
+                    </attribute>
+                    <attribute name="headerMinimumSectionSize">
+                     <number>200</number>
+                    </attribute>
+                    <column>
+                     <property name="text">
+                      <string>Setting</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Value</string>
+                     </property>
+                    </column>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QPushButton" name="btn_load_template">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <property name="text">
+                  <string>Load Template</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QPushButton" name="btn_clearmqtthist">
+                 <property name="text">
+                  <string>Clear History</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QGroupBox" name="groupBox_6">
+                 <property name="title">
+                  <string>MQTT Topics</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_14">
+                  <item>
+                   <widget class="QTreeWidget" name="tree_mqttbus">
+                    <attribute name="headerDefaultSectionSize">
+                     <number>200</number>
+                    </attribute>
+                    <attribute name="headerMinimumSectionSize">
+                     <number>200</number>
+                    </attribute>
+                    <column>
+                     <property name="text">
+                      <string>Topic</string>
+                     </property>
+                    </column>
+                    <column>
+                     <property name="text">
+                      <string>Value</string>
+                     </property>
+                    </column>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btn_gen_fin_objts_mqtt">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The YAML config is translated to JSON. The selected template file is then performed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(85, 255, 127);</string>
+               </property>
+               <property name="text">
+                <string>Generate final objects</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab4">
        <attribute name="title">
         <string>Device Config Preview</string>
        </attribute>
@@ -584,27 +856,7 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="btn_save_config">
-              <property name="toolTip">
-               <string>Save the above configuration to a file.</string>
-              </property>
-              <property name="text">
-               <string>Save YAML Device Config</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QPushButton" name="btn_show_json_config">
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The YAML configuration is translated to JSON.&lt;/p&gt;&lt;p&gt;The JSON format is used to apply the selected template.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>Show current Json Object</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
+            <item row="3" column="1">
              <widget class="QPushButton" name="btn_gen_fin_objts">
               <property name="enabled">
                <bool>false</bool>
@@ -620,13 +872,46 @@
               </property>
              </widget>
             </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="btn_show_json_config">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The YAML configuration is translated to JSON.&lt;/p&gt;&lt;p&gt;The JSON format is used to apply the selected template.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Show current Json Object</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="btn_load_object">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;loads a predefined config file for the tasmota device.&lt;/p&gt;&lt;p&gt;You can use this to restore settings from another tasmota device to a new one.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Load device config</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="txt_config_file_path"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QPushButton" name="btn_save_config">
+              <property name="toolTip">
+               <string>Save the above configuration to a file.</string>
+              </property>
+              <property name="text">
+               <string>Save YAML Device Config</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="tab5">
        <attribute name="title">
         <string>OH Object Output</string>
        </attribute>
@@ -830,7 +1115,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_4">
+      <widget class="QWidget" name="tab6">
        <attribute name="title">
         <string>Log</string>
        </attribute>
@@ -998,12 +1283,9 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb
   <tabstop>cmb_baud</tabstop>
   <tabstop>btn_get_serial</tabstop>
   <tabstop>btn_dev_details</tabstop>
-  <tabstop>btn_load_object</tabstop>
-  <tabstop>txt_config_file_path</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>config_txtbrowser</tabstop>
   <tabstop>btn_show_json_obj</tabstop>
-  <tabstop>btn_save_config</tabstop>
   <tabstop>btn_show_json_config</tabstop>
   <tabstop>btn_gen_fin_objts</tabstop>
  </tabstops>
