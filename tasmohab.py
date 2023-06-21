@@ -623,7 +623,6 @@ class TasmohabUI(QtWidgets.QMainWindow, tasmohabUI.Ui_MainWindow):
             if 'settings' in self.json_config_data:
                 self.txt_thing_file.setText(self.json_config_data['settings']['outputs']['default-output']['things-file'])
                 self.txt_item_file.setText(self.json_config_data['settings']['outputs']['default-output']['items-file'])
-                self.tabWidget.setCurrentIndex(2)  # jump to final tab
             else:
                 self.append_to_log('Corrupt YAML file loaded! Exiting here!')
                 QMessageBox.warning(self, 'Corrupt template file', 'Corrupt YAML file loaded! Try another one.')
